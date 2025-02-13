@@ -28,7 +28,7 @@ function createPlaylist() {
 // 侧边栏展开相关代码
 const open = useLocalStorage('sider-open', false)
 const asideClass = computed(() => {
-  return cn('w-16 h-full flex flex-col flex-shrink-0 flex-grow-0 gap-3 text-lg p-3 px-2 border-r border-r-$eno-fill-2 ', {
+  return cn('w-16 h-full flex flex-col gap-1 flex-shrink-0 flex-grow-0 text-lg p-3 px-2 border-r border-r-$eno-fill-2 relative', {
     'w-60': open.value,
   })
 })
@@ -88,14 +88,16 @@ function openAfdian() {
         </div>
       </template>
     </TabItem>
-    <!-- 关于 -->
-    <TabItem :tab="{ icon: 'i-tabler:info-circle', title: '关于', mode: 'about' }" :open="open" />
-    <!-- 设置 -->
-    <TabItem :tab="{ icon: 'i-tabler:settings', title: '设置', mode: 'setting' }" :open="open" />
-    <!-- 爱发电 -->
-    <div :class="`${tabClass}`" text-lg @click.stop="openAfdian">
-      <div class="i-mingcute:flash-line w-1em h-1em" />
-      <span v-if="open" class="text-[14px]">探索</span>
+    <div class="absolute bottom-25 left-0 right-0 px-2">
+      <!-- 关于 -->
+      <TabItem :tab="{ icon: 'i-tabler:info-circle', title: '关于', mode: 'about' }" :open="open" />
+      <!-- 设置 -->
+      <TabItem :tab="{ icon: 'i-tabler:settings', title: '设置', mode: 'setting' }" :open="open" />
+      <!-- 爱发电 -->
+      <div :class="`${tabClass}`" text-lg @click.stop="openAfdian">
+        <div class="i-mingcute:flash-line w-1em h-1em" />
+        <span v-if="open" class="text-[14px]">探索</span>
+      </div>
     </div>
   </aside>
 </template>

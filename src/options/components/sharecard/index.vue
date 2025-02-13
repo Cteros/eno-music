@@ -199,6 +199,11 @@ async function copyToClipboard() {
                 <div class="i-mingcute:comment-fill w-4 h-4" />
                 {{ formatNumber(videoInfo.stat.reply) }}
               </span>
+              <!-- 由eno-m生成 -->
+              <span class="flex items-center gap-1.5">
+                <div class="i-mingcute:share-forward-fill w-4 h-4" />
+                由 eno-m 生成
+              </span>
             </div>
 
             <div class="text-sm text-gray-600 line-clamp-3">
