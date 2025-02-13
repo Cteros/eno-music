@@ -7,15 +7,11 @@ import RankOverview from './rankOverview.vue'
 import HomeSinger from './home-singer.vue'
 import SingerPreview from './singer-preview.vue'
 import ScrollButton from './scroll-button.vue'
+import SingerItem from '~/options/components/SingerItem.vue'
 
 const store = useBlblStore()
 const PLstore = usePlaylistStore()
 const rankScroll = ref(null)
-
-const renderSingerPreviewReverse = computed(() => {
-  const singers = [...PLstore.singers].reverse()
-  return singers
-})
 
 onMounted(() => {
   store.initHomePage()
@@ -44,6 +40,7 @@ function handleScroll(offset) {
       <RankOverview />
       <ScrollButton :step="600" :handle-scroll="handleScroll" />
     </h5>
+
     <div ref="rankScroll" overflow-auto class="w-full h-55 pb-20 relative">
       <div class="absolute w-full h-full flex gap-5 px-10">
         <div
@@ -60,8 +57,12 @@ function handleScroll(offset) {
         </div>
       </div>
     </div>
-    <HomeSinger />
-    <SingerPreview v-for="mid in renderSingerPreviewReverse" :key="mid" :mid="mid" />
+    <h3 class="text-3xl mt-10 mb-5 px-10">
+      关注歌手
+    </h3>
+    <div class="flex gap-5 flex-wrap mb-30 w-full px-10">
+      <SingerItem v-for="serid in PLstore.singers" :key="serid" :singer-mid="serid" can-del />
+    </div>
   </section>
 </template>
 

@@ -78,62 +78,86 @@ function startExportPoster() {
 </script>
 
 <template>
-  <section class="h-screen singer-detail">
+  <section class="h-screen singer-detail relative">
+    <img
+      :src="info?.face"
+      class="w-full object-cover absolute top-0 left-0 opacity-10 -z-1"
+    >
     <!-- 信息界面 -->
-    <div class="w-full bg-yellow bg-opacity-95 px-20 py-10 flex gap-6 relative">
+    <div class="singer-header relative">
       <div
-        class="i-mingcute:square-arrow-left-line absolute top-5 left-5 text-4xl cursor-pointer"
+        class="i-mingcute:square-arrow-left-line absolute top-3 left-3 text-4xl cursor-pointer hover:opacity-70 transition-opacity"
         @click.stop="store.mode = 'singerList'"
       />
-      <img :src="info?.face" class="h-[100%] object-contain rounded-full border-2 border-gray-200 cursor-pointer">
-      <div class="flex flex-col-reverse">
-        <div class="text-lg font-bold">
-          {{ info?.nameplate?.name }}
-        </div>
-        <div class="text-sm">
-          {{ info?.nameplate?.condition }}
-        </div>
-        <div class="text-2xl font-bold flex items-center gap-3">
-          {{ info?.name }}
-          <a :href="`https://space.bilibili.com/${PLstore.currentSinger}`" target="_blank">
-            <div class="i-mingcute:link-line w-1em h-1em cursor-pointer" />
-          </a>
-          <!-- 打开海报生成按钮 -->
-
-          <div class="text-bold text-lg cursor-pointer" @click="startExportPoster">
-            制作歌单海报
+      <div class="flex items-center gap-8">
+        <img
+          :src="info?.face"
+          class="h-32 w-32 object-cover rounded-full border-3 border-white/30 shadow-lg hover:scale-105 transition-transform cursor-pointer"
+        >
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-4">
+            <h1 class="text-3xl font-bold">
+              {{ info?.name }}
+            </h1>
+            <a
+              :href="`https://space.bilibili.com/${PLstore.currentSinger}`"
+              target="_blank"
+              class="hover:opacity-70 transition-opacity"
+            >
+              <div class="i-mingcute:link-line w-5 h-5" />
+            </a>
           </div>
-          <!-- <div class="i-mingcute:share-3-line w-1em h-1em cursor-pointer" /> -->
+          <div class="text-lg font-medium opacity-85">
+            {{ info?.nameplate?.name }}
+          </div>
+          <div class="text-sm opacity-70">
+            {{ info?.nameplate?.condition }}
+          </div>
         </div>
       </div>
     </div>
-    <!-- 歌单界面 -->
-    <div class="w-full px-20 py-2 flex gap-6 items-center">
-      <div class="text-lg font-bold">
-        投稿作品
-      </div>
-      <div class="text-[16px] font-bold bg-yellow px-2 py-1 cursor-pointer" @click="handlePlayUser">
-        播放全部
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="text-lg font-bold">
-          {{ page.count }}
-        </div>
-        <span class="text-[10px]">
+
+    <!-- 操作栏 -->
+    <div class="control-bar">
+      <div class="flex items-center gap-6">
+        <h2 class="text-lg font-bold">
+          投稿作品
+        </h2>
+        <button
+          class="play-all-btn"
+          @click="handlePlayUser"
+        >
+          <div class="i-mingcute:play-fill mr-1" />
+          播放全部
+        </button>
+        <div class="flex items-center gap-2 text-sm opacity-70">
+          <span class="text-lg font-bold">{{ page.count }}</span>
           首歌曲
-        </span>
+        </div>
+        <button
+          class="poster-btn"
+          @click="startExportPoster"
+        >
+          <div class="i-mingcute:image-line mr-1" />
+          制作歌单海报
+        </button>
       </div>
-      <!-- 搜索 -->
-      <div class="flex gap-3">
+
+      <!-- 搜索框 -->
+      <div class="search-wrapper">
+        <div class="i-mingcute:search-line absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
         <input
-          v-model="keyword" placeholder="搜索歌曲" bg="$eno-content focus:$eno-content-hover" type="text"
-          class="w-40 h-10 px-5  bg-opacity-0 eno-input"
+          v-model="keyword"
+          placeholder="搜索歌曲"
+          type="text"
+          class="search-input"
           @keyup.enter="getSongs({ mid: PLstore.currentSinger, keyword })"
         >
       </div>
     </div>
-    <!-- 歌曲滚动区域 -->
-    <div ref="scrollRef" class="h-full overflow-auto px-20">
+
+    <!-- 歌曲列表 -->
+    <div ref="scrollRef" class="song-list">
       <div class="pb-30 flex flex-col gap-3">
         <SongItem v-for="song in renderList" :key="song.id" :song="song" />
       </div>
@@ -142,9 +166,38 @@ function startExportPoster() {
   </section>
 </template>
 
-<style>
+<style scoped>
 .singer-detail {
   display: grid;
-  grid-template-rows: 25vh 50px 1fr;
+  grid-template-rows: auto 64px 1fr;
+}
+
+.singer-header {
+  @apply w-full px-10 pt-5 pb-0;
+}
+
+.control-bar {
+  @apply w-full px-10 py-2 flex justify-between items-center border-b border-gray-800;
+}
+
+.play-all-btn {
+  @apply flex items-center text-base font-bold bg-yellow/90 hover:bg-yellow px-4 py-2 rounded-full transition-colors;
+}
+
+.poster-btn {
+  @apply flex items-center text-base font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition-colors;
+}
+
+.search-wrapper {
+  @apply relative;
+}
+
+.search-input {
+  @apply w-48 h-10 pl-10 pr-4 rounded-full bg-gray-800/70 hover:bg-gray-800 focus:bg-gray-800
+    transition-colors outline-none placeholder:text-sm;
+}
+
+.song-list {
+  @apply h-full overflow-auto px-10;
 }
 </style>
