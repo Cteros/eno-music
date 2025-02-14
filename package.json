@@ -1,7 +1,7 @@
 {
   "name": "enu-music",
   "displayName": "ENO-M",
-  "version": "4.0.4",
+  "version": "5.0.0",
   "private": true,
   "packageManager": "pnpm@8.15.4",
   "description": "A music player extension for Chrome",
