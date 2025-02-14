@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { cloneDeep } from 'lodash'
 import { usePlaylistStore } from '../../playlist/store'
 import { useBlblStore } from '../../blbl/store'
@@ -26,6 +26,9 @@ function handleScroll(offset) {
     behavior: 'smooth',
   })
 }
+const mainSong = computed(() => {
+  return store.musicRankList[0]
+})
 </script>
 
 <template>
@@ -40,19 +43,24 @@ function handleScroll(offset) {
       <RankOverview />
       <ScrollButton :step="600" :handle-scroll="handleScroll" />
     </h5>
-
-    <div ref="rankScroll" overflow-auto class="w-full h-55 pb-20 relative">
-      <div class="absolute w-full h-full flex gap-5 px-10">
-        <div
-          v-for="(bannerSong) in store.musicRankList" :key="bannerSong.id" class="cursor-pointer"
-          @click.stop="store.startPlay(bannerSong)"
-        >
-          <img class="h-40 rounded-md" :src="bannerSong.cover">
-          <div class="$eno-text-2 text-lg truncate w-40 mt-2">
-            {{ bannerSong.title }}
-          </div>
-          <div class="$eno-text-2 text-xs opacity-70 truncate w-40">
-            {{ bannerSong.author }}
+    <div class="w-full grid grid-cols-2 gap-5 px-10">
+      <div class="w-full">
+        <div class="w-full aspect-video rounded-md overflow-hidden">
+          <img class="w-full h-full object-cover rounded-md" :src="mainSong.cover">
+        </div>
+      </div>
+      <div class="w-full h-full overflow-auto relative">
+        <div class="flex gap-5 flex-col absolute top-0 left-0">
+          <div v-for="song in store.musicRankList" :key="song.id" class="flex group transition-all duration-50 cursor-pointer" @click="store.startPlay(song)">
+            <img class="w-20 aspect-video object-cover rounded-md" :src="song.cover">
+            <div class="flex flex-col ml-4">
+              <div class="$eno-text-2 text-lg truncate group-hover:underline">
+                {{ song.title }}
+              </div>
+              <div class="$eno-text-2 text-xs opacity-70 truncate w-40 group-hover:opacity-100 transition-all duration-50">
+                {{ song.author }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
