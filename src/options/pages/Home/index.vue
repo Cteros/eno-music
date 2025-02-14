@@ -68,7 +68,7 @@ const mainSong = computed(() => {
     <h3 class="text-3xl mt-10 mb-5 px-10">
       关注歌手
     </h3>
-    <div class="flex gap-5 flex-wrap mb-30 w-full px-10">
+    <div class="flex gap-5 flex-wrap w-full px-10">
       <SingerItem v-for="serid in PLstore.singers" :key="serid" :singer-mid="serid" can-del />
     </div>
   </section>
