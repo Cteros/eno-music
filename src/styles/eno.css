@@ -10,9 +10,8 @@
     border: 1px solid rgba(0, 0, 0, 0.2);
 }
 .eno-input:focus{
-    border-radius: 2cqh;
     border-color: yellow;
-    box-shadow: 0 0 10px yellow;
+    box-shadow: 0 0 3px yellow;
     outline: none;
     outline-width: 2px;
 }

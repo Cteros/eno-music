@@ -93,7 +93,7 @@ async function handleSearch() {
 </script>
 
 <template>
-  <section w-full h-screen overflow-auto flex flex-col justify-center items-center relative>
+  <section w-full h-screen overflow-auto flex flex-col px-20 relative pt-10>
     <AddCollection />
     <div class="w-[35vw] relative flex gap-3" color="$eno-text-1">
       <input
@@ -109,6 +109,20 @@ async function handleSearch() {
     <!-- 搜索结果 -->
     <div v-if="result.length" ref="scrollRef" class="h-[calc(100vh-10rem)]" w-full overflow-auto mt-4 px-20 pb-30>
       <SongItem v-for="item in result" :key="item.bvid" :song="item" check-pages />
+    </div>
+    <!-- 搜索指南 -->
+    <div v-else class="w-full text-lg pt-10">
+      <ul>
+        <ol>
+          1. 输入关键字
+        </ol>
+        <ol>
+          2. 输入原视频链接
+        </ol>
+        <ol>
+          2. 分 P 视频可以直接保存成 eno 歌单
+        </ol>
+      </ul>
     </div>
   </section>
 </template>
