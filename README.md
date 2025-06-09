@@ -36,3 +36,5 @@ RoadMap
 2. 合集的支持
 3. 分p高级功能
 4. eno歌单导入b站
+
+[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com "Powered by DartNode - Free VPS for Open Source")
