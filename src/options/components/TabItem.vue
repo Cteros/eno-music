@@ -22,7 +22,24 @@ const tabClass = computed(() => {
     'hover:bg-$eno-fill-2 ': !isCurrentMode,
   })} ${props.class}`
 })
+
+async function openInClient() {
+  // 获取 bilibili 的所有 cookie
+  const cookies = await chrome.cookies.getAll({ domain: '.bilibili.com' })
+
+  // 将 cookie 转换为字符串格式
+  const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ')
+
+  // 使用自定义协议打开桌面客户端
+  const url = `eno-m://cookie?cookie=${encodeURIComponent(cookieString)}`
+  window.open(url)
+}
+
 function handleClick() {
+  if (tab.mode === 'openInClient') {
+    openInClient()
+    return
+  }
   store.mode = tab.mode
 }
 </script>

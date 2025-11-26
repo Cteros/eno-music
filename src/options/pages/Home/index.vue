@@ -4,8 +4,6 @@ import { cloneDeep } from 'lodash'
 import { usePlaylistStore } from '../../playlist/store'
 import { useBlblStore } from '../../blbl/store'
 import RankOverview from './rankOverview.vue'
-import HomeSinger from './home-singer.vue'
-import SingerPreview from './singer-preview.vue'
 import ScrollButton from './scroll-button.vue'
 import SingerItem from '~/options/components/SingerItem.vue'
 
@@ -43,7 +41,7 @@ const mainSong = computed(() => {
       <RankOverview />
       <ScrollButton :step="600" :handle-scroll="handleScroll" />
     </h5>
-    <div class="w-full grid grid-cols-2 gap-5 px-10">
+    <div v-if="mainSong" class="w-full grid grid-cols-2 gap-5 px-10">
       <div class="w-full">
         <div class="w-full aspect-video rounded-md overflow-hidden">
           <img class="w-full h-full object-cover rounded-md" :src="mainSong.cover">
@@ -64,6 +62,10 @@ const mainSong = computed(() => {
           </div>
         </div>
       </div>
+    </div>
+    <div v-else class="w-full px-10 py-20 text-center text-$eno-text-2">
+      <div class="i-mingcute:loading-line animate-spin text-4xl mx-auto mb-4" />
+      <div>加载中...</div>
     </div>
     <h3 class="text-3xl mt-10 mb-5 px-10">
       关注歌手

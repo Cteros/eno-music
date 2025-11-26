@@ -89,6 +89,8 @@ function openAfdian() {
       </template>
     </TabItem>
     <div class="absolute bottom-25 left-0 right-0 px-2">
+      <!-- 在客户端中打开音乐播放器 -->
+      <TabItem :tab="{ icon: 'i-mingcute:flash-line', title: '打开客户端', mode: 'openInClient' }" :open="open" />
       <!-- 关于 -->
       <TabItem :tab="{ icon: 'i-tabler:info-circle', title: '关于', mode: 'about' }" :open="open" />
       <!-- 设置 -->
