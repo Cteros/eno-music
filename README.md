@@ -31,8 +31,9 @@ Eno Music 是一个基于 bilibili 的音乐播放器，完全改变了你在该
 
 Made with [contrib.rocks](https://contrib.rocks).
 
-RoadMap
-1. 对于收藏夹和收藏夹内容的增删改查
-2. 合集的支持
-3. 分p高级功能
-4. eno歌单导入b站
+
+此项目不再优化
+
+此项目增加打开客户端功能,可以将cookie一键带入桌面端
+
+桌面升级版 [桌面升级版](https://github.com/cloudflypeng/eno-m-desktop)
