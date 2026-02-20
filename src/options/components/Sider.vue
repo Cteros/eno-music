@@ -1,9 +1,7 @@
 <script setup>
 import { useLocalStorage } from '@vueuse/core'
 import cn from 'classnames'
-import Dialog from '../../components/dialog/index.vue'
 import { useBlblStore } from '../blbl/store'
-import { usePlaylistStore } from '../playlist/store'
 import TabItem from './TabItem.vue'
 
 const tabs = [
@@ -12,21 +10,7 @@ const tabs = [
   { icon: 'i-mingcute:version-line', title: '媒体库', mode: 'playlist' },
 ]
 
-const PLStore = usePlaylistStore()
 const store = useBlblStore()
-
-// 新建歌单相关代码
-const createDialogVis = ref(false)
-const playlistName = ref('')
-function createPlaylist() {
-  const list = PLStore.list
-  // 重名校验, 空校验
-  if (list.some(pl => pl.name === playlistName.value) || !playlistName.value)
-    return
-
-  PLStore.createPlaylist(playlistName.value)
-  createDialogVis.value = false
-}
 // 侧边栏展开相关代码
 const open = useLocalStorage('sider-open', true)
 const asideClass = computed(() => {
@@ -70,10 +54,6 @@ function goSearch() {
         Workspace
       </p>
       <TabItem v-for="tab in tabs" :key="tab.mode" :tab="tab" :open="open" />
-      <div :class="`${tabClass}`" @click.stop="createDialogVis = true">
-        <div class="i-tabler:playlist-add sider-row-icon" />
-        <span v-if="open" class="sider-row-text">新建播放列表</span>
-      </div>
 
       <p v-if="open" class="sider-label mt-5">
         Library
@@ -92,25 +72,6 @@ function goSearch() {
         <span v-if="open" class="sider-row-text">探索</span>
       </div>
     </div>
-
-    <Dialog :open="createDialogVis" title="新建播放列表" @visible-change="createDialogVis = $event">
-      <div class="flex flex-col gap-3 w-full h-full justify-between">
-        <input
-          v-model="playlistName" type="text"
-          class="border-none outline-none bg-$eno-content-hover h-10 px-3 autofocus rounded-3 text-$eno-text-1" placeholder="请输入播放列表名称"
-        >
-      </div>
-      <template #footer>
-        <div class="opt flex flex-row-reverse text-sm gap-3">
-          <div class="bg-$eno-primary text-black px-4 py-1 rounded-3 cursor-pointer hover:bg-$eno-primary-hover" @click.stop="createPlaylist">
-            新建
-          </div>
-          <div class="hover:bg-$eno-fill-2 px-4 py-1 rounded-3 cursor-pointer" @click.stop="createDialogVis = false">
-            取消
-          </div>
-        </div>
-      </template>
-    </Dialog>
   </aside>
 </template>
 
@@ -118,7 +79,7 @@ function goSearch() {
 .sider-shell {
   position: relative;
   display: flex;
-  height: calc(100% - 16px);
+  height: calc(100% - 16px - 4.5rem);
   margin: 8px 8px 8px 9px;
   flex-direction: column;
   flex-shrink: 0;

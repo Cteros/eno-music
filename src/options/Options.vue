@@ -6,7 +6,6 @@ import { useLocalStorage } from '@vueuse/core'
 // 组件
 import Play from './components/Play/Play.vue'
 import Sider from './components/Sider.vue'
-import WallpaperGen from './components/wallpaper-gen/index.vue'
 
 // 播放列表相关
 import Playlist from './playlist/index.vue'
@@ -23,11 +22,9 @@ import SingerDetail from './pages/Singer/SingerDetail.vue'
 
 // API 和 Store
 import { useBlblStore } from './blbl/store.ts'
-import { usePlaylistStore } from './playlist/store'
 import { getUserInfo } from './api'
 
 const store = useBlblStore()
-const PLstore = usePlaylistStore()
 const CST = useLocalStorage('cookieSetTime', 0)
 const userInfo = ref({})
 
@@ -78,7 +75,6 @@ function getBLCookie() {
 
 onMounted(() => {
   getBLCookie()
-  PLstore.initUserPermission()
   // 每天获取一次cookie就可以
   if (Date.now() - CST.value > 24 * 60 * 60 * 1000) {
     CST.value = Date.now()
@@ -110,7 +106,6 @@ provide('userInfo', userInfo)
       <Setting v-show="store.mode === 'setting'" />
     </div>
     <Play />
-    <WallpaperGen />
   </main>
 </template>
 

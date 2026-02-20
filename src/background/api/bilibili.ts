@@ -214,6 +214,37 @@ const api = {
     },
     afterHandle: AHS.J,
   },
+  // 获取视频合集信息
+  [BLBL.GET_COLLECTION_INFO]: {
+    url: `${baseUrl}/x/polymer/web-space/seasons_archives_list`,
+    _fetch: {
+      method: 'get',
+    },
+    params: {
+      mid: 0,
+      season_id: 0,
+      sort_reverse: false,
+      page_num: 1,
+      page_size: 30,
+    },
+    afterHandle: AHS.J,
+  },
+  // 获取系列信息
+  [BLBL.GET_SERIES_INFO]: {
+    url: `${baseUrl}/x/series/archives`,
+    _fetch: {
+      method: 'get',
+    },
+    params: {
+      mid: 0,
+      series_id: 0,
+      only_normal: true,
+      sort: 'desc',
+      pn: 1,
+      ps: 20,
+    },
+    afterHandle: AHS.J,
+  },
 }
 
 export default api

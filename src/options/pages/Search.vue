@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from 'vue'
 import { useInfiniteScroll } from '@vueuse/core'
-import cn from 'classnames'
 
 import AddCollection from '~/options/playlist/AddCollection.vue'
 import SongItem from '~/options/components/SongItem.vue'
@@ -93,36 +92,225 @@ async function handleSearch() {
 </script>
 
 <template>
-  <section w-full h-screen overflow-auto flex flex-col px-20 relative pt-10>
+  <section class="search-page">
     <AddCollection />
-    <div class="w-[35vw] relative flex gap-3" color="$eno-text-1">
-      <input
-        id="search" v-model="keyword" type="text" bg="$eno-content focus:$eno-content-hover"
-        :class="cn('w-full px-8 py-2 h-12 eno-input text-lg')" placeholder="关键字 或 原视频链接" @keyup.enter="handleSearch"
-      >
-      <div
-        absolute right-5 text-xl class="i-tabler:search w-1em h-1em top-[50%] translate-y--1/2"
-        @click="handleSearch"
-      />
-      <Loading v-if="isLoading" />
+
+    <header class="search-hero">
+      <h1 class="search-title">
+        搜索音乐
+      </h1>
+      <p class="search-subtitle">
+        输入关键词或 Bilibili 视频链接，快速加入播放列表。
+      </p>
+
+      <div class="search-form">
+        <div class="search-input-wrap">
+          <div class="i-tabler:search search-input-icon" />
+          <input
+            id="search"
+            v-model="keyword"
+            type="text"
+            class="search-input"
+            placeholder="输入关键词或原视频链接"
+            @keyup.enter="handleSearch"
+          >
+          <Loading v-if="isLoading" class="search-loading" />
+        </div>
+        <button class="search-btn" @click="handleSearch">
+          搜索
+        </button>
+      </div>
+    </header>
+
+    <div class="result-meta">
+      <span>结果</span>
+      <span class="result-count">{{ result.length }}</span>
     </div>
-    <!-- 搜索结果 -->
-    <div v-if="result.length" ref="scrollRef" class="h-[calc(100vh-10rem)]" w-full overflow-auto mt-4 px-20 pb-30>
+
+    <div v-if="result.length" ref="scrollRef" class="result-panel">
       <SongItem v-for="item in result" :key="item.bvid" :song="item" check-pages />
     </div>
-    <!-- 搜索指南 -->
-    <div v-else class="w-full text-lg pt-10">
-      <ul>
-        <ol>
-          1. 输入关键字
-        </ol>
-        <ol>
-          2. 输入原视频链接
-        </ol>
-        <ol>
-          2. 分 P 视频可以直接保存成 eno 歌单
-        </ol>
-      </ul>
+
+    <div v-else class="empty-panel">
+      <div class="i-tabler:music-search empty-icon" />
+      <h3>开始搜索</h3>
+      <ol class="empty-steps">
+        <li>输入关键词</li>
+        <li>或直接粘贴原视频链接</li>
+        <li>分 P 视频支持直接保存成歌单</li>
+      </ol>
     </div>
   </section>
 </template>
+
+<style scoped>
+.search-page {
+  position: relative;
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  gap: 0.85rem;
+  overflow: hidden;
+  padding: 1.15rem 1.5rem 5.5rem;
+}
+
+.search-hero {
+  border: 1px solid var(--eno-border);
+  border-radius: 16px;
+  padding: 1.1rem 1.1rem 1rem;
+  background:
+    radial-gradient(120% 100% at 0% -20%, rgb(255 255 255 / 5%), transparent 52%),
+    color-mix(in oklab, var(--eno-content), transparent 6%);
+}
+
+.search-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--eno-text-1);
+}
+
+.search-subtitle {
+  margin: 0.3rem 0 0.88rem;
+  font-size: 0.86rem;
+  color: var(--eno-text-3);
+}
+
+.search-form {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 0.66rem;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-loading {
+  position: absolute;
+  right: 0.72rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-input-icon {
+  position: absolute;
+  left: 0.72rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.96rem;
+  color: var(--eno-text-4);
+}
+
+.search-input {
+  width: 100%;
+  height: 2.5rem;
+  border: 1px solid var(--eno-border);
+  border-radius: 11px;
+  padding: 0 0.82rem 0 2rem;
+  font-size: 0.92rem;
+  color: var(--eno-text-1);
+  background: color-mix(in oklab, var(--eno-content), transparent 8%);
+  transition: background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
+}
+
+.search-input::placeholder {
+  color: var(--eno-text-4);
+}
+
+.search-input:hover {
+  background: var(--eno-content-hover);
+}
+
+.search-input:focus {
+  border-color: color-mix(in oklab, var(--eno-border), white 20%);
+  background: var(--eno-content-hover);
+}
+
+.search-btn {
+  height: 2.5rem;
+  border: 1px solid color-mix(in oklab, var(--eno-border), white 10%);
+  border-radius: 11px;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 620;
+  color: var(--eno-text-1);
+  background: linear-gradient(180deg, rgb(255 255 255 / 7%), rgb(255 255 255 / 2%));
+  cursor: pointer;
+  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+}
+
+.search-btn:hover {
+  border-color: color-mix(in oklab, var(--eno-border), white 24%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 3%));
+}
+
+.result-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.36rem;
+  padding: 0 0.2rem;
+  font-size: 0.84rem;
+  color: var(--eno-text-3);
+}
+
+.result-count {
+  border: 1px solid var(--eno-border);
+  border-radius: 999px;
+  padding: 0.06rem 0.44rem;
+  color: var(--eno-text-2);
+  background: color-mix(in oklab, var(--eno-fill-1), transparent 8%);
+}
+
+.result-panel {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--eno-border);
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--eno-bg), var(--eno-content) 16%);
+  padding: 0.62rem;
+}
+
+.empty-panel {
+  flex: 1;
+  border: 1px dashed color-mix(in oklab, var(--eno-border), white 12%);
+  border-radius: 14px;
+  padding: 2rem 1.25rem;
+  color: var(--eno-text-3);
+  background: color-mix(in oklab, var(--eno-content), transparent 18%);
+}
+
+.empty-icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.55rem;
+  color: var(--eno-text-2);
+}
+
+.empty-panel h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.06rem;
+  font-weight: 650;
+  color: var(--eno-text-1);
+}
+
+.empty-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 860px) {
+  .search-page {
+    padding: 0.9rem 0.9rem 5.5rem;
+  }
+
+  .search-form {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

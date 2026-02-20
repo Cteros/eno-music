@@ -6,6 +6,7 @@ import { useBlblStore } from '../blbl/store'
 import ImpFav from './Imp-Fav.vue'
 import BLFav from './BL-Fav.vue'
 import { usePlaylistStore } from './store'
+import Dialog from '~/components/dialog/index.vue'
 import { getCollectedFavorites, getFavorites, getUserInfo } from '~/options/api'
 
 const userInfo = inject('userInfo')
@@ -16,6 +17,20 @@ const noPlaylist = computed(() => list?.length === 0)
 // bilibili 里面的 收藏夹
 const favs = ref([])
 const collectedFavs = ref([])
+const normalizedFavs = computed(() => favs.value.map((item) => {
+  return {
+    ...item,
+    id: item.id || item.media_id || item.fid,
+    title: item.title || item.name || '未命名收藏夹',
+  }
+}))
+const normalizedCollectedFavs = computed(() => collectedFavs.value.map((item) => {
+  return {
+    ...item,
+    id: item.id || item.media_id || item.fid,
+    title: item.title || item.name || '未命名合集',
+  }
+}))
 function handleDelPL({ id }) {
   PLStore.removePlaylist(id)
 }
@@ -36,6 +51,21 @@ function delSong(playlist, song) {
 function switchPlaylist(e) {
   currentOpen.value = currentOpen.value === e.id ? null : e.id
 }
+
+const createDialogVis = ref(false)
+const playlistName = ref('')
+function createPlaylist() {
+  const name = playlistName.value.trim()
+  if (!name)
+    return
+  if (list.some(pl => pl.name === name))
+    return
+
+  PLStore.createPlaylist(name)
+  playlistName.value = ''
+  createDialogVis.value = false
+}
+
 // 获取收藏夹
 watch(userInfo, () => {
   if (!userInfo.value.mid)
@@ -51,7 +81,18 @@ watch(userInfo, () => {
 
 <template>
   <div class="p-10 h-screen overflow-auto pb-25">
-    <ImpFav />
+    <div class="media-top">
+      <h2 class="media-title">
+        媒体库
+      </h2>
+      <div class="media-actions">
+        <ImpFav compact />
+        <button class="media-action-btn" @click="createDialogVis = true">
+          <div class="i-tabler:playlist-add w-1em h-1em" />
+          新建播放列表
+        </button>
+      </div>
+    </div>
     <!-- 创建歌单部分 -->
     <h3 class="text-xl my-3">
       ENO 收藏夹{{ noPlaylist ? '（暂无ENO 歌单）' : '' }}
@@ -106,15 +147,83 @@ watch(userInfo, () => {
     <h3 class="text-xl my-3">
       BLBL 收藏夹
     </h3>
-    <BLFav v-for="fav in favs" :key="fav.id" :fav="fav" />
+    <BLFav v-for="fav in normalizedFavs" :key="fav.id" :fav="fav" />
     <h3 class="text-xl my-3">
-      BLBL 合集和列表(waiting)
+      BLBL 合集和列表
     </h3>
-    <BLFav v-for="fav in collectedFavs" :key="fav.id" :fav="fav" />
+    <BLFav v-for="fav in normalizedCollectedFavs" :key="fav.id" :fav="fav" tag="collected" />
+
+    <Dialog :open="createDialogVis" title="新建播放列表" @visible-change="createDialogVis = $event">
+      <div class="flex flex-col gap-3 w-full h-full justify-between">
+        <input
+          v-model="playlistName"
+          type="text"
+          class="border-none outline-none bg-$eno-content-hover h-10 px-3 autofocus rounded-3 text-$eno-text-1"
+          placeholder="请输入播放列表名称"
+          @keyup.enter="createPlaylist"
+        >
+      </div>
+      <template #footer>
+        <div class="opt flex flex-row-reverse text-sm gap-3">
+          <div class="bg-$eno-primary text-black px-4 py-1 rounded-3 cursor-pointer hover:bg-$eno-primary-hover" @click.stop="createPlaylist">
+            新建
+          </div>
+          <div class="hover:bg-$eno-fill-2 px-4 py-1 rounded-3 cursor-pointer" @click.stop="createDialogVis = false">
+            取消
+          </div>
+        </div>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <style scoped>
+.media-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.media-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--eno-text-1);
+}
+
+.media-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.58rem;
+}
+
+.media-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.35rem;
+  border: 1px solid color-mix(in oklab, var(--eno-border), white 12%);
+  border-radius: 11px;
+  padding: 0 0.86rem;
+  font-size: 0.88rem;
+  font-weight: 620;
+  color: var(--eno-text-1);
+  background: linear-gradient(180deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 2%));
+  cursor: pointer;
+  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.media-action-btn:hover {
+  border-color: color-mix(in oklab, var(--eno-border), white 24%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 3%));
+}
+
+.media-action-btn:active {
+  transform: translateY(1px);
+}
+
 .wrapper-transition {
   transform: all 0.5s;
 }

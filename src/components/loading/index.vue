@@ -1,102 +1,54 @@
 <template>
-  <div class="loader">
-    <div data-glitch="Loading..." class="glitch">
-      Loading...
-    </div>
+  <div class="loading" role="status" aria-label="Loading">
+    <span class="loading-ring" />
+    <span class="loading-dot" />
   </div>
 </template>
 
-<style  scoped>
-.glitch {
+<style scoped>
+.loading {
   position: relative;
-  font-size: 25px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #fff;
-  letter-spacing: 5px;
-  z-index: 1;
-  animation: shift 1s ease-in-out infinite alternate;
+  display: inline-flex;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--eno-text-2);
 }
 
-.glitch:before,
-.glitch:after {
-  display: block;
-  content: attr(data-glitch);
+.loading-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  border: 2px solid color-mix(in oklab, var(--eno-text-3), transparent 72%);
+  border-top-color: var(--eno-primary);
+  animation: loading-spin 0.72s linear infinite;
+}
+
+.loading-dot {
   position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0.8;
+  top: 1px;
+  right: 1px;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--eno-primary);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--eno-primary), transparent 70%);
+  animation: loading-pulse 1s var(--eno-ease) infinite;
 }
 
-.glitch:before {
-  animation: glitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
-  color: #8b00ff;
-  z-index: -1;
-}
-
-.glitch:after {
-  animation: glitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both infinite;
-  color: #00e571;
-  z-index: -2;
-}
-
-@keyframes glitch {
-  0% {
-    transform: translate(0);
-  }
-
-  20% {
-    transform: translate(-3px, 3px);
-  }
-
-  40% {
-    transform: translate(-3px, -3px);
-  }
-
-  60% {
-    transform: translate(3px, 3px);
-  }
-
-  80% {
-    transform: translate(3px, -3px);
-  }
-
+@keyframes loading-spin {
   to {
-    transform: translate(0);
+    transform: rotate(360deg);
   }
 }
 
-@keyframes shift {
-  0%, 40%, 44%, 58%, 61%, 65%, 69%, 73%, 100% {
-    transform: skewX(0deg);
+@keyframes loading-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
   }
-
-  41% {
-    transform: skewX(10deg);
-  }
-
-  42% {
-    transform: skewX(-10deg);
-  }
-
-  59% {
-    transform: skewX(40deg) skewY(10deg);
-  }
-
-  60% {
-    transform: skewX(-40deg) skewY(-10deg);
-  }
-
-  63% {
-    transform: skewX(10deg) skewY(-5deg);
-  }
-
-  70% {
-    transform: skewX(-50deg) skewY(-20deg);
-  }
-
-  71% {
-    transform: skewX(10deg) skewY(-10deg);
+  50% {
+    opacity: 0.68;
+    transform: scale(0.82);
   }
 }
 </style>

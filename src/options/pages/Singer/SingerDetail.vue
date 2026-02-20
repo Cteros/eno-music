@@ -71,10 +71,6 @@ function handlePlayUser() {
   store.playList = renderList.value
   store.play = renderList.value[0]
 }
-function startExportPoster() {
-  PLstore.isShowPoster = true
-  PLstore.posters = renderList.value.map(item => item.cover)
-}
 </script>
 
 <template>
@@ -127,20 +123,13 @@ function startExportPoster() {
           class="play-all-btn"
           @click="handlePlayUser"
         >
-          <div class="i-mingcute:play-fill mr-1" />
+          <div class="i-mingcute:play-fill play-all-icon" />
           播放全部
         </button>
         <div class="flex items-center gap-2 text-sm opacity-70">
           <span class="text-lg font-bold">{{ page.count }}</span>
           首歌曲
         </div>
-        <button
-          class="poster-btn"
-          @click="startExportPoster"
-        >
-          <div class="i-mingcute:image-line mr-1" />
-          制作歌单海报
-        </button>
       </div>
 
       <div class="search-wrapper">
@@ -159,7 +148,9 @@ function startExportPoster() {
       <div class="song-list-inner pb-30 flex flex-col gap-2">
         <SongItem v-for="song in renderList" :key="song.id" :song="song" />
       </div>
-      <Loading v-if="loading && !renderList.length" />
+      <div v-if="loading && !renderList.length" class="loading-wrap">
+        <Loading class="list-loading" />
+      </div>
     </div>
   </section>
 </template>
@@ -295,37 +286,29 @@ function startExportPoster() {
 .play-all-btn {
   display: inline-flex;
   align-items: center;
-  border: 1px solid color-mix(in oklab, var(--eno-primary), black 35%);
-  border-radius: 999px;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.84rem;
-  font-weight: 650;
-  color: var(--eno-primary-foreground);
-  background: var(--eno-primary);
-  transition: transform 0.18s var(--eno-ease), filter 0.18s var(--eno-ease);
+  gap: 0.4rem;
+  height: 2.22rem;
+  border: 1px solid color-mix(in oklab, var(--eno-border), white 14%);
+  border-radius: 11px;
+  padding: 0 0.78rem;
+  font-size: 0.86rem;
+  font-weight: 630;
+  color: var(--eno-text-1);
+  background: linear-gradient(180deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 3%));
+  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .play-all-btn:hover {
-  filter: brightness(1.02);
+  border-color: color-mix(in oklab, var(--eno-border), white 26%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 13%), rgb(255 255 255 / 4%));
   transform: translateY(-1px);
 }
 
-.poster-btn {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--eno-border);
-  border-radius: 999px;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.82rem;
-  font-weight: 560;
+.play-all-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
   color: var(--eno-text-2);
-  background: color-mix(in oklab, var(--eno-content), transparent 8%);
-  transition: background-color 0.18s var(--eno-ease), color 0.18s var(--eno-ease);
-}
-
-.poster-btn:hover {
-  background: var(--eno-content-hover);
-  color: var(--eno-text-1);
 }
 
 .search-wrapper {
@@ -379,6 +362,16 @@ function startExportPoster() {
 
 .song-list-inner {
   min-height: 100%;
+}
+
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 1.2rem;
+}
+
+.list-loading {
+  transform: scale(1.25);
 }
 
 @media (max-width: 980px) {

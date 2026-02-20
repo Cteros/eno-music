@@ -1,9 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { cloneDeep } from 'lodash'
 import SongItem from '~/options/components/SongItem.vue'
 import { usePlaylistStore } from '~/options/playlist/store'
 import { getSeasonInfo } from '~/options/api/index'
 import Dialog from '~/components/dialog/index.vue'
+
+const props = withDefaults(defineProps<{
+  compact?: boolean
+}>(), {
+  compact: false,
+})
 
 const PLStore = usePlaylistStore()
 
@@ -60,8 +66,12 @@ function addNewSeasonPlayList() {
 </script>
 
 <template>
-  <div class="flex gap-3">
-    <button class="bg-$eno-primary hover:bg-$eno-primary-hover px-3 py-1 mb-5 text-xl text-black font-bold rounded-2 transition-colors" @click.stop="season.open = true">
+  <div>
+    <button
+      :class="props.compact ? 'media-action-btn' : 'media-action-btn media-action-btn-lg'"
+      @click.stop="season.open = true"
+    >
+      <div class="i-tabler:download w-1em h-1em" />
       导入合集
     </button>
     <Dialog :open="season.open" title="解析合集列表" @visible-change="v => season.open = v">
@@ -92,3 +102,36 @@ function addNewSeasonPlayList() {
     </Dialog>
   </div>
 </template>
+
+<style scoped>
+.media-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.35rem;
+  border: 1px solid color-mix(in oklab, var(--eno-border), white 12%);
+  border-radius: 11px;
+  padding: 0 0.86rem;
+  font-size: 0.88rem;
+  font-weight: 620;
+  color: var(--eno-text-1);
+  background: linear-gradient(180deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 2%));
+  cursor: pointer;
+  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.media-action-btn:hover {
+  border-color: color-mix(in oklab, var(--eno-border), white 24%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 3%));
+}
+
+.media-action-btn:active {
+  transform: translateY(1px);
+}
+
+.media-action-btn-lg {
+  height: 2.55rem;
+  padding: 0 1rem;
+  font-size: 0.95rem;
+}
+</style>

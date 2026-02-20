@@ -20,6 +20,8 @@ enum BLBL {
   GET_MUSIC_RANK_LIST = 'getMusicRankList',
   GET_MUSIC_RANK = 'getMusicRank',
   GET_FAV_INFO = 'getFavInfo',
+  GET_COLLECTION_INFO = 'getCollectionInfo',
+  GET_SERIES_INFO = 'getSeriesInfo',
 }
 
 const API = {
