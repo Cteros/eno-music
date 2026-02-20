@@ -81,46 +81,46 @@ function startExportPoster() {
   <section class="h-screen singer-detail relative">
     <img
       :src="info?.face"
-      class="w-full object-cover absolute top-0 left-0 opacity-10 -z-1"
+      class="w-full object-cover absolute top-0 left-0 opacity-8 -z-1"
     >
-    <!-- 信息界面 -->
+    <div class="detail-overlay" />
+
     <div class="singer-header relative">
       <div
-        class="i-mingcute:square-arrow-left-line absolute top-3 left-3 text-4xl cursor-pointer hover:opacity-70 transition-opacity"
+        class="back-btn i-mingcute:square-arrow-left-line"
         @click.stop="store.mode = 'singerList'"
       />
-      <div class="flex items-center gap-8">
+      <div class="header-main">
         <img
           :src="info?.face"
-          class="h-32 w-32 object-cover rounded-full border-3 border-white/30 shadow-lg hover:scale-105 transition-transform cursor-pointer"
+          class="header-avatar"
         >
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-4">
-            <h1 class="text-3xl font-bold">
+        <div class="header-meta">
+          <div class="title-row">
+            <h1 class="header-title">
               {{ info?.name }}
             </h1>
             <a
               :href="`https://space.bilibili.com/${PLstore.currentSinger}`"
               target="_blank"
-              class="hover:opacity-70 transition-opacity"
+              class="external-link"
             >
               <div class="i-mingcute:link-line w-5 h-5" />
             </a>
           </div>
-          <div class="text-lg font-medium opacity-85">
+          <div class="header-badge">
             {{ info?.nameplate?.name }}
           </div>
-          <div class="text-sm opacity-70">
+          <div class="header-desc">
             {{ info?.nameplate?.condition }}
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 操作栏 -->
     <div class="control-bar">
-      <div class="flex items-center gap-6">
-        <h2 class="text-lg font-bold">
+      <div class="control-left">
+        <h2 class="section-title">
           投稿作品
         </h2>
         <button
@@ -143,9 +143,8 @@ function startExportPoster() {
         </button>
       </div>
 
-      <!-- 搜索框 -->
       <div class="search-wrapper">
-        <div class="i-mingcute:search-line absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
+        <div class="i-mingcute:search-line search-icon" />
         <input
           v-model="keyword"
           placeholder="搜索歌曲"
@@ -156,9 +155,8 @@ function startExportPoster() {
       </div>
     </div>
 
-    <!-- 歌曲列表 -->
     <div ref="scrollRef" class="song-list">
-      <div class="pb-30 flex flex-col gap-3">
+      <div class="song-list-inner pb-30 flex flex-col gap-2">
         <SongItem v-for="song in renderList" :key="song.id" :song="song" />
       </div>
       <Loading v-if="loading && !renderList.length" />
@@ -169,35 +167,232 @@ function startExportPoster() {
 <style scoped>
 .singer-detail {
   display: grid;
-  grid-template-rows: auto 64px 1fr;
+  grid-template-rows: auto auto 1fr;
+  padding: 1.25rem 1.5rem 0;
+  gap: 0.75rem;
+}
+
+.detail-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 100% at 0% -20%, rgb(255 255 255 / 5%), transparent 55%),
+    linear-gradient(180deg, rgb(8 9 10 / 62%) 0%, rgb(8 9 10 / 85%) 45%, rgb(8 9 10 / 96%) 100%);
 }
 
 .singer-header {
-  @apply w-full px-10 pt-5 pb-0;
+  position: relative;
+  border: 1px solid var(--eno-border);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--eno-content), transparent 10%);
+  backdrop-filter: blur(8px);
+  padding: 1.1rem 1.2rem 1rem 3.1rem;
+}
+
+.back-btn {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  font-size: 1.3rem;
+  color: var(--eno-text-2);
+  cursor: pointer;
+  transition: color 0.18s var(--eno-ease), transform 0.18s var(--eno-ease);
+}
+
+.back-btn:hover {
+  color: var(--eno-text-1);
+  transform: translateX(-1px);
+}
+
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-avatar {
+  width: 72px;
+  height: 72px;
+  border: 1px solid color-mix(in oklab, var(--eno-border), white 10%);
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.header-meta {
+  min-width: 0;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.external-link {
+  display: inline-flex;
+  color: var(--eno-text-3);
+  transition: color 0.18s var(--eno-ease);
+}
+
+.external-link:hover {
+  color: var(--eno-text-1);
+}
+
+.header-badge {
+  margin-top: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--eno-border);
+  border-radius: 999px;
+  padding: 0.16rem 0.62rem;
+  font-size: 0.75rem;
+  color: var(--eno-text-2);
+  background: color-mix(in oklab, var(--eno-fill-1), transparent 6%);
+}
+
+.header-desc {
+  margin-top: 0.45rem;
+  max-width: 55rem;
+  font-size: 0.82rem;
+  color: var(--eno-text-3);
 }
 
 .control-bar {
-  @apply w-full px-10 py-2 flex justify-between items-center border-b border-gray-800;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--eno-border);
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--eno-content), transparent 12%);
+  padding: 0.7rem 0.95rem;
+}
+
+.control-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  margin: 0;
+  margin-right: 0.1rem;
+  font-size: 0.95rem;
+  font-weight: 640;
+  color: var(--eno-text-2);
 }
 
 .play-all-btn {
-  @apply flex items-center text-base font-bold bg-$eno-primary/90 hover:bg-$eno-primary-hover text-black px-4 py-2 rounded-full transition-colors;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid color-mix(in oklab, var(--eno-primary), black 35%);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: var(--eno-primary-foreground);
+  background: var(--eno-primary);
+  transition: transform 0.18s var(--eno-ease), filter 0.18s var(--eno-ease);
+}
+
+.play-all-btn:hover {
+  filter: brightness(1.02);
+  transform: translateY(-1px);
 }
 
 .poster-btn {
-  @apply flex items-center text-base font-medium px-4 py-2 rounded-full hover:bg-gray-100 transition-colors;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--eno-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 560;
+  color: var(--eno-text-2);
+  background: color-mix(in oklab, var(--eno-content), transparent 8%);
+  transition: background-color 0.18s var(--eno-ease), color 0.18s var(--eno-ease);
+}
+
+.poster-btn:hover {
+  background: var(--eno-content-hover);
+  color: var(--eno-text-1);
 }
 
 .search-wrapper {
-  @apply relative;
+  position: relative;
+  width: 15rem;
+  flex-shrink: 0;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.72rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  color: var(--eno-text-4);
 }
 
 .search-input {
-  @apply w-48 h-10 pl-10 pr-4 rounded-full bg-gray-800/70 hover:bg-gray-800 focus:bg-gray-800
-    transition-colors outline-none placeholder:text-sm;
+  width: 100%;
+  height: 2.15rem;
+  padding: 0 0.8rem 0 2rem;
+  border: 1px solid var(--eno-border);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: var(--eno-text-1);
+  background: color-mix(in oklab, var(--eno-content), transparent 8%);
+  transition: border-color 0.18s var(--eno-ease), background-color 0.18s var(--eno-ease);
+}
+
+.search-input::placeholder {
+  color: var(--eno-text-4);
+}
+
+.search-input:hover {
+  background: var(--eno-content-hover);
+}
+
+.search-input:focus {
+  border-color: color-mix(in oklab, var(--eno-border), var(--eno-text-2) 28%);
+  background: var(--eno-content-hover);
 }
 
 .song-list {
-  @apply h-full overflow-auto px-10;
+  height: 100%;
+  overflow: auto;
+  border: 1px solid var(--eno-border);
+  border-radius: 14px 14px 0 0;
+  background: color-mix(in oklab, var(--eno-bg), var(--eno-content) 18%);
+  padding: 0.7rem;
+}
+
+.song-list-inner {
+  min-height: 100%;
+}
+
+@media (max-width: 980px) {
+  .singer-detail {
+    padding: 0.9rem 0.75rem 0;
+  }
+
+  .control-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-wrapper {
+    width: 100%;
+  }
 }
 </style>

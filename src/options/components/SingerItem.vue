@@ -1,5 +1,4 @@
 <script setup>
-import cn from 'classnames'
 import { usePlaylistStore } from '../playlist/store'
 import { useBlblStore } from '../blbl/store'
 
@@ -32,50 +31,30 @@ function handleSingerDetail(singerMid) {
 
 <template>
   <div
-    class="flex flex-shrink-0 items-center justify-between
-     w-80 h-20 rounded-lg px-4
-     bg-$eno-elevated/80 backdrop-blur-sm
-     shadow-sm border-b-0
-     transition-all duration-300 ease-in-out
-     hover:shadow-md
-     hover:translate-y-[-2px]
-     hover:border-b-2
-     border-blue-500
-     cursor-pointer group
-    "
+    class="singer-item group"
     @click.stop="handleSingerDetail(singerMid)"
   >
-    <!-- 左侧信息区域 -->
-    <div class="flex items-center space-x-4">
+    <div class="singer-main">
       <img
         :src="avatar"
         alt="singerAvatar"
-        class="w-13 h-13 rounded-full
-          border border-gray-200/10
-          shadow-sm hover:shadow-md
-          transition duration-300
-          object-cover
-        "
+        class="singer-avatar"
       >
-      <div class="flex flex-col">
-        <div class="text-[16px] font-medium tracking-wide">
+      <div class="min-w-0">
+        <div class="singer-name">
           {{ name }}
         </div>
-        <div class="text-[11px] text-gray-400/80 mt-0.5">
+        <div class="singer-desc">
           {{ desc }}
         </div>
       </div>
     </div>
 
-    <!-- 右侧操作区域 -->
-    <div class="flex items-center gap-3 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+    <div class="singer-actions">
+      <div class="i-mingcute:right-line h-[16px] w-[16px] opacity-55 transition-all duration-200 group-hover:translate-x-[1px] group-hover:opacity-90" />
       <div
         v-if="canDel"
-        class="i-mingcute:delete-line w-[18px] h-[18px]
-          cursor-pointer hover:text-red-500
-          transition-colors duration-200
-          hover:scale-110
-        "
+        class="i-mingcute:delete-3-line h-[16px] w-[16px] cursor-pointer text-$eno-text-3 transition-colors duration-200 hover:text-red-400"
         @click.stop="PLstore.removeSinger(singerMid)"
       />
     </div>
@@ -83,4 +62,69 @@ function handleSingerDetail(singerMid) {
 </template>
 
 <style scoped>
+.singer-item {
+  display: flex;
+  width: 18.75rem;
+  max-width: 100%;
+  height: 4.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  border: 1px solid var(--eno-border);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--eno-content), transparent 6%);
+  box-shadow: 0 1px 1px rgb(0 0 0 / 12%);
+  cursor: pointer;
+  transition: transform 0.18s var(--eno-ease), border-color 0.18s var(--eno-ease), background-color 0.18s var(--eno-ease);
+}
+
+.singer-item:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--eno-border), var(--eno-text-2) 28%);
+  background: color-mix(in oklab, var(--eno-content-hover), transparent 8%);
+}
+
+.singer-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.singer-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid color-mix(in oklab, var(--eno-border), white 8%);
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.singer-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.92rem;
+  font-weight: 620;
+  line-height: 1.2rem;
+  letter-spacing: -0.01em;
+  color: var(--eno-text-1);
+}
+
+.singer-desc {
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  line-height: 1rem;
+  color: var(--eno-text-3);
+}
+
+.singer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--eno-text-3);
+}
 </style>
