@@ -34,7 +34,7 @@ function clickDialog(e) {
       <dialog
         v-show="open" ref="drawerRef"
         class="bg-$eno-filter-glass-2 backdrop-blur h-screen w-screen
-        text-white m-0 max-w-[100vw] max-h-[100vh] p-6
+        text-$eno-text-1 m-0 max-w-[100vw] max-h-[100vh] p-6
       " @click="clickDialog"
       >
         <div text-3xl mb-2 class="flex justify-between">

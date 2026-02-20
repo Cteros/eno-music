@@ -38,7 +38,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['delete-song'])
+const emit = defineEmits(['deleteSong'])
 
 const api = useApiClient()
 
@@ -65,15 +65,15 @@ const styleBySize = computed(() => {
   if (props.size === 'mini') {
     return {
       wrapper: `grid-cols-[5.5rem_1fr_90px]`,
-      title: 'text-[12px] font-bold w-full truncate',
-      img: 'h-11 rounded-2 object-cover',
+      title: 'text-[12px] font-600 w-full truncate leading-4',
+      img: 'h-10 rounded-2 object-cover',
     }
   }
   else {
     return {
       wrapper: `grid-cols-[5.5rem_1fr_90px]`,
-      title: 'text-[16px] font-bold truncate ',
-      img: 'h-11 rounded-2 object-cover',
+      title: 'text-[14px] font-600 truncate leading-5',
+      img: 'h-10 rounded-2 object-cover',
     }
   }
 })
@@ -125,28 +125,28 @@ function handleSingerDetail(singerMid) {
 </script>
 
 <template>
-  <div :class="cn('song-item text-lg h-15 hov-item pr-5', styleBySize.wrapper)" @click="handleClick">
+  <div :class="cn('song-item text-lg h-13 hov-item pr-4', styleBySize.wrapper)" @click="handleClick">
     <img :src="cover" :class="styleBySize.img">
     <div class="w-full overflow-auto" :title="title">
-      <div class="h-15 pt-1">
+      <div class="h-13 pt-1">
         <div :class="styleBySize.title" v-html="title" />
         <div :class="styleBySize.author" class="flex gap-2">
           <span v-if="pages">是合集</span>
           <span v-if="isPlaying">
-            <div class="i-svg-spinners:bars-scale w-1em h-1em text-[#fffb00]" />
+            <div class="i-svg-spinners:bars-scale w-1em h-1em text-$eno-primary" />
           </span>
           <!-- {{ JSON.stringify(song) }} -->
-          <span class="text-xs opacity-50 hover:border-b-2 border-gray-200" @click.stop="handleSingerDetail(mid)">
+          <span class="text-xs opacity-60 hover:opacity-100 hover:border-b border-$eno-border" @click.stop="handleSingerDetail(mid)">
             {{ author }}
           </span>
         </div>
       </div>
     </div>
     <!-- 操作, 收藏到播放列表, 删除 -->
-    <div class="flex gap-3 text-lg justify-end">
+    <div class="flex gap-2 text-base justify-end">
       <div v-if="later" hover:opacity-70 class="i-mingcute:time-fill w-1em h-1em" @click.stop="addToLater" />
       <div v-if="star" hover:opacity-70 class="i-mingcute:star-fill w-1em h-1em" @click.stop="PLstore.startAddSong(props.song)" />
-      <div v-if="del" hover:opacity-70 class="i-mingcute:delete-3-fill w-1em h-1em" @click.stop="emit('delete-song', props.song)" />
+      <div v-if="del" hover:opacity-70 class="i-mingcute:delete-3-fill w-1em h-1em" @click.stop="emit('deleteSong', props.song)" />
     </div>
   </div>
 </template>

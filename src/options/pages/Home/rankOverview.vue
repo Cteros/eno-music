@@ -28,7 +28,7 @@ function goTo(id, index) {
       <div
         v-for="(rankId, index) in store.ranksId" :id="`rank-${index}`" :key="rankId.ID" :class="cn(
           'text-center text-sm flex-shrink-0 cursor-pointer hover:opacity-70',
-          { 'text-yellow-500': currentIndex === index },
+          { 'text-$eno-primary': currentIndex === index },
         )" @click="goTo(rankId.ID, index)"
       >
         第{{ rankId.priod }}期

@@ -162,7 +162,7 @@ function closeVideo() {
         absolute top-0 left-0
         p-4
         bg="black/30"
-        text-white
+        class="text-$eno-text-1"
         justify-end
         hidden
         group-hover:flex

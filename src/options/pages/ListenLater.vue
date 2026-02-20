@@ -56,7 +56,7 @@ function handleRemoveListenLater(song) {
       <div class="content flex flex-col gap-3">
         <SongItem
           v-for="item in PLStore.listenLater" :key="item.id" :song="item" :del="true" :later="false"
-          @delete-song="handleRemoveListenLater(item)"
+          @deleteSong="handleRemoveListenLater(item)"
         />
       </div>
     </div>

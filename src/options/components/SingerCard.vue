@@ -59,7 +59,7 @@ function handleSingerDetail(singerMid) {
     <!-- 删除 -->
     <div
       v-if="props.canDel"
-      class="del absolute right-0 top-0 bg-yellow text-2xl rounded-full p-1 fadeItem"
+      class="del absolute right-0 top-0 bg-$eno-primary text-black text-2xl rounded-full p-1 fadeItem"
       @click.stop="PLstore.removeSinger(singerMid)"
     >
       <div class="i-mingcute:close-line w-1em h-1em" />

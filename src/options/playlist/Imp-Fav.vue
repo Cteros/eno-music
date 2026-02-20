@@ -61,7 +61,7 @@ function addNewSeasonPlayList() {
 
 <template>
   <div class="flex gap-3">
-    <button class="bg-yellow px-3 py-1 mb-5 text-xl text-black font-bold" @click.stop="season.open = true">
+    <button class="bg-$eno-primary hover:bg-$eno-primary-hover px-3 py-1 mb-5 text-xl text-black font-bold rounded-2 transition-colors" @click.stop="season.open = true">
       导入合集
     </button>
     <Dialog :open="season.open" title="解析合集列表" @visible-change="v => season.open = v">
@@ -80,7 +80,7 @@ function addNewSeasonPlayList() {
         <div class="flex-1 overflow-auto">
           <SongItem
             v-for="song in season.mediaSong" :key="song.id" :song="song" del size="mini" :later="false" :star="false"
-            @delete-song="season.mediaSong = season.mediaSong.filter(s => s.id !== song.id)"
+            @deleteSong="season.mediaSong = season.mediaSong.filter(s => s.id !== song.id)"
           />
         </div>
       </div>

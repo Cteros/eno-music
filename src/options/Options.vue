@@ -95,11 +95,11 @@ provide('userInfo', userInfo)
   <main
     class="
     bg-$eno-bg
-    color-$eno-text-1 no-scroll" h-screen w-screen overflow="hidden" flex
+    color-$eno-text-1 no-scroll relative" h-screen w-screen overflow="hidden" flex
   >
     <AddSong />
     <Sider />
-    <div class="grow-1 shrink-10 h-screen fadeInWrapper">
+    <div class="grow-1 shrink-10 h-screen fadeInWrapper app-surface">
       <Home v-show="store.mode === 'home'" />
       <Search v-show="store.mode === 'search'" />
       <Playlist v-show="store.mode === 'playlist'" />
@@ -125,26 +125,27 @@ provide('userInfo', userInfo)
   height: 100%;
 }
 html {
-  background: #000;
+  background: var(--eno-bg);
 }
 
 *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   *::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 3px;
+    background: color-mix(in oklab, var(--eno-bg), black 10%);
+    border-radius: 4px;
   }
 
   *::-webkit-scrollbar-thumb {
     cursor: pointer;
-    background: #333;
-    border-radius: 3px;
+    background: var(--eno-fill-3);
+    border-radius: 4px;
+    border: 1px solid var(--eno-fill-2);
 
     &:hover {
-      background: #444;
+      background: var(--eno-fill-4);
     }
   }
 
@@ -164,11 +165,15 @@ img {
 }
 
 .fadeInWrapper>* {
-  animation: fadeIn 0.5s;
+  animation: fadeIn 0.24s var(--eno-ease);
 }
 
 .fadeItem {
-  animation: fadeIn 0.5s;
+  animation: fadeIn 0.2s var(--eno-ease);
+}
+
+.app-surface {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--eno-bg), white 2%) 0%, var(--eno-bg) 100%);
 }
 
 @keyframes fadeIn {

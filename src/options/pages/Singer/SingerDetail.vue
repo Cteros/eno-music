@@ -181,7 +181,7 @@ function startExportPoster() {
 }
 
 .play-all-btn {
-  @apply flex items-center text-base font-bold bg-yellow/90 hover:bg-yellow px-4 py-2 rounded-full transition-colors;
+  @apply flex items-center text-base font-bold bg-$eno-primary/90 hover:bg-$eno-primary-hover text-black px-4 py-2 rounded-full transition-colors;
 }
 
 .poster-btn {

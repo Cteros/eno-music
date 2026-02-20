@@ -310,7 +310,7 @@ function handleChangeSelectedPoster(poster: string) {
             <div
               v-for="resolution in exportResolutions"
               :key="resolution"
-              class="text-[16px] font-bold bg-yellow px-2 py-1 cursor-pointer rounded-md w-20 text-center hover:bg-yellow-400 transition-colors"
+              class="text-[16px] font-bold bg-$eno-primary text-black px-2 py-1 cursor-pointer rounded-md w-20 text-center hover:bg-$eno-primary-hover transition-colors"
               @click="handleExportResolution(resolution)"
             >
               {{ resolution }}
@@ -351,7 +351,7 @@ function handleChangeSelectedPoster(poster: string) {
                     :src="poster"
                     crossorigin="anonymous"
                     class="w-full rounded-md"
-                    :class="selectedPosters.includes(poster) ? 'border-2 border-yellow' : ''"
+                    :class="selectedPosters.includes(poster) ? 'border-2 border-$eno-primary' : ''"
                   >
                 </div>
               </div>

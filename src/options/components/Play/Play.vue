@@ -263,9 +263,17 @@ const timeDisplay = computed(() => {
     total: new Date(progress.total * 1000).toISOString().substr(14, 5) || '00:00',
   }
 })
-const progressTrans = computed(() => {
+const progressFillStyle = computed(() => {
+  const p = Math.max(0, Math.min(1, progress.percent || 0))
   return {
-    transform: `translateX(${(1 - progress.percent) * -100}%)`,
+    width: `${p * 100}%`,
+  }
+})
+const voiceTrackStyle = computed(() => {
+  const v = Math.max(0, Math.min(1, Number(voice.value) || 0))
+  const p = `${Math.round(v * 100)}%`
+  return {
+    background: `linear-gradient(to right, var(--eno-primary) 0 ${p}, var(--eno-fill-2) ${p} 100%)`,
   }
 })
 function handleChangeVoice(e) {
@@ -313,98 +321,104 @@ watch(() => eqStore.currentPreset, () => {
 </script>
 
 <template>
-  <!-- 增加一个背景图 -->
   <section
-    class="w-screen h-20 flex z-10"
-    pos="fixed bottom-0 left-0" gap-6 transform-gpu
+    class="eno-player w-screen h-18 flex z-10"
+    pos="fixed bottom-0 left-0" transform-gpu
   >
-    <img v-if="store.play" :src="store.play.cover" class="absolute w-screen h-20 bottom-0 object-cover">
-    <div class="flex color-white w-screen px-6 bg-$eno-elevated " style="backdrop-filter: var(--eno-filter-glass-light-1)" flex="row items-center justify-between">
-      <!-- 音乐进度 -->
-      <div class="w-screen top-0 left-0 absolute h-[2px] bg-yellow" :style="progressTrans" />
-      <!-- 音乐滑块 -->
-      <input
-        v-model="progress.percent" type="range" min="0" max="1" step="0.001"
-        class="w-full absolute top-0 left-0 h-1 bg-$eno-fill-2 rounded-1 cursor-pointer play-progress"
-        @input="isDragging = true" @change="changeProgress"
-      >
-      <!-- 音乐控制 -->
-      <div flex flex-row items-center text-2xl gap-10 w-100>
-        <div
-          cursor-pointer class="i-tabler:player-track-prev-filled w-1em h-1em hover:opacity-50"
-          @click.stop="change('prev')"
-        />
-        <div
-          v-if="isPlaying" cursor-pointer text-3xl class="i-tabler:player-pause-filled w-1em h-1em hover:opacity-50"
-          @click.stop="playControl"
-        />
-        <div
-          v-else cursor-pointer text-3xl class="i-tabler:player-play-filled w-1em h-1em hover:opacity-50"
-          @click.stop="playControl"
-        />
-        <div
-          cursor-pointer class="i-tabler:player-track-next-filled w-1em h-1em hover:opacity-50"
-          @click.stop="change('next')"
-        />
-        <LoopSwitch />
-        <div text-xs>
-          {{ timeDisplay.current }}/{{ timeDisplay.total }}
-        </div>
-      </div>
-      <!-- 播放信息 -->
-      <div
-        flex flex-row items-center gap-4 text-left truncate rounded-2 backdrop-blur px-3 py-1
-        class="bg-$eno-fill-dark-1 w-1/3 min-w-120 h-[calc(100%-16px)]"
-      >
-        <!-- 主要信息 -->
+    <img v-if="store.play" :src="store.play.cover" class="absolute inset-0 w-full h-full object-cover opacity-8 pointer-events-none">
+    <div class="eno-player-shell">
+      <div class="eno-left">
         <span
           v-if="store.play.cover"
-          relative shrink-0 cursor-pointer
-          class="group"
+          relative shrink-0 cursor-pointer class="group"
           @click.stop="changeVideoMode"
         >
-          <img h-11 rounded-1 :src="store.play.cover">
-          <div
-            w-full h-full
-            absolute top-0 left-0
-            bg="black/30"
-            justify-center items-center
-            hidden
-            group-hover:flex
-          >
-            <i i-mingcute:arrows-up-fill text-2xl color-gray-300 :class="cn({ 'rotate-180': store.videoMode === VIDEO_MODE.FLOATING })" />
+          <img class="eno-cover" :src="store.play.cover">
+          <div class="eno-cover-mask">
+            <i i-mingcute:arrows-up-fill :class="cn('text-lg', { 'rotate-180': store.videoMode === VIDEO_MODE.FLOATING })" />
           </div>
         </span>
-        <div truncate grow-1>
-          <div v-html="displayData.title" />
-          <span>{{ store.play.author }}{{ store.play.description }}</span>
+        <div class="eno-meta">
+          <div class="eno-title" v-html="displayData.title" />
+          <div class="eno-author">
+            {{ store.play.author }}{{ store.play.description }}
+          </div>
         </div>
-        <div flex gap-2 text-sm px-2>
-          <div hidden class="i-mingcute:download-3-fill w-1em h-1em cursor-pointer" @click.stop="download(store.play)" />
+        <div class="eno-mini-actions">
           <div class="i-mingcute:star-fill w-1em h-1em cursor-pointer" @click.stop="PLstore.startAddSong(store.play)" />
           <div class="i-mingcute:information-fill w-1em h-1em cursor-pointer" @click.stop="openBlTab" />
           <ShareCard />
         </div>
       </div>
-      <!-- 其他 -->
-      <div flex flex-row-reverse text-lg gap-5 w-100>
+
+      <div class="eno-center">
+        <div class="eno-controls">
+          <LoopSwitch />
+          <div class="i-tabler:player-track-prev-filled eno-ctrl" @click.stop="change('prev')" />
+          <div
+            v-if="isPlaying"
+            class="i-tabler:player-pause-filled eno-ctrl eno-ctrl-main"
+            @click.stop="playControl"
+          />
+          <div
+            v-else
+            class="i-tabler:player-play-filled eno-ctrl eno-ctrl-main"
+            @click.stop="playControl"
+          />
+          <div class="i-tabler:player-track-next-filled eno-ctrl" @click.stop="change('next')" />
+        </div>
+
+        <div class="eno-progress">
+          <div class="eno-time">{{ timeDisplay.current }}</div>
+          <div class="eno-progress-track">
+            <div class="eno-progress-fill" :style="progressFillStyle" />
+            <input
+              v-model="progress.percent"
+              type="range"
+              min="0"
+              max="1"
+              step="0.001"
+              class="eno-progress-range"
+              @input="isDragging = true"
+              @change="changeProgress"
+            >
+          </div>
+          <div class="eno-time">{{ timeDisplay.total }}</div>
+        </div>
+      </div>
+
+      <div class="eno-right">
+        <div v-if="isCloseVoice" class="i-mingcute:volume-mute-line eno-ctrl" @click.stop="setVoice" />
+        <div v-else class="i-mingcute:volume-line eno-ctrl" @click.stop="setVoice" />
+        <input
+          v-if="!isCloseVoice"
+          id="voice-progress"
+          v-model="voice"
+          type="range"
+          class="eno-volume-range"
+          :style="voiceTrackStyle"
+          min="0"
+          max="1"
+          step="0.01"
+          @change="handleChangeVoice"
+        >
+        <div class="i-tabler:playlist eno-ctrl" @click="toggleList" />
         <div
-          v-if="fullScreenStatus" cursor-pointer class="i-mingcute:fullscreen-fill w-1em h-1em"
+          v-if="fullScreenStatus"
+          class="i-mingcute:fullscreen-fill eno-ctrl"
           @click.stop="fullScreenTheBody"
         />
-        <div v-else cursor-pointer class="i-mingcute:fullscreen-exit-fill w-1em h-1em" @click.stop="fullScreenTheBody" />
-        <div cursor-pointer class="i-tabler:playlist w-1em h-1em" @click="toggleList" />
+        <div
+          v-else
+          class="i-mingcute:fullscreen-exit-fill eno-ctrl"
+          @click.stop="fullScreenTheBody"
+        />
+        <div hidden class="i-mingcute:download-3-fill eno-ctrl" @click.stop="download(store.play)" />
         <NewDrawer :open="showList" title="播放列表" position="right" @visible-change="vis => showList = vis">
           <div class="w-100">
-            <SongItem v-for="(song, index) in store.playList" :key="song.id" show-active del :song="song" size="mini" @delete-song="deleteSong(index)" />
+            <SongItem v-for="(song, index) in store.playList" :key="song.id" show-active del :song="song" size="mini" @deleteSong="deleteSong(index)" />
           </div>
         </NewDrawer>
-        <div v-if="isCloseVoice" cursor-pointer class="i-mingcute:volume-mute-line w-1em h-1em" @click.stop="setVoice" />
-        <div v-else cursor-pointer class="i-mingcute:volume-line w-1em h-1em" @click.stop="setVoice" />
-        <input
-          v-if="!isCloseVoice" id="voice-progress" v-model="voice" type="range" class="w-20" min="0" max="1"
-          step="0.01" @change="handleChangeVoice"
-        >
       </div>
     </div>
     <Video
@@ -416,6 +430,183 @@ watch(() => eqStore.currentPreset, () => {
 </template>
 
 <style>
+.eno-player {
+  border-top: 1px solid var(--eno-border);
+}
+
+.eno-player-shell {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(460px, 1.4fr) minmax(280px, 1fr);
+  width: 100%;
+  height: 100%;
+  padding: 7px 14px;
+  align-items: center;
+  gap: 12px;
+  color: var(--eno-text-1);
+  background: color-mix(in oklab, var(--eno-elevated), black 4%);
+  backdrop-filter: var(--eno-filter-glass-light-1);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+}
+
+.eno-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+}
+
+.eno-cover {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.eno-cover-mask {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 35%);
+}
+
+.group:hover .eno-cover-mask {
+  display: flex;
+}
+
+.eno-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.eno-title {
+  font-size: 14px;
+  font-weight: 620;
+  line-height: 1.15;
+  color: var(--eno-text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eno-author {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--eno-text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eno-mini-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--eno-text-2);
+}
+
+.eno-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.eno-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.eno-ctrl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--eno-text-2);
+  cursor: pointer;
+  transition: color 0.2s var(--eno-ease), transform 0.2s var(--eno-ease);
+}
+
+.eno-ctrl:hover {
+  color: var(--eno-text-1);
+}
+
+.eno-ctrl:active {
+  transform: translateY(1px);
+}
+
+.eno-ctrl-main {
+  font-size: 30px;
+  color: var(--eno-text-1);
+}
+
+.eno-progress {
+  display: grid;
+  grid-template-columns: 46px 1fr 46px;
+  align-items: center;
+  gap: 8px;
+}
+
+.eno-time {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--eno-text-3);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.eno-progress-track {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.eno-progress-track::before {
+  content: '';
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--eno-fill-2);
+}
+
+.eno-progress-fill {
+  position: absolute;
+  left: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--eno-primary);
+}
+
+.eno-progress-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.eno-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.eno-volume-range {
+  width: 130px;
+  height: 4px;
+  border-radius: 999px;
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -424,58 +615,63 @@ input[type="range"] {
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
-  height: 2px;
-  border-radius: 1px;
+  height: 4px;
+  border-radius: 999px;
   border: none;
   outline: none;
+  background: var(--eno-fill-2);
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  height: 20px;
-  width: 20px;
-  margin-top: -6px;
-  /* Thumb の位置を調整 */
-  background-color: #4cabe2;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-}
-
-input[type="range"]::-moz-range-track {
-  opacity: 0.5;
-  background: yellow;
-  height: 2px;
-  border-radius: 1px;
-  border: none;
-  outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: yellow;
-  cursor: pointer;
-  border: none;
-  outline: none;
+  background: var(--eno-text-1);
+  border: 1px solid var(--eno-border);
   margin-top: -4px;
-  position: relative;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0px 0px 0px 8px rgba(200, 200, 20, 0.16);
-  transition: 0.3s ease-in-out;
+  box-shadow: 0 0 0 6px var(--eno-primary-light);
+  transition: 0.2s var(--eno-ease);
+}
+
+input[type="range"]::-moz-range-track {
+  background: var(--eno-fill-2);
+  height: 4px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
 }
 
 #voice-progress {
-  background: #4cabe2;
-  height: 2px;
-  transform: translateY(8px);
+  background: var(--eno-fill-2);
 }
 
-.transItem {
-  transition: all 0.3s;
+@media (max-width: 1200px) {
+  .eno-player-shell {
+    grid-template-columns: minmax(220px, 1fr) minmax(360px, 1.3fr) minmax(220px, 1fr);
+    gap: 8px;
+  }
+
+  .eno-volume-range {
+    width: 96px;
+  }
+}
+
+@media (max-width: 900px) {
+  .eno-player-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    padding: 10px 12px;
+  }
+
+  .eno-left,
+  .eno-right {
+    display: none;
+  }
 }
 </style>

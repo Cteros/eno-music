@@ -94,7 +94,7 @@ watch(userInfo, () => {
           <SongItem
             v-for="song in renderSong(playlist)" :key="song?.id || song?.bvid" :song="song"
             :del="true"
-            @delete-song="delSong(playlist, song)"
+            @deleteSong="delSong(playlist, song)"
           />
           <!-- 没有歌曲时 -->
           <div v-if="!playlist.songs.length" class="px-10 py-3 text-3xl">

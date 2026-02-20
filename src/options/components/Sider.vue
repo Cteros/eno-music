@@ -28,12 +28,12 @@ function createPlaylist() {
 // 侧边栏展开相关代码
 const open = useLocalStorage('sider-open', false)
 const asideClass = computed(() => {
-  return cn('w-16 h-full flex flex-col gap-1 flex-shrink-0 flex-grow-0 text-lg p-3 px-2 border-r border-r-$eno-fill-2 relative', {
+  return cn('w-16 h-full flex flex-col gap-1 flex-shrink-0 flex-grow-0 text-lg p-3 px-2 bg-$eno-content/35 relative', {
     'w-60': open.value,
   })
 })
 const tabClass = computed(() => {
-  return cn('tab-item flex w-full gap-3 text-2xl items-center h-10 cursor-pointer hover:bg-$eno-fill-2 rounded-2 pl-3', {
+  return cn('tab-item flex w-full gap-3 text-2xl items-center h-10 cursor-pointer hover:bg-$eno-fill-2 rounded-3 pl-3 text-$eno-text-2', {
   })
 })
 function openAfdian() {
@@ -43,10 +43,10 @@ function openAfdian() {
 
 <template>
   <!-- 增加动画持续时间 -->
-  <aside :class="asideClass" transition-all duration-300>
+  <aside :class="asideClass" transition-all duration-220 ease-out>
     <!-- logo and close -->
     <div
-      class="flex items-center h-10 gap-3 tab-item cursor-pointer"
+      class="flex items-center h-10 gap-3 tab-item cursor-pointer rounded-3 hover:bg-$eno-fill-2"
       @click="open = !open"
     >
       <div v-if="open" class="i-mingcute:indent-decrease-fill w-1em h-1em ml-3" />
@@ -55,8 +55,6 @@ function openAfdian() {
     </div>
     <!-- tab区 -->
     <TabItem v-for="tab in tabs" :key="tab.mode" :tab="tab" :open="open" />
-    <!-- 分割线 -->
-    <div class="h-0.5 bg-$eno-fill-2" />
     <div :class="`${tabClass}`" text-lg @click.stop="createDialogVis = true">
       <div class="i-tabler:playlist-add text-[20px]" />
       <span v-if="open" class="text-[14px]">新建播放列表</span>
@@ -65,15 +63,15 @@ function openAfdian() {
       <div class="flex flex-col gap-3 w-full h-full justify-between">
         <input
           v-model="playlistName" type="text"
-          class="border-none outline-none bg-$eno-content-hover h-10 px-3 autofocus rounded-4" placeholder="请输入播放列表名称"
+          class="border-none outline-none bg-$eno-content-hover h-10 px-3 autofocus rounded-3 text-$eno-text-1" placeholder="请输入播放列表名称"
         >
       </div>
       <template #footer>
-        <div class="opt flex flex-row-reverse text-lg gap-3">
-          <div class="bg-$eno-fill-2 px-6 py-1 rounded-10 cursor-pointer" @click.stop="createPlaylist">
+        <div class="opt flex flex-row-reverse text-sm gap-3">
+          <div class="bg-$eno-primary text-black px-4 py-1 rounded-3 cursor-pointer hover:bg-$eno-primary-hover" @click.stop="createPlaylist">
             新建
           </div>
-          <div class="hover:bg-$eno-fill-2 px-6 py-1 rounded-10 cursor-pointer" @click.stop="createDialogVis = false">
+          <div class="hover:bg-$eno-fill-2 px-4 py-1 rounded-3 cursor-pointer" @click.stop="createDialogVis = false">
             取消
           </div>
         </div>
@@ -110,7 +108,7 @@ function openAfdian() {
   width: 0;
   overflow: hidden;
   text-wrap: nowrap;
-  animation: widthAni 0.5s forwards;
+  animation: widthAni 0.24s var(--eno-ease) forwards;
 }
 @keyframes widthAni {
   from{

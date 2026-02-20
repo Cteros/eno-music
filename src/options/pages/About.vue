@@ -1,7 +1,7 @@
 <script setup>
 import Logo from '../../assets/512px.png'
 
-const btn = 'flex items-center gap-1 text-[14px] py-1 border-[#FACC15] border-l-0 hover:border-l-5 hover:ml-2 hover:pl-2 duration-300 mb-2'
+const btn = 'flex items-center gap-1 text-[14px] py-1 border-$eno-border border-l-0 hover:border-l-5 hover:ml-2 hover:pl-2 duration-300 mb-2'
 </script>
 
 <template>
@@ -40,19 +40,19 @@ const btn = 'flex items-center gap-1 text-[14px] py-1 border-[#FACC15] border-l-
       <!-- info -->
       <ul class="flex flex-col gap-3 text-[14px] leading-relaxed opacity-80 pl-5">
         <li class="flex items-center gap-2 hover:opacity-100 transition-opacity">
-          <div class="i-mingcute:information-line w-1rem h-1rem text-yellow-500" />
+          <div class="i-mingcute:information-line w-1rem h-1rem text-$eno-primary" />
           本项目仅供学习交流使用，不得用于商业用途
         </li>
         <li class="flex items-center gap-2 hover:opacity-100 transition-opacity">
-          <div class="i-mingcute:user-4-fill w-4 h-4 text-blue-500" />
+          <div class="i-mingcute:user-4-fill w-4 h-4 text-$eno-primary" />
           使用歌手功能, 需要当前浏览器登录过bilibili
         </li>
         <li class="flex items-center gap-2 hover:opacity-100 transition-opacity">
-          <div class="i-mingcute:message-3-fill w-4 h-4 text-green-500" />
+          <div class="i-mingcute:message-3-fill w-4 h-4 text-$eno-primary" />
           需要交流反馈可以添加qq群和discord, 长期在线
         </li>
         <li class="flex items-center gap-2 hover:opacity-100 transition-opacity">
-          <div class="i-mingcute:gift-fill w-4 h-4 text-pink-500" />
+          <div class="i-mingcute:gift-fill w-4 h-4 text-$eno-primary" />
           统计用户达到30000 or 日活达到1000 or 爱发电赞助破千 开启手机版移植🫡🫡
         </li>
       </ul>

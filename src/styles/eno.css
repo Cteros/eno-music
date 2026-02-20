@@ -1,17 +1,17 @@
 .eno-input{
-    border-radius: 10cqh;
+    border-radius: var(--eno-radius-md);
     box-sizing: border-box;
-
+    color: var(--eno-text-1);
+    background: var(--eno-content);
     border-color: none;
     outline: none;
     outline-width: 2px;
-    transition: all 0.3s;
-    transition-timing-function: ease-in-out;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    transition: all 0.2s var(--eno-ease);
+    border: 1px solid var(--eno-border);
 }
 .eno-input:focus{
-    border-color: yellow;
-    box-shadow: 0 0 3px yellow;
+    border-color: var(--eno-primary);
+    box-shadow: 0 0 0 2px var(--eno-primary-light);
     outline: none;
     outline-width: 2px;
 }

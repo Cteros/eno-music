@@ -112,17 +112,19 @@ watch(() => eqStore.currentPreset, () => {
 <style scoped>
 .eq-container {
   padding: 24px;
-  background: var(--eno-bg);
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  background: var(--eno-content);
+  border-radius: var(--eno-radius-lg);
+  border: 1px solid var(--eno-border);
+  box-shadow: var(--eno-shadow-sm);
 }
 
 /* 滑块容器 */
 .eq-sliders {
   background: var(--eno-fill-4);
   padding: 24px;
-  border-radius: 12px;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: var(--eno-radius-md);
+  border: 1px solid var(--eno-border);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* 垂直滑块基础样式 */
@@ -147,7 +149,7 @@ input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   height: 16px;
   width: 16px;
-  background: yellow;
+  background: var(--eno-primary);
   border-radius: 50%;
   cursor: pointer;
   margin-top: -6px;
@@ -239,7 +241,7 @@ button {
 
 button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--eno-shadow-sm);
   background: var(--eno-fill-2) !important;
 }
 

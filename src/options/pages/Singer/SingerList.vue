@@ -57,9 +57,9 @@ function addSinger() {
       <div class="flex flex-col gap-3 w-full h-full justify-between">
         <input
           v-model="singerMid" placeholder="请输入歌手mid或up主主页链接" bg="$eno-content focus:$eno-content-hover"
-          class="h-10 px-3 border border-gray-200 rounded-4"
+          class="h-10 px-3 border border-$eno-border rounded-3 text-$eno-text-1"
         >
-        <button class="w-full h-10 bg-$eno-fill-2 text-white rounded-4" @click="addSinger">
+        <button class="w-full h-10 bg-$eno-primary text-black rounded-3 hover:bg-$eno-primary-hover transition-colors" @click="addSinger">
           添加
         </button>
       </div>

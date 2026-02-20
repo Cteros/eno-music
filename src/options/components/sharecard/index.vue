@@ -215,14 +215,14 @@ async function copyToClipboard() {
         <!-- 操作按钮 -->
         <div class="flex justify-center gap-4 mt-4">
           <button
-            class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            class="flex items-center gap-2 px-4 py-2 bg-$eno-primary text-black rounded-lg hover:bg-$eno-primary-hover transition-colors"
             @click="copyToClipboard"
           >
             <div class="i-mingcute:copy-2-fill w-4 h-4" />
             复制到剪贴板
           </button>
           <button
-            class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            class="flex items-center gap-2 px-4 py-2 bg-$eno-content text-$eno-text-1 border border-$eno-border rounded-lg hover:bg-$eno-content-hover transition-colors"
             @click="saveAsImage"
           >
             <div class="i-mingcute:download-2-fill w-4 h-4" />

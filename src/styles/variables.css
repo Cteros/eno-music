@@ -1,31 +1,44 @@
 :root {
-  --eno-bg: hsl(234, 24%, 8%);
+  color-scheme: dark;
 
-  --eno-text-1: hsla(234, 16%, 98%, 1);
-  --eno-text-2: hsla(234, 16%, 90%, 0.9);
-  --eno-text-3: hsla(234, 16%, 80%, 0.76);
-  --eno-text-4: hsla(234, 16%, 70%, 0.64);
+  --eno-bg: oklch(0.19 0.012 265);
+  --eno-content: oklch(0.225 0.014 265);
+  --eno-content-hover: oklch(0.255 0.016 265);
+  --eno-elevated: oklch(0.24 0.015 265 / 0.86);
 
-  --eno-content: hsla(234, 16%, 16%, 0.6);
-  --eno-content-hover: hsla(234, 16%, 26%, 0.6);
+  --eno-text-1: oklch(0.95 0.01 265);
+  --eno-text-2: oklch(0.82 0.011 265);
+  --eno-text-3: oklch(0.69 0.012 265);
+  --eno-text-4: oklch(0.56 0.013 265);
 
-  --eno-elevated: hsla(234, 16%, 22%, 0.6);
+  --eno-primary: oklch(0.69 0.18 253);
+  --eno-primary-hover: oklch(0.75 0.17 253);
+  --eno-primary-light: oklch(0.7 0.15 253 / 0.22);
 
-  --eno-fill-dark-1: hsla(246, 4%, 2%, 0.14);
-  --eno-fill-dark-2: hsla(246, 4%, 2%, 0.24);
-  --eno-fill-dark-3: hsla(246, 4%, 2%, 0.34);
-  --eno-fill-dark-4: hsla(246, 4%, 2%, 0.44);
+  --eno-fill-dark-1: oklch(0.12 0.006 265 / 0.2);
+  --eno-fill-dark-2: oklch(0.12 0.006 265 / 0.32);
+  --eno-fill-dark-3: oklch(0.12 0.006 265 / 0.45);
+  --eno-fill-dark-4: oklch(0.12 0.006 265 / 0.58);
 
-  --eno-fill-1: hsla(246, 4%, 42%, 0.14);
-  --eno-fill-2: hsla(246, 4%, 42%, 0.24);
-  --eno-fill-3: hsla(246, 4%, 42%, 0.34);
-  --eno-fill-4: hsla(246, 4%, 42%, 0.44);
+  --eno-fill-1: oklch(0.7 0.01 265 / 0.11);
+  --eno-fill-2: oklch(0.7 0.01 265 / 0.18);
+  --eno-fill-3: oklch(0.7 0.01 265 / 0.26);
+  --eno-fill-4: oklch(0.7 0.01 265 / 0.34);
+  --eno-border: oklch(0.56 0.01 265 / 0.42);
 
-  --eno-border: var(--eno-fill-2);
+  --eno-radius-sm: 6px;
+  --eno-radius-md: 10px;
+  --eno-radius-lg: 14px;
+  --eno-radius-xl: 18px;
 
-  --eno-filter-glass-1: blur(20px) saturate(180%);
-  --eno-filter-glass-2: blur(40px) saturate(180%);
+  --eno-shadow-sm: 0 1px 2px oklch(0.05 0.01 265 / 0.35);
+  --eno-shadow-md: 0 8px 20px oklch(0.05 0.01 265 / 0.28);
+  --eno-shadow-lg: 0 18px 44px oklch(0.04 0.01 265 / 0.36);
 
-  --eno-filter-glass-light-1: blur(20px) saturate(180%) brightness(1.2);
-  --eno-filter-glass-light-2: blur(40px) saturate(180%) brightness(1.2);
+  --eno-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --eno-filter-glass-1: blur(12px) saturate(120%);
+  --eno-filter-glass-2: blur(20px) saturate(110%);
+  --eno-filter-glass-light-1: blur(12px) saturate(120%) brightness(1.04);
+  --eno-filter-glass-light-2: blur(20px) saturate(110%) brightness(1.02);
 }

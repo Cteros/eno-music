@@ -3,17 +3,54 @@ body,
 #app {
   margin: 0;
   padding: 0;
+  font-family: 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif;
+  background: var(--eno-bg);
+  color: var(--eno-text-1);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .btn {
-  @apply px-4 py-1 rounded inline-block
-   text-white cursor-pointer
-    disabled:cursor-default disabled:bg-gray-600 disabled:opacity-50;
+  @apply px-4 py-1 inline-flex items-center justify-center rounded-3 cursor-pointer;
+  background: var(--eno-content);
+  border: 1px solid var(--eno-border);
+  color: var(--eno-text-1);
+  transition: background-color 0.18s var(--eno-ease), border-color 0.18s var(--eno-ease), transform 0.18s var(--eno-ease);
+}
+
+.btn:hover {
+  background: var(--eno-content-hover);
+  border-color: var(--eno-fill-4);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--eno-primary-light);
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.45;
 }
 
 .icon-btn {
   @apply inline-block cursor-pointer select-none
-    opacity-75 transition duration-200 ease-in-out
-    hover:opacity-100 hover:text-teal-600;
+    opacity-70 transition duration-200 ease-in-out
+    hover:opacity-100;
+  color: var(--eno-text-2);
   font-size: 0.9em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--eno-primary-light);
 }
