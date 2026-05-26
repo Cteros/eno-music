@@ -236,7 +236,7 @@ async function getCollectedDataLoop() {
       暂无可用内容
     </div>
     <div v-if="mediaSong.length > 0 && status.open" class="flex flex-col gap-2 max-h-[500px] overflow-auto" p="x-4 y-3">
-      <SongItem v-for="song in mediaSong" :key="song.id" :song="song" />
+      <SongItem v-for="item in mediaSong" :key="item.id" :song="item" />
     </div>
   </div>
 </template>
