@@ -2,10 +2,9 @@
 import { ref } from 'vue'
 import QRCode from 'qrcode'
 import { toPng } from 'html-to-image'
-import Dialog from '~/components/dialog/index.vue'
+import { Dialog, MessageAPI } from '@cloudfly/eno-ui'
 import { useBlblStore } from '~/options/blbl/store'
 import { useApiClient } from '~/composables/api'
-import Message from '~/components/message'
 
 const store = useBlblStore()
 const api = useApiClient()
@@ -86,11 +85,10 @@ async function captureCard() {
     })
     return dataUrl
   }
-  catch (error) {
-    Message.show({
+  catch {
+    MessageAPI.show({
       type: 'error',
       message: '生成图片失败，请稍后重试',
-      error,
     })
   }
 }
@@ -102,16 +100,15 @@ async function saveAsImage() {
     link.download = `${videoInfo.value.title || 'share-card'}.png`
     link.href = dataUrl
     link.click()
-    Message.show({
+    MessageAPI.show({
       type: 'success',
       message: '保存成功',
     })
   }
-  catch (err) {
-    Message.show({
+  catch {
+    MessageAPI.show({
       type: 'error',
       message: '保存失败，请稍后重试',
-      error: err,
     })
   }
 }
@@ -126,16 +123,15 @@ async function copyToClipboard() {
         'image/png': blob,
       }),
     ])
-    Message.show({
+    MessageAPI.show({
       type: 'success',
       message: '已复制到剪贴板',
     })
   }
-  catch (err) {
-    Message.show({
+  catch {
+    MessageAPI.show({
       type: 'error',
       message: '复制失败，请稍后重试',
-      error: err,
     })
   }
 }

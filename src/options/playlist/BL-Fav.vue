@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { MessageAPI } from '@cloudfly/eno-ui'
 import type { song } from '~/options/playlist/store'
 import { useApiClient } from '~/composables/api'
 import SongItem from '~/options/components/SongItem.vue'
 import { usePlaylistStore } from '~/options/playlist/store'
-import Message from '~/components/message'
 
 import { useBlblStore } from '~/options/blbl/store'
 
@@ -115,14 +115,12 @@ async function getFavDataLoop() {
       await getFavDataLoop()
     }
   }
-  catch (e) {
+  catch {
     status.error = true
-    Message.show({
+    MessageAPI.show({
       type: 'error',
       message: '加载收藏夹失败',
-      error: e,
     })
-    return
   }
 }
 function handleReplacePlaylist() {
@@ -135,7 +133,7 @@ function handleSavePlaylist() {
   if (!mediaSong.value.length)
     return
   PLStore.createPlaylist(props.fav.title || props.fav.name || 'BLBL 收藏', JSON.parse(JSON.stringify(mediaSong.value)))
-  Message.show({
+  MessageAPI.show({
     type: 'info',
     message: '已保存为 ENO 歌单',
   })

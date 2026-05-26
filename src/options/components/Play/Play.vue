@@ -6,6 +6,7 @@ import { Howl } from 'howler'
 import cn from 'classnames'
 
 // 组件
+import { Drawer, LoopSwitch } from '@cloudfly/eno-ui'
 import SongItem from '../SongItem.vue'
 import ShareCard from '../sharecard/index.vue'
 // store
@@ -13,11 +14,9 @@ import { VIDEO_MODE, useBlblStore } from '../../blbl/store'
 import { usePlaylistStore } from '../../playlist/store.ts'
 import { EQService, useEqStore } from '../Eq/store'
 import Video from './video.vue'
-import LoopSwitch from './LoopSwitch.vue'
 
 // hooks & utils
 import useControl from './keys'
-import NewDrawer from '~/components/drawer/drawer.vue'
 import { useApiClient } from '~/composables/api'
 import { download } from '~/options/utils.ts'
 
@@ -353,7 +352,7 @@ watch(() => eqStore.currentPreset, () => {
 
       <div class="eno-center">
         <div class="eno-controls">
-          <LoopSwitch />
+          <LoopSwitch v-model="store.loopMode" />
           <div class="i-tabler:player-track-prev-filled eno-ctrl" @click.stop="change('prev')" />
           <div
             v-if="isPlaying"
@@ -369,7 +368,9 @@ watch(() => eqStore.currentPreset, () => {
         </div>
 
         <div class="eno-progress">
-          <div class="eno-time">{{ timeDisplay.current }}</div>
+          <div class="eno-time">
+            {{ timeDisplay.current }}
+          </div>
           <div class="eno-progress-track">
             <div class="eno-progress-fill" :style="progressFillStyle" />
             <input
@@ -383,7 +384,9 @@ watch(() => eqStore.currentPreset, () => {
               @change="changeProgress"
             >
           </div>
-          <div class="eno-time">{{ timeDisplay.total }}</div>
+          <div class="eno-time">
+            {{ timeDisplay.total }}
+          </div>
         </div>
       </div>
 
@@ -414,11 +417,11 @@ watch(() => eqStore.currentPreset, () => {
           @click.stop="fullScreenTheBody"
         />
         <div hidden class="i-mingcute:download-3-fill eno-ctrl" @click.stop="download(store.play)" />
-        <NewDrawer :open="showList" title="播放列表" position="right" @visible-change="vis => showList = vis">
+        <Drawer :open="showList" title="播放列表" position="right" @visible-change="vis => showList = vis">
           <div class="w-100">
-            <SongItem v-for="(song, index) in store.playList" :key="song.id" show-active del :song="song" size="mini" @deleteSong="deleteSong(index)" />
+            <SongItem v-for="(song, index) in store.playList" :key="song.id" show-active del :song="song" size="mini" @delete-song="deleteSong(index)" />
           </div>
-        </NewDrawer>
+        </Drawer>
       </div>
     </div>
     <Video

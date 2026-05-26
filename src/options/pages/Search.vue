@@ -2,10 +2,10 @@
 import { ref } from 'vue'
 import { useInfiniteScroll } from '@vueuse/core'
 
+import { Loading } from '@cloudfly/eno-ui'
 import AddCollection from '~/options/playlist/AddCollection.vue'
 import SongItem from '~/options/components/SongItem.vue'
 import { useApiClient } from '~/composables/api'
-import Loading from '~/components/loading/index.vue'
 
 const scrollRef = ref(null)
 const pageNum = ref(1)

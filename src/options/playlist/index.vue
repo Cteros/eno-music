@@ -1,13 +1,13 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
+import { Dialog } from '@cloudfly/eno-ui'
 import SongItem from '../components/SongItem.vue'
 
 import { useBlblStore } from '../blbl/store'
 import ImpFav from './Imp-Fav.vue'
 import BLFav from './BL-Fav.vue'
 import { usePlaylistStore } from './store'
-import Dialog from '~/components/dialog/index.vue'
-import { getCollectedFavorites, getFavorites, getUserInfo } from '~/options/api'
+import { getCollectedFavorites, getFavorites } from '~/options/api'
 
 const userInfo = inject('userInfo')
 const store = useBlblStore()
@@ -135,7 +135,7 @@ watch(userInfo, () => {
           <SongItem
             v-for="song in renderSong(playlist)" :key="song?.id || song?.bvid" :song="song"
             :del="true"
-            @deleteSong="delSong(playlist, song)"
+            @delete-song="delSong(playlist, song)"
           />
           <!-- 没有歌曲时 -->
           <div v-if="!playlist.songs.length" class="px-10 py-3 text-3xl">

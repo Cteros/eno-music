@@ -1,8 +1,8 @@
 <script setup>
 import { cloneDeep } from 'lodash'
+import { Dialog } from '@cloudfly/eno-ui'
 import SongItem from '../components/SongItem.vue'
 import { usePlaylistStore } from './store'
-import Dialog from '~/components/dialog/index.vue'
 
 const PLStore = usePlaylistStore()
 watch(() => PLStore.openCollection, (val) => {

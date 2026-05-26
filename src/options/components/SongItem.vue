@@ -1,10 +1,10 @@
 <script setup>
 import { computed, defineProps } from 'vue'
 import cn from 'classnames'
+import { MessageAPI } from '@cloudfly/eno-ui'
 import { useBlblStore } from '../blbl/store.ts'
 import { usePlaylistStore } from '../playlist/store.ts'
 import { useApiClient } from '~/composables/api'
-import Message from '~/components/message'
 
 const props = defineProps({
   song: {
@@ -103,14 +103,14 @@ async function handleClick() {
 function addToLater() {
   const isInLater = PLstore.listenLater.some(i => i.id === props.song.id)
   if (isInLater) {
-    Message.show({
+    MessageAPI.show({
       type: 'error',
       message: '已存在',
     })
     return
   }
   PLstore.addToListenLater(props.song)
-  Message.show({
+  MessageAPI.show({
     type: 'info',
     message: '已添加到稍后再听',
   })

@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@cloudfly/eno-ui':
+    specifier: ^0.1.0
+    version: 0.1.0(vue@3.5.25)
   '@meanc/webext-fetch':
     specifier: ^0.0.3
     version: 0.0.3
@@ -636,6 +639,15 @@ packages:
     dev: true
     bundledDependencies:
       - is-unicode-supported
+
+  /@cloudfly/eno-ui@0.1.0(vue@3.5.25):
+    resolution: {integrity: sha512-VblCoz4lVCqOJfQ32IAVzGxW+Wwg9RgTP12yM/4jQMxwdNEKs6Hl4GEEGMHwtd/9h75JyO2Kwvvcdu1HHkoTOA==}
+    peerDependencies:
+      vue: ^3.5.0
+    dependencies:
+      classnames: 2.5.1
+      vue: 3.5.25(typescript@5.9.3)
+    dev: false
 
   /@conventional-changelog/git-client@2.5.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.2.1):
     resolution: {integrity: sha512-lAw7iA5oTPWOLjiweb7DlGEMDEvzqzLLa6aWOly2FSZ64IwLE8T458rC+o+WvI31Doz6joM7X2DoNog7mX8r4A==}

@@ -1,12 +1,12 @@
 <script setup>
 import { useInfiniteScroll } from '@vueuse/core'
 
+import { Loading } from '@cloudfly/eno-ui'
 import SongItem from '~/options/components/SongItem.vue'
 import { getUserArc } from '~/options/api'
 
 import { useBlblStore } from '~/options/blbl/store.ts'
 import { usePlaylistStore } from '~/options/playlist/store'
-import Loading from '~/components/loading/index.vue'
 
 const PLstore = usePlaylistStore()
 const store = useBlblStore()

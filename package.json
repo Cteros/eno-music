@@ -19,7 +19,7 @@
     "build:js": "vite build --config vite.config.content.mts",
     "pack": "cross-env NODE_ENV=production run-p pack:*",
     "pack:zip": "rimraf extension.zip && jszip-cli add extension/* -o ./extension.zip",
-    "pack:crx": "crx pack extension -o ./extension.crx",
+    "pack:crx": "crx pack extension -o ./extension.crx -p ./keys/cws-upload-private.pem",
     "pack:xpi": "cross-env WEB_EXT_ARTIFACTS_DIR=./ web-ext build --source-dir ./extension --filename extension.xpi --overwrite-dest",
     "start:chromium": "web-ext run --source-dir ./extension --target=chromium",
     "start:firefox": "web-ext run --source-dir ./extension --target=firefox-desktop",
@@ -34,6 +34,7 @@
     "release:patch": "release-it patch"
   },
   "dependencies": {
+    "@cloudfly/eno-ui": "^0.1.0",
     "@meanc/webext-fetch": "^0.0.3",
     "@types/chrome": "^0.0.270",
     "@types/howler": "^2.2.12",

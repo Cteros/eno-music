@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { cloneDeep } from 'lodash'
+import { Dialog } from '@cloudfly/eno-ui'
 import SongItem from '~/options/components/SongItem.vue'
 import { usePlaylistStore } from '~/options/playlist/store'
 import { getSeasonInfo } from '~/options/api/index'
-import Dialog from '~/components/dialog/index.vue'
 
 const props = withDefaults(defineProps<{
   compact?: boolean
@@ -90,7 +90,7 @@ function addNewSeasonPlayList() {
         <div class="flex-1 overflow-auto">
           <SongItem
             v-for="song in season.mediaSong" :key="song.id" :song="song" del size="mini" :later="false" :star="false"
-            @deleteSong="season.mediaSong = season.mediaSong.filter(s => s.id !== song.id)"
+            @delete-song="season.mediaSong = season.mediaSong.filter(s => s.id !== song.id)"
           />
         </div>
       </div>

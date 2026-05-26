@@ -1,7 +1,7 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
+import { MessageAPI } from '@cloudfly/eno-ui'
 import { useEqStore } from './store'
-import Message from '~/components/message'
 
 const eqStore = useEqStore()
 
@@ -12,7 +12,7 @@ const newPresetName = ref('')
 
 function savePreset() {
   if (!newPresetName.value) {
-    return Message.show({
+    return MessageAPI.show({
       message: '请输入预设名称',
       type: 'error',
     })

@@ -1,8 +1,7 @@
 <script setup>
+import { Dialog } from '@cloudfly/eno-ui'
 import { defaultSingers, usePlaylistStore } from '~/options/playlist/store'
-import SingerCard from '~/options/components/SingerCard.vue'
 import SingerItem from '~/options/components/SingerItem.vue'
-import Dialog from '~/components/dialog/index.vue'
 
 // https://space.bilibili.com/17819768?spm_id_from=333.1007.tianma.1-1-1.click
 function getMidFromUrl(url) {

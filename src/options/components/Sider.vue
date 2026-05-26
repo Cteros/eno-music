@@ -1,8 +1,8 @@
 <script setup>
 import { useLocalStorage } from '@vueuse/core'
 import cn from 'classnames'
+import { TabItem } from '@cloudfly/eno-ui'
 import { useBlblStore } from '../blbl/store'
-import TabItem from './TabItem.vue'
 
 const tabs = [
   { icon: 'i-tabler:smart-home', title: '首页', mode: 'home' },
@@ -29,6 +29,19 @@ function openAfdian() {
 function goSearch() {
   store.mode = 'search'
 }
+async function openInClient() {
+  const cookies = await chrome.cookies.getAll({ domain: '.bilibili.com' })
+  const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ')
+  const url = `eno-m://cookie?cookie=${encodeURIComponent(cookieString)}`
+  window.open(url)
+}
+function switchMode(mode) {
+  if (mode === 'openInClient') {
+    openInClient()
+    return
+  }
+  store.mode = mode
+}
 </script>
 
 <template>
@@ -53,20 +66,20 @@ function goSearch() {
       <p v-if="open" class="sider-label">
         Workspace
       </p>
-      <TabItem v-for="tab in tabs" :key="tab.mode" :tab="tab" :open="open" />
+      <TabItem v-for="tab in tabs" :key="tab.mode" :icon="tab.icon" :title="tab.title" :active="store.mode === tab.mode" @click="switchMode(tab.mode)" />
 
       <p v-if="open" class="sider-label mt-5">
         Library
       </p>
-      <TabItem :tab="{ icon: 'i-tabler:user-star', title: '关注的音乐人', mode: 'singerList' }" :open="open" />
-      <TabItem :tab="{ icon: 'i-tabler:clock-play', title: '稍后播放', mode: 'listenLater' }" :open="open" />
+      <TabItem icon="i-tabler:user-star" title="关注的音乐人" :active="store.mode === 'singerList'" @click="switchMode('singerList')" />
+      <TabItem icon="i-tabler:clock-play" title="稍后播放" :active="store.mode === 'listenLater'" @click="switchMode('listenLater')" />
 
       <p v-if="open" class="sider-label mt-5">
         System
       </p>
-      <TabItem :tab="{ icon: 'i-mingcute:flash-line', title: '打开客户端', mode: 'openInClient' }" :open="open" />
-      <TabItem :tab="{ icon: 'i-tabler:settings', title: '设置', mode: 'setting' }" :open="open" />
-      <TabItem :tab="{ icon: 'i-tabler:info-circle', title: '关于', mode: 'about' }" :open="open" />
+      <TabItem icon="i-mingcute:flash-line" title="打开客户端" :active="false" @click="switchMode('openInClient')" />
+      <TabItem icon="i-tabler:settings" title="设置" :active="store.mode === 'setting'" @click="switchMode('setting')" />
+      <TabItem icon="i-tabler:info-circle" title="关于" :active="store.mode === 'about'" @click="switchMode('about')" />
       <div :class="`${tabClass}`" @click.stop="openAfdian">
         <div class="i-mingcute:flash-line sider-row-icon" />
         <span v-if="open" class="sider-row-text">探索</span>
