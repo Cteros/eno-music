@@ -13,7 +13,6 @@ export const test = base.extend<{
   extensionId: string
 }>({
   context: async ({ headless }, use) => {
-    // workaround for the Vite server has started but contentScript is not yet.
     await sleep(1000)
     const context = await chromium.launchPersistentContext('', {
       headless,

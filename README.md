@@ -31,7 +31,6 @@ Eno Music 是一个基于 bilibili 的音乐播放器，完全改变了你在该
 
 Made with [contrib.rocks](https://contrib.rocks).
 
-
 此项目不再优化
 
 此项目增加打开客户端功能,可以将cookie一键带入桌面端

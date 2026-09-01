@@ -23,7 +23,6 @@ export const sharedConfig: UserConfig = {
   resolve: {
     alias: {
       '~/': `${r('src')}/`,
-      'jsmediatags': 'jsmediatags/dist/jsmediatags.min.js',
     },
   },
   define: {
@@ -47,11 +46,9 @@ export const sharedConfig: UserConfig = {
 
     // https://github.com/antfu/unplugin-vue-components
     Components({
-      dirs: [r('src/components')],
-      // generate `components.d.ts` for ts support with Volar
+      dirs: [],
       dts: r('src/components.d.ts'),
       resolvers: [
-        // auto import icons
         IconsResolver({
           prefix: '',
         }),
@@ -119,7 +116,6 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input: {
         options: r('src/options/index.html'),
-        popup: r('src/popup/index.html'),
       },
     },
   },

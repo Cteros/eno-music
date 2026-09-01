@@ -9,7 +9,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     // start e2e test after the Vite server is fully prepared
-    url: 'http://localhost:3303/popup/main.ts',
+    url: 'http://localhost:3303/options/main.ts',
     reuseExistingServer: true,
   },
 })

@@ -24,7 +24,6 @@ export async function getManifest() {
     },
     action: {
       default_icon: 'assets/128px.png',
-      // default_popup: './dist/popup/index.html',
     },
     options_ui: {
       page: './dist/options/index.html',
@@ -54,29 +53,12 @@ export async function getManifest() {
       'https://*.bilivideo.com/*',
       'https://*.bilivideo.cn/*',
     ],
-    content_scripts: [
-    ],
-    web_accessible_resources: [
-      {
-        resources: ['dist/contentScripts/style.css'],
-        matches: ['<all_urls>'],
-      },
-    ],
     content_security_policy: {
       extension_pages: isDev
         // this is required on dev for Vite script to load
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
         : 'script-src \'self\' ; object-src \'self\'',
     },
-  }
-
-  // FIXME: not work in MV3
-  if (isDev && false) {
-    // for content script, as browsers will cache them for each reload,
-    // we use a background script to always inject the latest version
-    // see src/background/contentScriptHMR.ts
-    delete manifest.content_scripts
-    manifest.permissions?.push('webNavigation')
   }
 
   return manifest
