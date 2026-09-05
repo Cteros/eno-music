@@ -11,6 +11,7 @@
 dist
 dist-ssr
 extension/manifest.json
+extension/_metadata
 node_modules
 src/auto-imports.d.ts
 src/components.d.ts

@@ -9,10 +9,11 @@
   "github": {
     "release": true,
     "assets": [
-      "*.zip",
-      "*.xpi",
-      "*.crx"
+      "extension.zip"
     ]
   },
-  "npm": false
+  "npm": false,
+  "hooks": {
+    "after:bump": "pnpm build && pnpm pack:zip"
+  }
 }

@@ -1,0 +1,35 @@
+# 每月刷新一次 access token，避免 CWS refresh token 因长期不用失效。
+# 凭证配置见 .github/CWS_SETUP.md
+name: CWS token keepalive
+
+on:
+  schedule:
+    - cron: '0 4 1 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    environment: chrome-webstore
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exchange refresh token
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLIENT_ID:-}" ] || [ -z "${CLIENT_SECRET:-}" ] || [ -z "${REFRESH_TOKEN:-}" ]; then
+            echo "缺少 CWS_* secrets，跳过"
+            exit 0
+          fi
+          response="$(curl -sS "https://oauth2.googleapis.com/token" \
+            -d "client_id=${CLIENT_ID}" \
+            -d "client_secret=${CLIENT_SECRET}" \
+            -d "refresh_token=${REFRESH_TOKEN}" \
+            -d "grant_type=refresh_token")"
+          if ! printf '%s' "$response" | grep -q '"access_token"'; then
+            echo "刷新失败：Google 未返回 access_token（多为 invalid_grant，需按 .github/CWS_SETUP.md 重签 refresh token）"
+            exit 1
+          fi
+          echo "Chrome Web Store OAuth token 刷新成功"

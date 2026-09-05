@@ -1,0 +1,129 @@
+# 发版并上传 Chrome 商店。凭证配置见 .github/CWS_SETUP.md
+name: Release
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 版本号递增
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+      chrome:
+        description: Chrome 商店
+        type: choice
+        options:
+          - publish
+          - upload
+          - skip
+        default: publish
+
+env:
+  EXTENSION_ID: hjcdffalgapcchmopkbnkljenlglloln
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_PAT || github.token }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump, build, pack, GitHub Release
+        run: pnpm exec release-it ${{ inputs.bump }} --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
+
+      - id: meta
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension-zip
+          path: extension.zip
+          if-no-files-found: error
+
+      - name: Summary
+        run: |
+          {
+            echo "## GitHub Release v${{ steps.meta.outputs.version }}"
+            echo ""
+            echo "- bump: \`${{ inputs.bump }}\`"
+            echo "- chrome: \`${{ inputs.chrome }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  chrome:
+    needs: release
+    if: ${{ inputs.chrome != 'skip' }}
+    name: Chrome Web Store
+    environment: chrome-webstore
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-zip
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Upload to Chrome Web Store
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          CWS_MODE: ${{ inputs.chrome }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLIENT_ID:-}" ] || [ -z "${CLIENT_SECRET:-}" ] || [ -z "${REFRESH_TOKEN:-}" ] || [ -z "${PUBLISHER_ID:-}" ]; then
+            echo "缺少 CWS_* secrets，请按 .github/CWS_SETUP.md 配置 Environment chrome-webstore"
+            exit 1
+          fi
+          if [ "$CWS_MODE" = "upload" ]; then
+            npx --yes chrome-webstore-upload-cli@4 upload --source extension.zip --extension-id "$EXTENSION_ID"
+          else
+            npx --yes chrome-webstore-upload-cli@4 --source extension.zip --extension-id "$EXTENSION_ID"
+          fi
+
+      - name: Summary
+        run: |
+          {
+            echo "## Chrome Web Store v${{ needs.release.outputs.version }}"
+            echo ""
+            if [ "${{ inputs.chrome }}" = "upload" ]; then
+              echo "已上传草稿，需在 [开发者后台](https://chrome.google.com/webstore/devconsole/) 手动提交审核。"
+            else
+              echo "已上传并提交审核，通过后会按现有可见性上架。"
+            fi
+            echo ""
+            echo "商店链接：https://chromewebstore.google.com/detail/${{ env.EXTENSION_ID }}"
+          } >> "$GITHUB_STEP_SUMMARY"
