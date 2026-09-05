@@ -4,13 +4,12 @@
   },
   "git": {
     "requireBranch": "main",
-    "commitMessage": "chore: release v${version}"
+    "commitMessage": "chore: release v${version}",
+    "tagName": "v${version}",
+    "tagMatch": "v[0-9]*"
   },
   "github": {
-    "release": true,
-    "assets": [
-      "extension.zip"
-    ]
+    "release": false
   },
   "npm": false,
   "hooks": {

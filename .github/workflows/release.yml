@@ -57,13 +57,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Bump, build, pack, GitHub Release
+      - name: Bump, build, pack
         run: pnpm exec release-it ${{ inputs.bump }} --ci
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
 
       - id: meta
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
+        run: |
+          gh release create "v${{ steps.meta.outputs.version }}" extension.zip \
+            --title "v${{ steps.meta.outputs.version }}" \
+            --generate-notes
 
       - uses: actions/upload-artifact@v4
         with:
