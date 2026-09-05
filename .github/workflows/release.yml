@@ -58,12 +58,23 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Bump, build, pack
-        run: pnpm exec release-it ${{ inputs.bump }} --ci
+        id: bump
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
+        run: |
+          set -euo pipefail
+          npm version "${{ inputs.bump }}" --no-git-tag-version
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          pnpm build
+          pnpm pack:zip
+          git add package.json
+          git commit -m "chore: release v${VERSION}"
+          git tag "v${VERSION}"
+          git push origin HEAD --tags
 
       - id: meta
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: echo "version=${{ steps.bump.outputs.version }}" >> "$GITHUB_OUTPUT"
 
       - name: GitHub Release
         env:
