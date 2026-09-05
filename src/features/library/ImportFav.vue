@@ -107,31 +107,24 @@ function addNewSeasonPlayList() {
 .media-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  height: 2.35rem;
-  border: 1px solid color-mix(in oklab, var(--eno-border), white 12%);
-  border-radius: 11px;
-  padding: 0 0.86rem;
-  font-size: 0.88rem;
-  font-weight: 620;
-  color: var(--eno-text-1);
-  background: linear-gradient(180deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 2%));
+  gap: 8px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  background: #fff;
   cursor: pointer;
-  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .media-action-btn:hover {
-  border-color: color-mix(in oklab, var(--eno-border), white 24%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 3%));
-}
-
-.media-action-btn:active {
-  transform: translateY(1px);
+  transform: scale(1.04);
 }
 
 .media-action-btn-lg {
-  height: 2.55rem;
-  padding: 0 1rem;
-  font-size: 0.95rem;
+  height: 40px;
+  padding: 0 20px;
 }
 </style>

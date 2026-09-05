@@ -17,34 +17,82 @@ function goTo(id, index) {
 </script>
 
 <template>
-  <span class="flex flex-1 gap-1 h-5">
-    <div
-      class="cursor-pointer hov-item p-0 w-10 h-full flex text-lg items-center justify-center rounded-full"
+  <span class="rank-switch">
+    <button
+      class="rank-nav"
+      type="button"
       @click="goDirection(-1)"
     >
-      <div class="i-mingcute:align-arrow-left-line cursor-pointer" />
-    </div>
-    <div id="rank-list" class="w-40 flex items-center overflow-auto overflow-y-hidden gap-3">
-      <div
+      <div class="i-mingcute:align-arrow-left-line" />
+    </button>
+    <div id="rank-list" class="rank-list">
+      <button
         v-for="(rankId, index) in store.ranksId" :id="`rank-${index}`" :key="rankId.ID" :class="cn(
-          'text-center text-sm flex-shrink-0 cursor-pointer hover:opacity-70',
-          { 'text-$eno-primary': currentIndex === index },
-        )" @click="goTo(rankId.ID, index)"
+          'rank-chip',
+          { 'rank-chip--active': currentIndex === index },
+        )" type="button" @click="goTo(rankId.ID, index)"
       >
         第{{ rankId.priod }}期
-      </div>
+      </button>
     </div>
-    <div
-      class="cursor-pointer hov-item p-0 w-10 h-full flex text-lg items-center justify-center rounded-full"
+    <button
+      class="rank-nav"
+      type="button"
       @click="goDirection(1)"
     >
       <div class="i-mingcute:align-arrow-right-line" />
-    </div>
+    </button>
   </span>
 </template>
 
 <style scoped>
-#rank-list {
+.rank-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rank-nav {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(0 0 0 / 40%);
+  cursor: pointer;
+}
+
+.rank-nav:hover {
+  background: rgb(0 0 0 / 60%);
+}
+
+.rank-list {
+  display: flex;
+  width: 220px;
+  align-items: center;
+  gap: 8px;
+  overflow: auto hidden;
   scroll-behavior: smooth;
+}
+
+.rank-chip {
+  flex-shrink: 0;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #fff;
+  background: rgb(255 255 255 / 10%);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rank-chip--active {
+  color: #000;
+  background: #1ed760;
 }
 </style>

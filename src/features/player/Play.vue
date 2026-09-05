@@ -74,11 +74,7 @@ watch(() => eqStore.currentPreset, () => {
 </script>
 
 <template>
-  <section
-    class="eno-player w-screen h-18 flex z-10"
-    pos="fixed bottom-0 left-0" transform-gpu
-  >
-    <img v-if="store.play" :src="store.play.cover" class="absolute inset-0 w-full h-full object-cover opacity-8 pointer-events-none">
+  <section class="eno-player">
     <div class="eno-player-shell">
       <div class="eno-left">
         <span
@@ -108,16 +104,21 @@ watch(() => eqStore.currentPreset, () => {
         <div class="eno-controls">
           <LoopSwitch v-model="store.loopMode" />
           <div class="i-tabler:player-track-prev-filled eno-ctrl" @click.stop="change('prev')" />
-          <div
-            v-if="isPlaying"
-            class="i-tabler:player-pause-filled eno-ctrl eno-ctrl-main"
+          <button
+            type="button"
+            class="eno-play-btn"
+            aria-label="播放/暂停"
             @click.stop="playControl"
-          />
-          <div
-            v-else
-            class="i-tabler:player-play-filled eno-ctrl eno-ctrl-main"
-            @click.stop="playControl"
-          />
+          >
+            <span
+              v-if="isPlaying"
+              class="eno-play-icon i-tabler:player-pause-filled"
+            />
+            <span
+              v-else
+              class="eno-play-icon i-tabler:player-play-filled"
+            />
+          </button>
           <div class="i-tabler:player-track-next-filled eno-ctrl" @click.stop="change('next')" />
         </div>
 
@@ -181,51 +182,56 @@ watch(() => eqStore.currentPreset, () => {
       v-if="ui.videoMode !== VIDEO_MODE.HIDDEN"
       :is-playing="isPlaying"
       :video-url="store.play.video"
+      :audio-time="progress.current"
     />
   </section>
 </template>
 
 <style>
 .eno-player {
-  border-top: 1px solid var(--eno-border);
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  height: 80px;
+  background: #000;
 }
 
 .eno-player-shell {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(460px, 1.4fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(240px, 1fr) minmax(360px, 1.6fr) minmax(240px, 1fr);
   width: 100%;
   height: 100%;
-  padding: 7px 14px;
+  padding: 0 16px;
   align-items: center;
-  gap: 12px;
-  color: var(--eno-text-1);
-  background: color-mix(in oklab, var(--eno-elevated), black 4%);
-  backdrop-filter: var(--eno-filter-glass-light-1);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+  gap: 16px;
+  color: #fff;
 }
 
 .eno-left {
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 10px;
+  gap: 12px;
 }
 
 .eno-cover {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
   object-fit: cover;
 }
 
 .eno-cover-mask {
   position: absolute;
   inset: 0;
-  border-radius: 10px;
+  border-radius: 4px;
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgb(0 0 0 / 35%);
+  background: rgb(0 0 0 / 50%);
 }
 
 .group:hover .eno-cover-mask {
@@ -239,9 +245,9 @@ watch(() => eqStore.currentPreset, () => {
 
 .eno-title {
   font-size: 14px;
-  font-weight: 620;
-  line-height: 1.15;
-  color: var(--eno-text-1);
+  font-weight: 400;
+  line-height: 1.3;
+  color: #fff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -249,8 +255,8 @@ watch(() => eqStore.currentPreset, () => {
 
 .eno-author {
   margin-top: 2px;
-  font-size: 12px;
-  color: var(--eno-text-3);
+  font-size: 11px;
+  color: #b3b3b3;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -259,9 +265,17 @@ watch(() => eqStore.currentPreset, () => {
 .eno-mini-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-size: 16px;
-  color: var(--eno-text-2);
+  color: #b3b3b3;
+}
+
+.eno-mini-actions > * {
+  cursor: pointer;
+}
+
+.eno-mini-actions > *:hover {
+  color: #fff;
 }
 
 .eno-center {
@@ -275,43 +289,69 @@ watch(() => eqStore.currentPreset, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 16px;
 }
 
 .eno-ctrl {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: var(--eno-text-2);
+  font-size: 16px;
+  color: #b3b3b3;
   cursor: pointer;
-  transition: color 0.2s var(--eno-ease), transform 0.2s var(--eno-ease);
+  transition: color 0.12s var(--eno-ease), transform 0.12s var(--eno-ease);
 }
 
 .eno-ctrl:hover {
-  color: var(--eno-text-1);
+  color: #fff;
 }
 
-.eno-ctrl:active {
-  transform: translateY(1px);
+button.eno-play-btn {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  color: #000;
+  background: #fff;
+  background-color: #fff;
+  cursor: pointer;
+  transition: transform 0.12s var(--eno-ease), background-color 0.12s var(--eno-ease);
 }
 
-.eno-ctrl-main {
-  font-size: 30px;
-  color: var(--eno-text-1);
+button.eno-play-btn:hover {
+  transform: scale(1.06);
+  background: #fff;
+  background-color: #fff;
+  color: #000;
+}
+
+button.eno-play-btn:active {
+  transform: scale(1);
+}
+
+button.eno-play-btn .eno-play-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  color: #000;
+  background-color: #000;
 }
 
 .eno-progress {
   display: grid;
-  grid-template-columns: 46px 1fr 46px;
+  grid-template-columns: 40px 1fr 40px;
   align-items: center;
   gap: 8px;
 }
 
 .eno-time {
   font-size: 11px;
-  font-weight: 650;
-  color: var(--eno-text-3);
+  font-weight: 400;
+  color: #a7a7a7;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
@@ -319,7 +359,7 @@ watch(() => eqStore.currentPreset, () => {
 .eno-progress-track {
   position: relative;
   width: 100%;
-  height: 14px;
+  height: 12px;
   display: flex;
   align-items: center;
 }
@@ -329,7 +369,7 @@ watch(() => eqStore.currentPreset, () => {
   width: 100%;
   height: 4px;
   border-radius: 999px;
-  background: var(--eno-fill-2);
+  background: #4d4d4d;
 }
 
 .eno-progress-fill {
@@ -337,14 +377,18 @@ watch(() => eqStore.currentPreset, () => {
   left: 0;
   height: 4px;
   border-radius: 999px;
-  background: var(--eno-primary);
+  background: #fff;
+}
+
+.eno-progress-track:hover .eno-progress-fill {
+  background: #1ed760;
 }
 
 .eno-progress-range {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 14px;
+  height: 12px;
   margin: 0;
   opacity: 0;
   cursor: pointer;
@@ -354,11 +398,11 @@ watch(() => eqStore.currentPreset, () => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 12px;
 }
 
 .eno-volume-range {
-  width: 130px;
+  width: 93px;
   height: 4px;
   border-radius: 999px;
 }
@@ -375,7 +419,7 @@ input[type="range"]::-webkit-slider-runnable-track {
   border-radius: 999px;
   border: none;
   outline: none;
-  background: var(--eno-fill-2);
+  background: #4d4d4d;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -384,18 +428,13 @@ input[type="range"]::-webkit-slider-thumb {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--eno-text-1);
-  border: 1px solid var(--eno-border);
+  background: #fff;
+  border: none;
   margin-top: -4px;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 6px var(--eno-primary-light);
-  transition: 0.2s var(--eno-ease);
-}
-
 input[type="range"]::-moz-range-track {
-  background: var(--eno-fill-2);
+  background: #4d4d4d;
   height: 4px;
   border-radius: 999px;
   border: none;
@@ -403,24 +442,23 @@ input[type="range"]::-moz-range-track {
 }
 
 #voice-progress {
-  background: var(--eno-fill-2);
+  background: #4d4d4d;
 }
 
 @media (max-width: 1200px) {
   .eno-player-shell {
-    grid-template-columns: minmax(220px, 1fr) minmax(360px, 1.3fr) minmax(220px, 1fr);
+    grid-template-columns: minmax(200px, 1fr) minmax(300px, 1.3fr) minmax(180px, 1fr);
     gap: 8px;
   }
 
   .eno-volume-range {
-    width: 96px;
+    width: 72px;
   }
 }
 
 @media (max-width: 900px) {
   .eno-player-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
     height: auto;
     padding: 10px 12px;
   }

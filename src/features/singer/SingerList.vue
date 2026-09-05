@@ -3,16 +3,14 @@ import { Dialog } from '@cloudfly/eno-ui'
 import { defaultSingers, useSingerStore } from '~/stores'
 import SingerItem from '~/features/singer/SingerItem.vue'
 
-// https://space.bilibili.com/17819768?spm_id_from=333.1007.tianma.1-1-1.click
 function getMidFromUrl(url) {
-  // 如果url 是纯数字, 则直接返回
-  if (/^\d+$/.test(url)) {
+  if (/^\d+$/.test(url))
     return url
-  }
+
   const match = url.match(/space\.bilibili\.com\/(\d+)/)
-  if (match) {
+  if (match)
     return match[1]
-  }
+
   return ''
 }
 
@@ -21,11 +19,9 @@ onMounted(() => {
   PLstore.fetchSingerInfoList()
 })
 
-// 添加歌手相关
 const dialogVis = ref(false)
 const singerMid = ref('')
 function addSinger() {
-  // 判断是否已经存在, 判断singerMid是否合法
   const mid = getMidFromUrl(singerMid.value)
   if (!mid)
     return
@@ -38,30 +34,89 @@ function addSinger() {
 </script>
 
 <template>
-  <section class="h-screen overflow-auto pl-10">
-    <div class="text-3xl mt-10 mb-5 flex gap-3">
-      关注歌手
-      <span
-        class="text-sm text-gray-400/80 hover:text-gray-200 transition-all duration-100 flex items-end gap-1 cursor-pointer"
-        @click.stop="dialogVis = true"
-      >
-        <div class="i-mdi:user-add w-24px h-24px" />
+  <section class="singer-list-page">
+    <div class="page-head">
+      <h1>关注歌手</h1>
+      <button type="button" class="add-btn" @click.stop="dialogVis = true">
+        <div class="i-mdi:user-add" />
         添加歌手
-      </span>
+      </button>
     </div>
-    <div class="flex gap-5 flex-wrap mb-30 w-full">
+    <div class="artist-grid">
       <SingerItem v-for="serid in PLstore.singers" :key="serid" :singer-mid="serid" can-del />
     </div>
     <Dialog :open="dialogVis" title="添加自定义歌手" @visible-change="dialogVis = $event">
       <div class="flex flex-col gap-3 w-full h-full justify-between">
         <input
-          v-model="singerMid" placeholder="请输入歌手mid或up主主页链接" bg="$eno-content focus:$eno-content-hover"
-          class="h-10 px-3 border border-$eno-border rounded-3 text-$eno-text-1"
+          v-model="singerMid"
+          placeholder="请输入歌手 mid 或 UP 主页链接"
+          class="add-input"
         >
-        <button class="w-full h-10 bg-$eno-primary text-black rounded-3 hover:bg-$eno-primary-hover transition-colors" @click="addSinger">
+        <button class="add-submit" type="button" @click="addSinger">
           添加
         </button>
       </div>
     </Dialog>
   </section>
 </template>
+
+<style scoped>
+.singer-list-page {
+  height: 100%;
+  overflow: auto;
+  padding: 24px 32px 40px;
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-weight: 700;
+  color: #000;
+  background: #fff;
+  cursor: pointer;
+}
+
+.artist-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.add-input {
+  height: 40px;
+  border: 0;
+  border-radius: 4px;
+  padding: 0 12px;
+  color: #fff;
+  background: #3e3e3e;
+}
+
+.add-submit {
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  color: #000;
+  background: #1ed760;
+  cursor: pointer;
+}
+</style>

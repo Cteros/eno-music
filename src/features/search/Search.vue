@@ -14,13 +14,12 @@ const api = useApiClient()
 const keyword = ref('')
 const result = ref([])
 const isLoading = ref(false)
-// 单个搜索结果过少时不触发滚动加载
 const enableScrollGetMore = ref(true)
 
 function isUrl(url) {
   return /bilibili.com/.test(url)
 }
-// 滚动加载
+
 useInfiniteScroll(
   scrollRef,
   async () => {
@@ -31,7 +30,7 @@ useInfiniteScroll(
   },
   { distance: 10 },
 )
-// 加载函数
+
 async function getMoreData() {
   isLoading.value = true
   pageNum.value++
@@ -56,12 +55,11 @@ async function getMoreData() {
     }
   })
 }
-// 搜索
+
 async function handleSearch() {
   enableScrollGetMore.value = true
   if (isUrl(keyword.value)) {
     const bvid = keyword.value.match(/BV([a-zA-Z0-9]+)/)[0]
-    // 获取对应的歌曲
     const item = await api.blbl.getVideoInfo({
       bvid,
     }).then(res => res.data)
@@ -97,12 +95,8 @@ async function handleSearch() {
 
     <header class="search-hero">
       <h1 class="search-title">
-        搜索音乐
+        搜索
       </h1>
-      <p class="search-subtitle">
-        输入关键词或 Bilibili 视频链接，快速加入播放列表。
-      </p>
-
       <div class="search-form">
         <div class="search-input-wrap">
           <div class="i-tabler:search search-input-icon" />
@@ -111,76 +105,57 @@ async function handleSearch() {
             v-model="keyword"
             type="text"
             class="search-input"
-            placeholder="输入关键词或原视频链接"
+            placeholder="想听什么？"
             @keyup.enter="handleSearch"
           >
           <Loading v-if="isLoading" class="search-loading" />
         </div>
-        <button class="search-btn" @click="handleSearch">
-          搜索
-        </button>
       </div>
     </header>
 
-    <div class="result-meta">
-      <span>结果</span>
-      <span class="result-count">{{ result.length }}</span>
-    </div>
-
     <div v-if="result.length" ref="scrollRef" class="result-panel">
-      <SongItem v-for="item in result" :key="item.bvid" :song="item" check-pages />
+      <h2 class="result-title">
+        歌曲
+      </h2>
+      <SongItem
+        v-for="(item, index) in result"
+        :key="item.bvid"
+        :song="item"
+        :index="index + 1"
+        check-pages
+      />
     </div>
 
     <div v-else class="empty-panel">
-      <div class="i-tabler:music-search empty-icon" />
       <h3>开始搜索</h3>
-      <ol class="empty-steps">
-        <li>输入关键词</li>
-        <li>或直接粘贴原视频链接</li>
-        <li>分 P 视频支持直接保存成歌单</li>
-      </ol>
+      <p>输入关键词，或直接粘贴 Bilibili 视频链接。</p>
     </div>
   </section>
 </template>
 
 <style scoped>
 .search-page {
-  position: relative;
   display: flex;
-  height: 100vh;
+  height: 100%;
   flex-direction: column;
-  gap: 0.85rem;
   overflow: hidden;
-  padding: 1.15rem 1.5rem 5.5rem;
+  background:
+    linear-gradient(180deg, #1e1e1e 0%, #121212 220px);
 }
 
 .search-hero {
-  border: 1px solid var(--eno-border);
-  border-radius: 16px;
-  padding: 1.1rem 1.1rem 1rem;
-  background:
-    radial-gradient(120% 100% at 0% -20%, rgb(255 255 255 / 5%), transparent 52%),
-    color-mix(in oklab, var(--eno-content), transparent 6%);
+  padding: 24px 32px 8px;
 }
 
 .search-title {
-  margin: 0;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--eno-text-1);
-}
-
-.search-subtitle {
-  margin: 0.3rem 0 0.88rem;
-  font-size: 0.86rem;
-  color: var(--eno-text-3);
+  margin: 0 0 20px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .search-form {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) auto;
-  gap: 0.66rem;
+  max-width: 364px;
 }
 
 .search-input-wrap {
@@ -191,126 +166,77 @@ async function handleSearch() {
 
 .search-loading {
   position: absolute;
-  right: 0.72rem;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
 }
 
 .search-input-icon {
   position: absolute;
-  left: 0.72rem;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.96rem;
-  color: var(--eno-text-4);
+  font-size: 20px;
+  color: #000;
 }
 
 .search-input {
   width: 100%;
-  height: 2.5rem;
-  border: 1px solid var(--eno-border);
-  border-radius: 11px;
-  padding: 0 0.82rem 0 2rem;
-  font-size: 0.92rem;
-  color: var(--eno-text-1);
-  background: color-mix(in oklab, var(--eno-content), transparent 8%);
-  transition: background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
+  height: 48px;
+  border: 0;
+  border-radius: 24px;
+  padding: 0 16px 0 44px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  background: #fff;
 }
 
 .search-input::placeholder {
-  color: var(--eno-text-4);
-}
-
-.search-input:hover {
-  background: var(--eno-content-hover);
+  color: #757575;
 }
 
 .search-input:focus {
-  border-color: color-mix(in oklab, var(--eno-border), white 20%);
-  background: var(--eno-content-hover);
-}
-
-.search-btn {
-  height: 2.5rem;
-  border: 1px solid color-mix(in oklab, var(--eno-border), white 10%);
-  border-radius: 11px;
-  padding: 0 1rem;
-  font-size: 0.9rem;
-  font-weight: 620;
-  color: var(--eno-text-1);
-  background: linear-gradient(180deg, rgb(255 255 255 / 7%), rgb(255 255 255 / 2%));
-  cursor: pointer;
-  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
-}
-
-.search-btn:hover {
-  border-color: color-mix(in oklab, var(--eno-border), white 24%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 3%));
-}
-
-.result-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.36rem;
-  padding: 0 0.2rem;
-  font-size: 0.84rem;
-  color: var(--eno-text-3);
-}
-
-.result-count {
-  border: 1px solid var(--eno-border);
-  border-radius: 999px;
-  padding: 0.06rem 0.44rem;
-  color: var(--eno-text-2);
-  background: color-mix(in oklab, var(--eno-fill-1), transparent 8%);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .result-panel {
   flex: 1;
   overflow: auto;
-  border: 1px solid var(--eno-border);
-  border-radius: 14px;
-  background: color-mix(in oklab, var(--eno-bg), var(--eno-content) 16%);
-  padding: 0.62rem;
+  padding: 8px 16px 32px;
+}
+
+.result-title {
+  margin: 8px 16px 12px;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .empty-panel {
-  flex: 1;
-  border: 1px dashed color-mix(in oklab, var(--eno-border), white 12%);
-  border-radius: 14px;
-  padding: 2rem 1.25rem;
-  color: var(--eno-text-3);
-  background: color-mix(in oklab, var(--eno-content), transparent 18%);
-}
-
-.empty-icon {
-  font-size: 1.6rem;
-  margin-bottom: 0.55rem;
-  color: var(--eno-text-2);
+  padding: 48px 32px;
+  color: #b3b3b3;
 }
 
 .empty-panel h3 {
-  margin: 0 0 0.45rem;
-  font-size: 1.06rem;
-  font-weight: 650;
-  color: var(--eno-text-1);
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
 }
 
-.empty-steps {
+.empty-panel p {
   margin: 0;
-  padding-left: 1.2rem;
-  display: grid;
-  gap: 0.35rem;
-  font-size: 0.88rem;
+  font-size: 14px;
 }
 
 @media (max-width: 860px) {
-  .search-page {
-    padding: 0.9rem 0.9rem 5.5rem;
+  .search-hero {
+    padding: 20px 16px 8px;
   }
 
   .search-form {
-    grid-template-columns: 1fr;
+    max-width: none;
   }
 }
 </style>

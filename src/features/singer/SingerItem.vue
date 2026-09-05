@@ -19,7 +19,7 @@ const avatar = computed(() => info.value?.face || '')
 const name = computed(() => info.value?.name || '')
 const desc = computed(() => {
   const { name } = info.value?.nameplate || {}
-  return `${name || '暂无'}`
+  return `${name || '艺人'}`
 })
 
 function handleSingerDetail(singerMid) {
@@ -30,100 +30,95 @@ function handleSingerDetail(singerMid) {
 
 <template>
   <div
-    class="singer-item group"
+    class="singer-card group"
     @click.stop="handleSingerDetail(singerMid)"
   >
-    <div class="singer-main">
+    <div class="avatar-wrap">
       <img
         :src="avatar"
         alt="singerAvatar"
         class="singer-avatar"
       >
-      <div class="min-w-0">
-        <div class="singer-name">
-          {{ name }}
-        </div>
-        <div class="singer-desc">
-          {{ desc }}
-        </div>
-      </div>
-    </div>
-
-    <div class="singer-actions">
-      <div class="i-mingcute:right-line h-[16px] w-[16px] opacity-55 transition-all duration-200 group-hover:translate-x-[1px] group-hover:opacity-90" />
-      <div
+      <button
         v-if="canDel"
-        class="i-mingcute:delete-3-line h-[16px] w-[16px] cursor-pointer text-$eno-text-3 transition-colors duration-200 hover:text-red-400"
+        type="button"
+        class="del-btn"
         @click.stop="PLstore.removeSinger(singerMid)"
-      />
+      >
+        <div class="i-mingcute:delete-3-line" />
+      </button>
+    </div>
+    <div class="singer-name">
+      {{ name }}
+    </div>
+    <div class="singer-desc">
+      {{ desc }}
     </div>
   </div>
 </template>
 
 <style scoped>
-.singer-item {
-  display: flex;
-  width: 18.75rem;
-  max-width: 100%;
-  height: 4.5rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.75rem;
-  border: 1px solid var(--eno-border);
-  border-radius: 12px;
-  background: color-mix(in oklab, var(--eno-content), transparent 6%);
-  box-shadow: 0 1px 1px rgb(0 0 0 / 12%);
+.singer-card {
+  width: 180px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #181818;
   cursor: pointer;
-  transition: transform 0.18s var(--eno-ease), border-color 0.18s var(--eno-ease), background-color 0.18s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease);
 }
 
-.singer-item:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in oklab, var(--eno-border), var(--eno-text-2) 28%);
-  background: color-mix(in oklab, var(--eno-content-hover), transparent 8%);
+.singer-card:hover {
+  background: #282828;
 }
 
-.singer-main {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 0.75rem;
+.avatar-wrap {
+  position: relative;
+  margin-bottom: 16px;
 }
 
 .singer-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid color-mix(in oklab, var(--eno-border), white 8%);
-  border-radius: 999px;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
   object-fit: cover;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+}
+
+.del-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: none;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(0 0 0 / 70%);
+  cursor: pointer;
+}
+
+.group:hover .del-btn {
+  display: inline-flex;
 }
 
 .singer-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.92rem;
-  font-weight: 620;
-  line-height: 1.2rem;
-  letter-spacing: -0.01em;
-  color: var(--eno-text-1);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
 }
 
 .singer-desc {
-  margin-top: 2px;
+  margin-top: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.72rem;
-  line-height: 1rem;
-  color: var(--eno-text-3);
-}
-
-.singer-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--eno-text-3);
+  font-size: 14px;
+  color: #b3b3b3;
 }
 </style>

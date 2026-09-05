@@ -79,7 +79,7 @@ watch(userInfo, () => {
 </script>
 
 <template>
-  <div class="p-10 h-screen overflow-auto pb-25">
+  <div class="library-page">
     <div class="media-top">
       <h2 class="media-title">
         媒体库
@@ -92,63 +92,53 @@ watch(userInfo, () => {
         </button>
       </div>
     </div>
-    <!-- 创建歌单部分 -->
-    <h3 class="text-xl my-3">
-      ENO 收藏夹{{ noPlaylist ? '（暂无ENO 歌单）' : '' }}
+    <h3 class="section-label">
+      ENO 收藏夹{{ noPlaylist ? '（暂无歌单）' : '' }}
     </h3>
-    <div v-if="!noPlaylist" class="flex flex-col text-left gap-5">
-      <!-- 循环歌单列表 -->
+    <div v-if="!noPlaylist" class="flex flex-col text-left gap-2">
       <section
         v-for="playlist in list" :key="playlist.name"
-        class="w-full has-border"
-        p="x-4 y-3"
-        rounded-lg
-        transition-200
-        bg="$eno-content hover:$eno-content-hover"
+        class="playlist-card"
       >
-        <div class="flex justify-between items-center w-full" cursor-pointer @click="switchPlaylist(playlist)">
-          <div class="flex items-center gap-3 text-[22px]">
+        <div class="playlist-head" @click="switchPlaylist(playlist)">
+          <div class="playlist-title">
             <div :class="`w-1em h-1em ${isMyOpen(playlist) ? 'i-mingcute:folder-open-2-fill' : 'i-mingcute:folder-fill'}`" />
-            <h2 class="max-w-[50vw] truncate" text-lg v-html="playlist.name" />
-            <span class="mx-2 text-lg">({{ playlist.songs.length }})</span>
+            <h2 class="max-w-[50vw] truncate" v-html="playlist.name" />
+            <span class="count">{{ playlist.songs.length }} 首</span>
           </div>
-          <div class="flex gap-3" all:transition-200>
+          <div class="playlist-ops">
             <div
-              class="i-mingcute:play-circle-line" text-xl cursor-pointer
-              color="gray hover:gray-50"
+              class="i-tabler:player-play-filled op-icon"
               @click.stop="handleReplacePlaylist(playlist)"
             />
             <div
-              class="i-mingcute:delete-2-line"
-              color="gray hover:gray-50"
-              text-xl cursor-pointer
+              class="i-mingcute:delete-2-line op-icon"
               @click.stop="handleDelPL(playlist)"
             />
           </div>
         </div>
-        <!-- 歌曲列表 -->
         <div
           v-if="isMyOpen(playlist)"
-          class="flex gap-3 flex-col w-full py-3 wrapper-transition fadeItem text-[16px] max-h-80 overflow-auto"
+          class="playlist-songs fadeItem"
         >
           <SongItem
-            v-for="song in renderSong(playlist)" :key="song?.id || song?.bvid" :song="song"
+            v-for="(song, index) in renderSong(playlist)" :key="song?.id || song?.bvid" :song="song"
+            :index="index + 1"
             :del="true"
             @delete-song="delSong(playlist, song)"
           />
-          <!-- 没有歌曲时 -->
-          <div v-if="!playlist.songs.length" class="px-10 py-3 text-3xl">
-            暂无歌单, 可以前往搜索页面添加
+          <div v-if="!playlist.songs.length" class="empty-hint">
+            暂无歌曲，可以前往搜索页面添加
           </div>
         </div>
       </section>
     </div>
-    <h3 class="text-xl my-3">
-      BLBL 收藏夹
+    <h3 class="section-label">
+      Bilibili 收藏夹
     </h3>
     <BLFav v-for="fav in normalizedFavs" :key="fav.id" :fav="fav" />
-    <h3 class="text-xl my-3">
-      BLBL 合集和列表
+    <h3 class="section-label">
+      Bilibili 合集和列表
     </h3>
     <BLFav v-for="fav in normalizedCollectedFavs" :key="fav.id" :fav="fav" tag="collected" />
 
@@ -157,19 +147,19 @@ watch(userInfo, () => {
         <input
           v-model="playlistName"
           type="text"
-          class="border-none outline-none bg-$eno-content-hover h-10 px-3 autofocus rounded-3 text-$eno-text-1"
+          class="create-input"
           placeholder="请输入播放列表名称"
           @keyup.enter="createPlaylist"
         >
       </div>
       <template #footer>
         <div class="opt flex flex-row-reverse text-sm gap-3">
-          <div class="bg-$eno-primary text-black px-4 py-1 rounded-3 cursor-pointer hover:bg-$eno-primary-hover" @click.stop="createPlaylist">
+          <button class="sp-btn-green" type="button" @click.stop="createPlaylist">
             新建
-          </div>
-          <div class="hover:bg-$eno-fill-2 px-4 py-1 rounded-3 cursor-pointer" @click.stop="createDialogVis = false">
+          </button>
+          <button class="sp-btn-ghost" type="button" @click.stop="createDialogVis = false">
             取消
-          </div>
+          </button>
         </div>
       </template>
     </Dialog>
@@ -177,57 +167,145 @@ watch(userInfo, () => {
 </template>
 
 <style scoped>
+.library-page {
+  height: 100%;
+  overflow: auto;
+  padding: 24px 32px 40px;
+}
+
 .media-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 24px;
 }
 
 .media-title {
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--eno-text-1);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .media-actions {
   display: flex;
   align-items: center;
-  gap: 0.58rem;
+  gap: 8px;
 }
 
-.media-action-btn {
+.media-action-btn,
+:deep(.media-action-btn) {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  height: 2.35rem;
-  border: 1px solid color-mix(in oklab, var(--eno-border), white 12%);
-  border-radius: 11px;
-  padding: 0 0.86rem;
-  font-size: 0.88rem;
-  font-weight: 620;
-  color: var(--eno-text-1);
-  background: linear-gradient(180deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 2%));
+  gap: 8px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  background: #fff;
   cursor: pointer;
-  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
-.media-action-btn:hover {
-  border-color: color-mix(in oklab, var(--eno-border), white 24%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 3%));
+.media-action-btn:hover,
+:deep(.media-action-btn):hover {
+  transform: scale(1.04);
 }
 
-.media-action-btn:active {
-  transform: translateY(1px);
+.section-label {
+  margin: 24px 0 12px;
+  font-size: 24px;
+  font-weight: 700;
 }
 
-.wrapper-transition {
-  transform: all 0.5s;
+.playlist-card {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #181818;
 }
 
-.song-item:hover>div {
-  opacity: 1;
+.playlist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.playlist-head:hover {
+  background: #282828;
+}
+
+.playlist-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.count {
+  color: #b3b3b3;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.playlist-ops {
+  display: flex;
+  gap: 12px;
+  color: #b3b3b3;
+}
+
+.op-icon {
+  cursor: pointer;
+}
+
+.op-icon:hover {
+  color: #fff;
+}
+
+.playlist-songs {
+  max-height: 320px;
+  overflow: auto;
+  padding: 0 8px 12px;
+}
+
+.empty-hint {
+  padding: 16px;
+  color: #b3b3b3;
+}
+
+.create-input {
+  width: 100%;
+  height: 40px;
+  border: 0;
+  border-radius: 4px;
+  padding: 0 12px;
+  color: #fff;
+  background: #3e3e3e;
+}
+
+.sp-btn-green {
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-weight: 700;
+  color: #000;
+  background: #1ed760;
+  cursor: pointer;
+}
+
+.sp-btn-ghost {
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
 }
 </style>

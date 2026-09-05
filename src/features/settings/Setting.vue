@@ -123,14 +123,13 @@ async function importData() {
 <style scoped>
 .settings-page {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   overflow-y: auto;
-  padding: 40px 48px 120px;
+  padding: 32px 32px 48px;
 }
 
 .settings-inner {
   max-width: 900px;
-  margin: 0 auto;
 }
 
 .settings-hero {
@@ -138,37 +137,38 @@ async function importData() {
 }
 
 .settings-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--eno-text-1, #e0e0e0);
-  margin-bottom: 4px;
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .settings-desc {
+  margin: 0;
   font-size: 14px;
-  color: var(--eno-text-3, #888);
+  color: #b3b3b3;
 }
 
 .settings-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
 }
 
 @media (max-width: 800px) {
   .settings-grid {
     grid-template-columns: 1fr;
   }
+
   .settings-page {
-    padding: 24px 20px 120px;
+    padding: 20px 16px 48px;
   }
 }
 
 .settings-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
   overflow: hidden;
+  border-radius: 8px;
+  background: #181818;
 }
 
 .settings-card__header {
@@ -176,29 +176,27 @@ async function importData() {
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .settings-card__icon {
   font-size: 24px;
-  color: var(--eno-text-2, #aaa);
+  color: #1ed760;
   flex-shrink: 0;
 }
 
 .settings-card__title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--eno-text-1, #e0e0e0);
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .settings-card__subtitle {
-  font-size: 12px;
-  color: var(--eno-text-3, #888);
-  margin-top: 1px;
+  margin-top: 2px;
+  font-size: 13px;
+  color: #b3b3b3;
 }
 
 .settings-card__body {
-  padding: 16px 20px;
+  padding: 0 20px 20px;
 }
 
 .settings-card__actions {
@@ -210,7 +208,7 @@ async function importData() {
 
 .settings-card__notes {
   font-size: 13px;
-  color: var(--eno-text-2, #aaa);
+  color: #b3b3b3;
   line-height: 1.6;
 }
 
@@ -218,9 +216,5 @@ async function importData() {
   list-style: disc;
   padding-left: 20px;
   margin-top: 6px;
-}
-
-.settings-card__notes li {
-  margin-bottom: 2px;
 }
 </style>

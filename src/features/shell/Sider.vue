@@ -1,40 +1,38 @@
 <script setup lang="ts">
 import { useLocalStorage } from '@vueuse/core'
 import cn from 'classnames'
-import { TabItem } from '@cloudfly/eno-ui'
 import { useUiStore } from '~/stores'
 
-const tabs = [
+const primaryTabs = [
   { icon: 'i-tabler:smart-home', title: '首页', mode: 'home' },
-  { icon: 'i-tabler:music-search', title: '搜索', mode: 'search' },
-  { icon: 'i-mingcute:version-line', title: '媒体库', mode: 'playlist' },
+  { icon: 'i-tabler:search', title: '搜索', mode: 'search' },
+]
+
+const libraryTabs = [
+  { icon: 'i-tabler:playlist', title: '媒体库', mode: 'playlist' },
+  { icon: 'i-tabler:user-star', title: '关注的音乐人', mode: 'singerList' },
+  { icon: 'i-tabler:clock-play', title: '稍后播放', mode: 'listenLater' },
 ]
 
 const store = useUiStore()
-// 侧边栏展开相关代码
 const open = useLocalStorage('sider-open', true)
 const asideClass = computed(() => {
   return cn('sider-shell', {
-    'w-16': !open.value,
-    'w-[19.5rem]': open.value,
+    'sider-shell--collapsed': !open.value,
   })
 })
-const tabClass = computed(() => {
-  return cn('sider-row', {
-  })
-})
+
 function openAfdian() {
   window.open('https://afdian.com/a/meanc')
 }
-function goSearch() {
-  store.mode = 'search'
-}
+
 async function openInClient() {
   const cookies = await chrome.cookies.getAll({ domain: '.bilibili.com' })
   const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ')
   const url = `eno-m://cookie?cookie=${encodeURIComponent(cookieString)}`
   window.open(url)
 }
+
 function switchMode(mode: string) {
   if (mode === 'openInClient') {
     openInClient()
@@ -45,44 +43,74 @@ function switchMode(mode: string) {
 </script>
 
 <template>
-  <aside :class="asideClass" transition-all duration-220 ease-out>
-    <div class="sider-top">
-      <div class="brand-row" @click="open = !open">
-        <div class="i-mingcute:disc-fill h-1.05em w-1.05em text-$eno-text-1" />
+  <aside :class="asideClass">
+    <div class="sider-nav">
+      <button class="brand-row" type="button" @click="open = !open">
+        <div class="i-mingcute:disc-fill brand-icon" />
         <span v-if="open" class="brand-text">ENO-M</span>
-        <div v-if="open" class="i-mingcute:down-line ml-auto h-1em w-1em text-$eno-text-4" />
-      </div>
-      <div v-if="open" class="top-actions">
-        <button class="top-icon" title="搜索" @click.stop="goSearch">
-          <div class="i-tabler:search h-1em w-1em" />
-        </button>
-        <button class="top-icon" title="探索" @click.stop="openAfdian">
-          <div class="i-tabler:external-link h-1em w-1em" />
-        </button>
-      </div>
+      </button>
+      <button
+        v-for="tab in primaryTabs"
+        :key="tab.mode"
+        type="button"
+        :class="cn('nav-item', { 'nav-item--active': store.mode === tab.mode })"
+        @click="switchMode(tab.mode)"
+      >
+        <div class="nav-icon" :class="tab.icon" />
+        <span v-if="open">{{ tab.title }}</span>
+      </button>
     </div>
 
-    <div class="sider-scroll">
-      <p v-if="open" class="sider-label">
-        Workspace
-      </p>
-      <TabItem v-for="tab in tabs" :key="tab.mode" :icon="tab.icon" :title="tab.title" :active="store.mode === tab.mode" @click="switchMode(tab.mode)" />
+    <div class="sider-library">
+      <div class="library-head">
+        <button class="library-toggle" type="button" @click="open = !open">
+          <div class="i-tabler:books nav-icon" />
+          <span v-if="open">你的音乐库</span>
+        </button>
+      </div>
 
-      <p v-if="open" class="sider-label mt-5">
-        Library
-      </p>
-      <TabItem icon="i-tabler:user-star" title="关注的音乐人" :active="store.mode === 'singerList'" @click="switchMode('singerList')" />
-      <TabItem icon="i-tabler:clock-play" title="稍后播放" :active="store.mode === 'listenLater'" @click="switchMode('listenLater')" />
+      <div class="sider-scroll">
+        <button
+          v-for="tab in libraryTabs"
+          :key="tab.mode"
+          type="button"
+          :class="cn('lib-item', { 'lib-item--active': store.mode === tab.mode })"
+          @click="switchMode(tab.mode)"
+        >
+          <div class="lib-icon" :class="tab.icon" />
+          <span v-if="open" class="lib-text">{{ tab.title }}</span>
+        </button>
+      </div>
 
-      <p v-if="open" class="sider-label mt-5">
-        System
-      </p>
-      <TabItem icon="i-mingcute:flash-line" title="打开客户端" :active="false" @click="switchMode('openInClient')" />
-      <TabItem icon="i-tabler:settings" title="设置" :active="store.mode === 'setting'" @click="switchMode('setting')" />
-      <TabItem icon="i-tabler:info-circle" title="关于" :active="store.mode === 'about'" @click="switchMode('about')" />
-      <div :class="`${tabClass}`" @click.stop="openAfdian">
-        <div class="i-mingcute:flash-line sider-row-icon" />
-        <span v-if="open" class="sider-row-text">探索</span>
+      <div class="sider-foot">
+        <button
+          type="button"
+          class="foot-item"
+          @click="switchMode('openInClient')"
+        >
+          <div class="i-mingcute:flash-line nav-icon" />
+          <span v-if="open">打开客户端</span>
+        </button>
+        <button
+          type="button"
+          :class="cn('foot-item', { 'foot-item--active': store.mode === 'setting' })"
+          @click="switchMode('setting')"
+        >
+          <div class="i-tabler:settings nav-icon" />
+          <span v-if="open">设置</span>
+        </button>
+        <button
+          type="button"
+          :class="cn('foot-item', { 'foot-item--active': store.mode === 'about' })"
+          @click="switchMode('about')"
+        >
+          <div class="i-tabler:info-circle nav-icon" />
+          <span v-if="open">关于</span>
+        </button>
+        <button type="button" class="foot-item" @click.stop="openAfdian">
+          <div class="i-tabler:external-link nav-icon" />
+          <span v-if="open">探索</span>
+        </button>
       </div>
     </div>
   </aside>
@@ -90,80 +118,110 @@ function switchMode(mode: string) {
 
 <style scoped>
 .sider-shell {
-  position: relative;
   display: flex;
-  height: calc(100% - 16px - 4.5rem);
-  margin: 8px 8px 8px 9px;
-  flex-direction: column;
+  width: 280px;
+  height: calc(100% - 88px);
   flex-shrink: 0;
-  gap: 0.4rem;
-  padding: 0.78rem 0.58rem;
-  border: 1px solid color-mix(in oklab, var(--eno-border), white 10%);
-  border-radius: 20px;
-  background:
-    radial-gradient(130% 120% at -30% -10%, rgb(255 255 255 / 7%), transparent 46%),
-    linear-gradient(180deg, rgb(255 255 255 / 4%), rgb(255 255 255 / 1%));
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 7%),
-    0 14px 28px rgb(0 0 0 / 22%);
+  flex-direction: column;
+  gap: 8px;
 }
 
-.sider-top {
+.sider-shell--collapsed {
+  width: 72px;
+}
+
+.sider-nav,
+.sider-library {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2.5rem;
+  flex-direction: column;
+  border-radius: 8px;
+  background: #121212;
+}
+
+.sider-nav {
+  padding: 8px 12px 12px;
+  gap: 4px;
+}
+
+.sider-library {
+  min-height: 0;
+  flex: 1;
+  padding: 8px 8px 12px;
 }
 
 .brand-row {
   display: flex;
-  min-width: 0;
-  flex: 1;
   align-items: center;
-  gap: 0.68rem;
-  border-radius: 11px;
-  padding: 0.48rem 0.62rem;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  background: transparent;
   cursor: pointer;
-  color: var(--eno-text-2);
 }
 
-.brand-row:hover {
-  background: rgb(255 255 255 / 4%);
+.brand-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
 }
 
 .brand-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 1.12rem;
-  font-weight: 640;
-  letter-spacing: -0.01em;
-  color: var(--eno-text-1);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.top-actions {
+.nav-item,
+.foot-item,
+.library-toggle,
+.lib-item {
   display: flex;
-  gap: 0.46rem;
-}
-
-.top-icon {
-  display: inline-flex;
+  width: 100%;
   align-items: center;
-  justify-content: center;
-  width: 2.15rem;
-  height: 2.15rem;
-  border: 1px solid color-mix(in oklab, var(--eno-border), white 6%);
-  border-radius: 11px;
-  color: var(--eno-text-2);
-  background: rgb(255 255 255 / 2%);
+  gap: 16px;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 4px;
+  color: #b3b3b3;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
-.top-icon:hover {
-  color: var(--eno-text-1);
-  border-color: color-mix(in oklab, var(--eno-border), white 20%);
-  background: rgb(255 255 255 / 5%);
+.nav-item:hover,
+.foot-item:hover,
+.library-toggle:hover,
+.lib-item:hover {
+  color: #fff;
+}
+
+.nav-item--active,
+.foot-item--active,
+.lib-item--active {
+  color: #fff;
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.library-head {
+  padding: 4px 0 8px;
+}
+
+.library-toggle {
+  color: #b3b3b3;
+  font-size: 16px;
 }
 
 .sider-scroll {
@@ -171,53 +229,53 @@ function switchMode(mode: string) {
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  gap: 0.18rem;
+  gap: 2px;
   overflow: auto;
-  padding: 0.22rem 0.12rem 0.56rem;
 }
 
-.sider-label {
-  margin: 0.58rem 0.52rem 0.22rem;
-  font-size: 0.86rem;
-  font-weight: 610;
-  letter-spacing: -0.01em;
-  color: var(--eno-text-4);
+.lib-item {
+  height: 48px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.sider-row {
+.lib-item--active {
+  background: #1a1a1a;
+}
+
+.lib-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.lib-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sider-foot {
   display: flex;
-  align-items: center;
-  gap: 0.68rem;
-  height: 2.62rem;
-  padding: 0 0.74rem;
-  border-radius: 11px;
-  color: var(--eno-text-2);
-  cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), color 0.16s var(--eno-ease);
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 8px;
 }
 
-.sider-row:hover {
-  background: rgb(255 255 255 / 4%);
-  color: var(--eno-text-1);
+.foot-item {
+  height: 36px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.sider-row-icon {
-  width: 1.08rem;
-  height: 1.08rem;
-  font-size: 1.08rem;
-}
-
-.sider-row-text {
-  font-size: 0.98rem;
-  font-weight: 530;
-  letter-spacing: -0.01em;
-  text-wrap: nowrap;
-}
-
-@media (max-width: 900px) {
-  .sider-shell {
-    margin: 7px 7px 7px 8px;
-    border-radius: 14px;
-  }
+.sider-shell--collapsed .nav-item,
+.sider-shell--collapsed .lib-item,
+.sider-shell--collapsed .foot-item,
+.sider-shell--collapsed .library-toggle,
+.sider-shell--collapsed .brand-row {
+  justify-content: center;
+  padding: 0;
+  gap: 0;
 }
 </style>

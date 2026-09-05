@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import cn from 'classnames'
 import { VIDEO_MODE, usePlayerStore, useUiStore } from '~/stores'
@@ -7,29 +7,32 @@ import { VIDEO_MODE, usePlayerStore, useUiStore } from '~/stores'
 const props = defineProps({
   isPlaying: Boolean,
   videoUrl: String,
+  audioTime: {
+    type: Number,
+    default: 0,
+  },
 })
 const store = usePlayerStore()
 const ui = useUiStore()
-const videoDom = ref(null)
-// const timer = ref(null)
+const videoDom = ref<HTMLVideoElement | null>(null)
+const syncTimer = ref<number | null>(null)
 
 const { toggle } = useFullscreen(videoDom)
 
-// 拖动相关
 const threshold = [20, 20, 100, 20]
-const floatingLayer = ref(null)
+const floatingLayer = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 const position = reactive({ x: window.innerWidth - 220, y: 20 })
 const dragOffset = reactive({ x: 0, y: 0 })
 
 const layerStyle = computed(() => ({
-  position: 'fixed',
+  position: 'fixed' as const,
   top: `${position.y}px`,
   left: `${position.x}px`,
   zIndex: 1000,
 }))
 
-function startDrag(event) {
+function startDrag(event: MouseEvent) {
   isDragging.value = true
   dragOffset.x = event.clientX - position.x
   dragOffset.y = event.clientY - position.y
@@ -37,38 +40,36 @@ function startDrag(event) {
   document.addEventListener('mouseup', stopDrag)
 }
 
-function drag(event) {
-  if (isDragging.value) {
-    const newX = event.clientX - dragOffset.x
-    let newY = event.clientY - dragOffset.y
+function drag(event: MouseEvent) {
+  if (!isDragging.value)
+    return
 
-    // 限制 Y 轴不超出屏幕
-    if (floatingLayer.value) {
-      newY = Math.max(0, Math.min(newY, window.innerHeight - floatingLayer.value.offsetHeight))
-    }
+  const newX = event.clientX - dragOffset.x
+  let newY = event.clientY - dragOffset.y
 
-    position.x = newX
-    position.y = newY
-    snapToEdges()
-  }
+  if (floatingLayer.value)
+    newY = Math.max(0, Math.min(newY, window.innerHeight - floatingLayer.value.offsetHeight))
+
+  position.x = newX
+  position.y = newY
+  snapToEdges()
 }
 
 function stopDrag() {
   isDragging.value = false
   document.removeEventListener('mousemove', drag)
   document.removeEventListener('mouseup', stopDrag)
-  // 吸附到左边或右边
 
-  // 计算元素到左边距离
-  const leftDistance = floatingLayer.value ? floatingLayer.value.offsetLeft : 0
+  if (!floatingLayer.value)
+    return
+
+  const leftDistance = floatingLayer.value.offsetLeft
   const rightDistance = window.innerWidth - (leftDistance + floatingLayer.value.offsetWidth)
 
-  if (leftDistance < rightDistance) {
+  if (leftDistance < rightDistance)
     position.x = 20
-  }
-  else {
+  else
     position.x = window.innerWidth - floatingLayer.value.offsetWidth - 20
-  }
 }
 
 function snapToEdges() {
@@ -83,59 +84,150 @@ function snapToEdges() {
   const topDistance = position.y - threshold[0]
   const bottomDistance = window.innerHeight - (position.y + layerHeight + threshold[2])
 
-  // const minDistance = Math.min(leftDistance, rightDistance, topDistance, bottomDistance)
-  if (topDistance < 0) {
+  if (topDistance < 0)
     position.y = threshold[0]
-  }
-  if (bottomDistance < 0) {
+  if (bottomDistance < 0)
     position.y = window.innerHeight - layerHeight - threshold[2]
-  }
-  // 判断离左边和右边距离哪个近
-  if (leftDistance < rightDistance) {
+  if (leftDistance < rightDistance)
     position.x = threshold[3]
-  }
-  else {
+  else
     position.x = window.innerWidth - layerWidth - threshold[1]
+}
+
+function getHowlSeek() {
+  if (!store.howl)
+    return 0
+  const seek = store.howl.seek()
+  return typeof seek === 'number' ? seek : 0
+}
+
+function syncVideo(force = false) {
+  const el = videoDom.value
+  if (!el || !store.howl)
+    return
+
+  const seek = getHowlSeek()
+  if (force || Math.abs(el.currentTime - seek) > 0.3)
+    el.currentTime = seek
+}
+
+function stopSyncLoop() {
+  if (syncTimer.value != null) {
+    clearInterval(syncTimer.value)
+    syncTimer.value = null
   }
 }
+
+function startSyncLoop() {
+  stopSyncLoop()
+  syncTimer.value = window.setInterval(() => syncVideo(false), 400)
+}
+
+function ensureMuted() {
+  const el = videoDom.value
+  if (!el)
+    return
+  el.muted = true
+  el.volume = 0
+  el.playsInline = true
+}
+
+async function playVideo() {
+  const el = videoDom.value
+  if (!el || !props.videoUrl)
+    return
+
+  ensureMuted()
+
+  const start = async () => {
+    syncVideo(true)
+    try {
+      await el.play()
+    }
+    catch {
+      // autoplay / abort can throw; sync loop will retry on next tick
+    }
+    startSyncLoop()
+  }
+
+  if (el.readyState >= 1) {
+    await start()
+    return
+  }
+
+  el.addEventListener('loadedmetadata', () => {
+    void start()
+  }, { once: true })
+}
+
+function pauseVideo() {
+  videoDom.value?.pause()
+  stopSyncLoop()
+}
+
+async function alignPlayback() {
+  await nextTick()
+  if (props.isPlaying && props.videoUrl)
+    await playVideo()
+  else
+    pauseVideo()
+}
+
+function onWindowFocus() {
+  if (props.isPlaying && props.videoUrl) {
+    ensureMuted()
+    void videoDom.value?.play()
+    syncVideo(true)
+    startSyncLoop()
+  }
+}
+
+watch(
+  [() => props.isPlaying, () => props.videoUrl],
+  () => {
+    void alignPlayback()
+  },
+  { immediate: true },
+)
+
+watch(
+  () => ui.videoMode,
+  (mode) => {
+    if (mode !== VIDEO_MODE.HIDDEN && props.isPlaying)
+      void alignPlayback()
+  },
+)
+
+// Seek / progress jumps from the audio player
+watch(
+  () => props.audioTime,
+  (time) => {
+    const el = videoDom.value
+    if (!el || !props.videoUrl)
+      return
+    if (Math.abs(el.currentTime - time) > 0.35)
+      el.currentTime = time
+  },
+)
 
 onMounted(() => {
   snapToEdges()
-  // 窗口变化时，吸附到边缘
   window.addEventListener('resize', snapToEdges)
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', snapToEdges)
-})
-// isPlaying, 和 videoUrl 变化时，同步视频
-watch([() => props.isPlaying, () => props.videoUrl], ([newIsPlaying, newVideoUrl]) => {
-  if (newIsPlaying && newVideoUrl) {
-    // 等待 videoDom 渲染完成
-    nextTick(() => {
-      videoDom.value.play()
-      syncVideo()
-    })
-    // timer.value = setInterval(() => {
-    //   syncVideo()
-    // }, 1000)
-  }
-  else {
-    videoDom.value.pause()
-  }
+  window.addEventListener('focus', onWindowFocus)
 })
 
-window.addEventListener('focus', () => {
-  if (props.isPlaying && props.videoUrl)
-    videoDom.value.play()
-  syncVideo()
+onBeforeUnmount(() => {
+  stopSyncLoop()
+  window.removeEventListener('resize', snapToEdges)
+  window.removeEventListener('focus', onWindowFocus)
+  document.removeEventListener('mousemove', drag)
+  document.removeEventListener('mouseup', stopDrag)
 })
-function syncVideo() {
-  if (videoDom.value && store.howl)
-    videoDom.value.currentTime = store.howl.seek()
-}
+
 function toggleFullscreen() {
   toggle()
 }
+
 function closeVideo() {
   ui.videoMode = VIDEO_MODE.HIDDEN
 }
@@ -153,37 +245,27 @@ function closeVideo() {
       <video
         id="video-eno"
         ref="videoDom"
-        w-full h-full object-fill rd-lg overflow-auto
-        class="transItem"
+        class="transItem w-full h-full object-fill rd-lg overflow-auto"
+        muted
+        playsinline
         :src="props.videoUrl"
       />
       <div
-        w-full h-full
-        absolute top-0 left-0
-        p-4
-        bg="black/30"
-        class="text-$eno-text-1"
-        justify-end
-        hidden
-        group-hover:flex
+        class="text-white absolute top-0 left-0 hidden h-full w-full justify-end bg-black/30 p-4 group-hover:flex"
       >
-        <!-- <div
-          class="i-material-symbols:float-landscape-2-outline-rounded w-1rem h-1rem mr-3 cursor-pointer"
-        /> -->
-        <!-- 全屏 -->
         <div
-          class="i-mingcute:fullscreen-line w-1rem h-1rem cursor-pointer mr-3"
+          class="i-mingcute:fullscreen-line mr-3 h-4 w-4 cursor-pointer"
           @click="toggleFullscreen"
         />
-        <div class="i-mingcute:close-line w-1rem h-1rem cursor-pointer" @click="closeVideo" />
+        <div class="i-mingcute:close-line h-4 w-4 cursor-pointer" @click="closeVideo" />
       </div>
     </div>
   </Teleport>
 </template>
 
 <style scoped>
-/* 弹性动画 */
 .transItem {
   transition: transform 0.3s ease-in-out;
+  background: #000;
 }
 </style>

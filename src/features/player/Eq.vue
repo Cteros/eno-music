@@ -111,11 +111,10 @@ watch(() => eqStore.currentPreset, () => {
 
 <style scoped>
 .eq-container {
-  padding: 24px;
-  background: var(--eno-content);
-  border-radius: var(--eno-radius-lg);
-  border: 1px solid var(--eno-border);
-  box-shadow: var(--eno-shadow-sm);
+  padding: 8px 0 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 /* 滑块容器 */

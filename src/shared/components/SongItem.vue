@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps } from 'vue'
+import { computed } from 'vue'
 import cn from 'classnames'
 import { MessageAPI } from '@cloudfly/eno-ui'
 import { useLibraryStore, usePlayerStore, useSingerStore, useUiStore } from '~/stores'
@@ -11,7 +11,6 @@ const props = defineProps({
     default: null,
   },
   size: {
-    // default, mini
     type: String,
     default: 'default',
   },
@@ -35,6 +34,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  index: {
+    type: Number,
+    default: 0,
+  },
 })
 
 const emit = defineEmits(['deleteSong'])
@@ -53,38 +56,20 @@ const isPlaying = computed(() => {
   if (!props.showActive)
     return false
   const current = store.play
-  // 兼容原本的错别字
   const type = current.eno_song_type || current.enu_song_type
 
-  if (type && current[type] === props?.song[type]) {
+  if (type && current[type] === props?.song[type])
     return true
-  }
   return false
 })
 
-const styleBySize = computed(() => {
-  if (props.size === 'mini') {
-    return {
-      wrapper: `grid-cols-[5.5rem_1fr_90px]`,
-      title: 'text-[12px] font-600 w-full truncate leading-4',
-      img: 'h-10 rounded-2 object-cover',
-    }
-  }
-  else {
-    return {
-      wrapper: `grid-cols-[5.5rem_1fr_90px]`,
-      title: 'text-[14px] font-600 truncate leading-5',
-      img: 'h-10 rounded-2 object-cover',
-    }
-  }
-})
+const isMini = computed(() => props.size === 'mini')
 
 async function handleClick() {
   if (!checkPages) {
     store.startPlay(props.song)
     return
   }
-  // 计算分P数据
   const item = await api.blbl.getVideoInfo({
     bvid: props.song.bvid,
   }).then(res => res.data)
@@ -126,28 +111,28 @@ function handleSingerDetail(singerMid) {
 </script>
 
 <template>
-  <div :class="cn('song-item text-lg h-13 hov-item pr-4', styleBySize.wrapper)" @click="handleClick">
-    <img :src="cover" :class="styleBySize.img">
-    <div class="w-full overflow-auto" :title="title">
-      <div class="h-13 pt-1">
-        <div :class="styleBySize.title" v-html="title" />
-        <div :class="styleBySize.author" class="flex gap-2">
-          <span v-if="pages">是合集</span>
-          <span v-if="isPlaying">
-            <div class="i-svg-spinners:bars-scale w-1em h-1em text-$eno-primary" />
-          </span>
-          <!-- {{ JSON.stringify(song) }} -->
-          <span class="text-xs opacity-60 hover:opacity-100 hover:border-b border-$eno-border" @click.stop="handleSingerDetail(mid)">
-            {{ author }}
-          </span>
-        </div>
+  <div
+    :class="cn('song-item', { 'song-item--playing': isPlaying, 'song-item--mini': isMini })"
+    @click="handleClick"
+  >
+    <div class="song-index">
+      <span v-if="!isPlaying" class="index-num">{{ index || '' }}</span>
+      <div v-else class="i-svg-spinners:bars-scale playing-bars" />
+    </div>
+    <img :src="cover" class="song-cover" alt="">
+    <div class="song-meta">
+      <div class="song-title" :title="title" v-html="title" />
+      <div class="song-author">
+        <span v-if="pages" class="song-tag">合集</span>
+        <span class="author-link" @click.stop="handleSingerDetail(mid)">
+          {{ author }}
+        </span>
       </div>
     </div>
-    <!-- 操作, 收藏到播放列表, 删除 -->
-    <div class="flex gap-2 text-base justify-end">
-      <div v-if="later" hover:opacity-70 class="i-mingcute:time-fill w-1em h-1em" @click.stop="addToLater" />
-      <div v-if="star" hover:opacity-70 class="i-mingcute:star-fill w-1em h-1em" @click.stop="PLstore.startAddSong(props.song)" />
-      <div v-if="del" hover:opacity-70 class="i-mingcute:delete-3-fill w-1em h-1em" @click.stop="emit('deleteSong', props.song)" />
+    <div class="song-actions">
+      <div v-if="later" class="i-mingcute:time-fill action-icon" @click.stop="addToLater" />
+      <div v-if="star" class="i-mingcute:star-fill action-icon" @click.stop="PLstore.startAddSong(props.song)" />
+      <div v-if="del" class="i-mingcute:delete-3-fill action-icon" @click.stop="emit('deleteSong', props.song)" />
     </div>
   </div>
 </template>
@@ -155,12 +140,108 @@ function handleSingerDetail(singerMid) {
 <style scoped>
 .song-item {
   display: grid;
-  /* 左右固定, 中间展开 */
-  /* grid-template-columns: 100px 1fr 60px; */
-  overflow: hidden;
-  /* 子元素上下居中 */
+  grid-template-columns: 16px 40px minmax(0, 1fr) auto;
   align-items: center;
-  flex-shrink: 0;
-  transition: all 0.3s;
+  gap: 12px;
+  height: 56px;
+  padding: 0 16px;
+  border-radius: 4px;
+  color: #b3b3b3;
+  cursor: pointer;
+}
+
+.song-item--mini {
+  height: 48px;
+  grid-template-columns: 0 40px minmax(0, 1fr) auto;
+  padding: 0 8px;
+}
+
+.song-item:hover {
+  background: rgb(255 255 255 / 10%);
+  color: #fff;
+}
+
+.song-item:hover .action-icon,
+.song-item:hover .index-num {
+  opacity: 1;
+}
+
+.song-index {
+  display: flex;
+  width: 16px;
+  justify-content: center;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.index-num {
+  opacity: 0.9;
+}
+
+.playing-bars {
+  width: 14px;
+  height: 14px;
+  color: #1ed760;
+}
+
+.song-cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.song-meta {
+  min-width: 0;
+}
+
+.song-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.song-item--playing .song-title {
+  color: #1ed760;
+}
+
+.song-author {
+  display: flex;
+  gap: 8px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.author-link:hover {
+  text-decoration: underline;
+  color: #fff;
+}
+
+.song-tag {
+  color: #1ed760;
+}
+
+.song-actions {
+  display: flex;
+  gap: 12px;
+  font-size: 16px;
+}
+
+.action-icon {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.action-icon:hover {
+  color: #fff;
+}
+
+.song-item--mini .action-icon,
+.song-item:focus-within .action-icon {
+  opacity: 0.85;
 }
 </style>

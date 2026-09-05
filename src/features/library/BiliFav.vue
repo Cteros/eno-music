@@ -196,45 +196,88 @@ async function getCollectedDataLoop() {
 </script>
 
 <template>
-  <div
-    class="mb-5 has-border"
-    rounded-lg
-    transition-200
-    bg="$eno-content hover:$eno-content-hover"
-  >
-    <div
-      class="w-full flex justify-between"
-      p="x-4 y-3"
-      @click="handleClick"
-    >
-      <div class="flex items-center gap-3 text-[22px]">
+  <div class="fav-card">
+    <div class="fav-head" @click="handleClick">
+      <div class="fav-title">
         <div :class="`w-1em h-1em ${status.open ? 'i-mingcute:folder-open-2-fill' : 'i-mingcute:folder-fill'}`" />
-        <h2 class="max-w-[50vw] truncate" text-lg v-html="props.fav.title || props.fav.name || '未命名收藏夹'" />
+        <h2 class="max-w-[50vw] truncate" v-html="props.fav.title || props.fav.name || '未命名收藏夹'" />
       </div>
-      <div class="flex gap-3" all:transition-200>
-        <div
-          class="i-mingcute:star-fill" text-xl cursor-pointer
-          color="gray hover:gray-50"
-          @click.stop="handleSavePlaylist"
-        />
-        <div
-          class="i-mingcute:play-circle-line" text-xl cursor-pointer
-          color="gray hover:gray-50"
-          @click.stop="handleReplacePlaylist"
-        />
+      <div class="fav-ops">
+        <div class="i-mingcute:star-fill op-icon" @click.stop="handleSavePlaylist" />
+        <div class="i-tabler:player-play-filled op-icon" @click.stop="handleReplacePlaylist" />
       </div>
     </div>
-    <div v-if="status.loading" class="px-4 pb-3 text-sm text-$eno-text-3">
+    <div v-if="status.loading" class="hint">
       加载中...
     </div>
-    <div v-if="status.error" class="px-4 pb-3 text-sm text-red-400">
+    <div v-if="status.error" class="hint error">
       加载失败，请稍后重试
     </div>
-    <div v-if="status.loaded && !mediaSong.length && status.open" class="px-4 pb-3 text-sm text-$eno-text-3">
+    <div v-if="status.loaded && !mediaSong.length && status.open" class="hint">
       暂无可用内容
     </div>
-    <div v-if="mediaSong.length > 0 && status.open" class="flex flex-col gap-2 max-h-[500px] overflow-auto" p="x-4 y-3">
-      <SongItem v-for="item in mediaSong" :key="item.id" :song="item" />
+    <div v-if="mediaSong.length > 0 && status.open" class="fav-songs">
+      <SongItem v-for="(item, index) in mediaSong" :key="item.id" :song="item" :index="index + 1" />
     </div>
   </div>
 </template>
+
+<style scoped>
+.fav-card {
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #181818;
+}
+
+.fav-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.fav-head:hover {
+  background: #282828;
+}
+
+.fav-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.fav-ops {
+  display: flex;
+  gap: 12px;
+  color: #b3b3b3;
+}
+
+.op-icon {
+  cursor: pointer;
+}
+
+.op-icon:hover {
+  color: #fff;
+}
+
+.hint {
+  padding: 0 16px 12px;
+  color: #b3b3b3;
+  font-size: 13px;
+}
+
+.error {
+  color: #e91429;
+}
+
+.fav-songs {
+  max-height: 500px;
+  overflow: auto;
+  padding: 0 8px 12px;
+}
+</style>
