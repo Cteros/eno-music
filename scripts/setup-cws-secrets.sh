@@ -39,5 +39,12 @@ gh secret set CWS_CLIENT_SECRET --repo "$REPO" --env "$ENV_NAME" --body "$CLIENT
 gh secret set CWS_REFRESH_TOKEN --repo "$REPO" --env "$ENV_NAME" --body "$REFRESH_TOKEN"
 gh secret set CWS_PUBLISHER_ID --repo "$REPO" --env "$ENV_NAME" --body "$PUBLISHER_ID"
 
+if [ -f keys/cws-upload-private.pem ]; then
+  base64 < keys/cws-upload-private.pem | tr -d '\n' | gh secret set CWS_CRX_PRIVATE_KEY_B64 --repo "$REPO" --env "$ENV_NAME"
+  echo "已写入 CWS_CRX_PRIVATE_KEY_B64"
+else
+  echo "未找到 keys/cws-upload-private.pem，跳过 crx 私钥。商店若要求 crx，请补上后重跑此脚本。"
+fi
+
 echo
-echo "已写入 4 个 secrets。下一步：把发版 workflow 推到 main，然后在 Actions → Release 里 Run workflow。"
+echo "Secrets 已写入。下一步：把发版 workflow 推到 main，然后在 Actions → Release 里 Run workflow。"

@@ -51,6 +51,13 @@ npx chrome-webstore-upload-keys
 | `CWS_CLIENT_SECRET` | OAuth Client Secret |
 | `CWS_REFRESH_TOKEN` | 上一步拿到的 refresh token |
 | `CWS_PUBLISHER_ID` | 开发者后台的 Publisher ID |
+| `CWS_CRX_PRIVATE_KEY_B64` | 签名 crx 的私钥（base64）。商店已开 Verified CRX，必须上传 `.crx` |
+
+写入私钥（不要把 pem 提交进 git）：
+
+```sh
+base64 < keys/cws-upload-private.pem | tr -d '\n' | gh secret set CWS_CRX_PRIVATE_KEY_B64 --env chrome-webstore
+```
 
 可选：`RELEASE_PAT`。若 `main` 有分支保护导致 `github-actions` 推不了 bump commit，用一个有 `contents: write`（并能绕过保护）的 PAT。
 
@@ -81,7 +88,8 @@ export PUBLISHER_ID='...'
 
 pnpm build
 pnpm pack:zip
-pnpm upload:chrome    # 只上传草稿
+pnpm pack:crx
+pnpm upload:chrome    # 只上传草稿（.crx）
 pnpm publish:chrome   # 上传并提交审核
 ```
 

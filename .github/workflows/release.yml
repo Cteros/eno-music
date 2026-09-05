@@ -114,12 +114,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Upload to Chrome Web Store
+      - name: Pack CRX and upload to Chrome Web Store
         env:
           CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
           PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          CWS_CRX_PRIVATE_KEY_B64: ${{ secrets.CWS_CRX_PRIVATE_KEY_B64 }}
           CWS_MODE: ${{ inputs.chrome }}
         run: |
           set -euo pipefail
@@ -127,10 +128,19 @@ jobs:
             echo "缺少 CWS_* secrets，请按 .github/CWS_SETUP.md 配置 Environment chrome-webstore"
             exit 1
           fi
+          if [ -z "${CWS_CRX_PRIVATE_KEY_B64:-}" ]; then
+            echo "缺少 CWS_CRX_PRIVATE_KEY_B64。商店已开启 Verified CRX，必须用同一把私钥打包 .crx"
+            exit 1
+          fi
+          mkdir -p extension
+          unzip -q extension.zip -d extension
+          echo "$CWS_CRX_PRIVATE_KEY_B64" | base64 --decode > key.pem
+          npx --yes crx pack extension -o extension.crx -p key.pem
+          rm -f key.pem
           if [ "$CWS_MODE" = "upload" ]; then
-            npx --yes chrome-webstore-upload-cli@4 upload --source extension.zip --extension-id "$EXTENSION_ID"
+            npx --yes chrome-webstore-upload-cli@4 upload --source extension.crx --extension-id "$EXTENSION_ID"
           else
-            npx --yes chrome-webstore-upload-cli@4 --source extension.zip --extension-id "$EXTENSION_ID"
+            npx --yes chrome-webstore-upload-cli@4 --source extension.crx --extension-id "$EXTENSION_ID"
           fi
 
       - name: Summary
