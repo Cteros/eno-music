@@ -26,7 +26,7 @@ export async function getManifest() {
       default_icon: 'assets/128px.png',
     },
     options_ui: {
-      page: './dist/options/index.html',
+      page: 'dist/options/index.html',
       open_in_tab: true,
     },
     background: isFirefox
@@ -35,12 +35,13 @@ export async function getManifest() {
           type: 'module',
         }
       : {
-          service_worker: './dist/background/index.mjs',
+          service_worker: 'dist/background/index.mjs',
+          type: 'module',
         },
     icons: {
       16: 'assets/128px.png',
-      48: 'assets/256px.png',
-      128: 'assets/512px.png',
+      48: 'assets/128px.png',
+      128: 'assets/128px.png',
     },
     permissions: [
       'storage',
@@ -57,7 +58,7 @@ export async function getManifest() {
       extension_pages: isDev
         // this is required on dev for Vite script to load
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
-        : 'script-src \'self\' ; object-src \'self\'',
+        : 'script-src \'self\'; object-src \'self\'',
     },
   }
 
