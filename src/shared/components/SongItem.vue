@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import cn from 'classnames'
 import { MessageAPI } from '@cloudfly/eno-ui'
-import { useLibraryStore, usePlayerStore, useSingerStore, useUiStore } from '~/stores'
+import cn from 'classnames'
+import { computed } from 'vue'
 import { useApiClient } from '~/api'
+import { useLibraryStore, usePlayerStore, useSingerStore, useUiStore } from '~/stores'
 
 const props = defineProps({
   song: {

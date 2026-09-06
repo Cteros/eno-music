@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { MessageAPI } from '@cloudfly/eno-ui'
+import { ref, watch } from 'vue'
 import { useEqStore } from '~/stores'
 
 const eqStore = useEqStore()

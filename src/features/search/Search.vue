@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { Loading } from '@cloudfly/eno-ui'
 import { useInfiniteScroll } from '@vueuse/core'
 
-import { Loading } from '@cloudfly/eno-ui'
+import { ref } from 'vue'
+import { useApiClient } from '~/api'
 import AddCollection from '~/features/library/AddCollection.vue'
 import SongItem from '~/shared/components/SongItem.vue'
-import { useApiClient } from '~/api'
 
 const scrollRef = ref(null)
 const pageNum = ref(1)

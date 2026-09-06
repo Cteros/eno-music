@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { Dialog } from '@cloudfly/eno-ui'
+import { computed } from 'vue'
 
-import ImpFav from './ImportFav.vue'
-import BLFav from './BiliFav.vue'
-import SongItem from '~/shared/components/SongItem.vue'
 import { getCollectedFavorites, getFavorites } from '~/api'
+import SongItem from '~/shared/components/SongItem.vue'
 import { useLibraryStore, usePlayerStore } from '~/stores'
+import BLFav from './BiliFav.vue'
+import ImpFav from './ImportFav.vue'
 
 const userInfo = inject('userInfo')
 const store = usePlayerStore()
@@ -102,7 +102,7 @@ watch(userInfo, () => {
       >
         <div class="playlist-head" @click="switchPlaylist(playlist)">
           <div class="playlist-title">
-            <div :class="`w-1em h-1em ${isMyOpen(playlist) ? 'i-mingcute:folder-open-2-fill' : 'i-mingcute:folder-fill'}`" />
+            <div class="w-1em h-1em" :class="isMyOpen(playlist) ? 'i-mingcute:folder-open-2-fill' : 'i-mingcute:folder-fill'" />
             <h2 class="max-w-[50vw] truncate" v-html="playlist.name" />
             <span class="count">{{ playlist.songs.length }} 首</span>
           </div>

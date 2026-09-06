@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { cloneDeep } from 'lodash'
 import { Dialog } from '@cloudfly/eno-ui'
+import { cloneDeep } from 'lodash'
+import { getSeasonInfo } from '~/api'
 import SongItem from '~/shared/components/SongItem.vue'
 import { useLibraryStore } from '~/stores'
-import { getSeasonInfo } from '~/api'
 
 const props = withDefaults(defineProps<{
   compact?: boolean

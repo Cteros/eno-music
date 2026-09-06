@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
 import { Howler } from 'howler'
+import { defineStore } from 'pinia'
 
 type PresetName = 'flat' | 'pop' | 'rock' | 'jazz' | 'classical' | string
 

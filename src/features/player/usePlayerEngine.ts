@@ -1,10 +1,10 @@
-import { computed, ref, watch } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { Howl } from 'howler'
-import { useAudioSource } from './useAudioSource'
-import { usePlaybackProgress } from './usePlaybackProgress'
-import { useMediaSession } from './useMediaSession'
+import { computed, ref, watch } from 'vue'
 import { usePlayerStore } from '~/stores'
+import { useAudioSource } from './useAudioSource'
+import { useMediaSession } from './useMediaSession'
+import { usePlaybackProgress } from './usePlaybackProgress'
 
 export function usePlayerEngine() {
   const store = usePlayerStore()

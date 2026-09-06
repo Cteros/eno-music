@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
-import { useStorage } from '@vueuse/core'
 import type { Song } from './types'
+import { useStorage } from '@vueuse/core'
+import { defineStore } from 'pinia'
 import { useApiClient } from '~/api'
 
 const api = useApiClient()

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Dialog } from '@cloudfly/eno-ui'
-import { defaultSingers, useSingerStore } from '~/stores'
 import SingerItem from '~/features/singer/SingerItem.vue'
+import { defaultSingers, useSingerStore } from '~/stores'
 
 function getMidFromUrl(url) {
   if (/^\d+$/.test(url))

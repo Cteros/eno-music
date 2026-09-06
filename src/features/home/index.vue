@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
 import { cloneDeep } from 'lodash'
-import RankOverview from './RankOverview.vue'
+import { computed, onMounted } from 'vue'
 import SingerItem from '~/features/singer/SingerItem.vue'
 import SongItem from '~/shared/components/SongItem.vue'
 import { useHomeStore, usePlayerStore, useSingerStore } from '~/stores'
+import RankOverview from './RankOverview.vue'
 
 const home = useHomeStore()
 const player = usePlayerStore()

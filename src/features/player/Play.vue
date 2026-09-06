@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import cn from 'classnames'
 import { Drawer, LoopSwitch } from '@cloudfly/eno-ui'
-import ShareCard from './ShareCard.vue'
-import Video from './Video.vue'
+import cn from 'classnames'
+import SongItem from '~/shared/components/SongItem.vue'
+import { EQService, useEqStore, useLibraryStore, useUiStore, VIDEO_MODE } from '~/stores'
 import useControl from './keys'
+import ShareCard from './ShareCard.vue'
 import { usePlayerEngine } from './usePlayerEngine'
 import { usePlayerRemoteControl } from './usePlayerRemoteControl'
-import SongItem from '~/shared/components/SongItem.vue'
-import { EQService, VIDEO_MODE, useEqStore, useLibraryStore, useUiStore } from '~/stores'
+import Video from './Video.vue'
 
 const PLstore = useLibraryStore()
 const eqStore = useEqStore()

@@ -1,5 +1,5 @@
-import { createApiProxy } from './factory'
 import endpoints from './endpoints'
+import { createApiProxy } from './factory'
 
 const apiProxy = createApiProxy(endpoints)
 

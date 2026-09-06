@@ -1,0 +1,15 @@
+minimumReleaseAgeExcludePrune: true
+minimumReleaseAgeExclude:
+  - '@types/chrome@0.2.9'
+  - lint-staged@17.5.0
+
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - release-it-pnpm
+  - semver
+
+shellEmulator: true
+
+allowBuilds:
+  esbuild: true
+  simple-git-hooks: true

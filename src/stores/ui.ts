@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
-import { useStorage } from '@vueuse/core'
-import { VIDEO_MODE } from './types'
 import type { VideoMode } from './types'
+import { useStorage } from '@vueuse/core'
+import { defineStore } from 'pinia'
+import { VIDEO_MODE } from './types'
 
 export { VIDEO_MODE }
 

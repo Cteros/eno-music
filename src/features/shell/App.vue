@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 import { storeToRefs } from 'pinia'
-import Play from '~/features/player/Play.vue'
-import Sider from '~/features/shell/Sider.vue'
-import Playlist from '~/features/library/index.vue'
-import AddSong from '~/features/library/AddSong.vue'
 import About from '~/features/about/About.vue'
-import Setting from '~/features/settings/Setting.vue'
 import Home from '~/features/home/index.vue'
-import Search from '~/features/search/Search.vue'
+import AddSong from '~/features/library/AddSong.vue'
+import Playlist from '~/features/library/index.vue'
 import ListenLater from '~/features/library/ListenLater.vue'
-import SingerList from '~/features/singer/SingerList.vue'
-import SingerDetail from '~/features/singer/SingerDetail.vue'
-import { useUiStore } from '~/stores'
+import Play from '~/features/player/Play.vue'
+import Search from '~/features/search/Search.vue'
+import Setting from '~/features/settings/Setting.vue'
+import Sider from '~/features/shell/Sider.vue'
 import { useBiliCookie } from '~/features/shell/useBiliCookie'
+import SingerDetail from '~/features/singer/SingerDetail.vue'
+import SingerList from '~/features/singer/SingerList.vue'
+import { useUiStore } from '~/stores'
 
 const ui = useUiStore()
 const { mode } = storeToRefs(ui)

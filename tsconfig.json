@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "incremental": false,
-    "target": "es2016",
+    "target": "ESNext",
     "jsx": "preserve",
     "lib": [
       "DOM",
@@ -9,7 +9,7 @@
     ],
     "baseUrl": ".",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "paths": {
       "~/*": [
         "src/*"
@@ -26,8 +26,15 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
   "exclude": [
     "dist",
-    "node_modules"
+    "node_modules",
+    "extension"
   ]
 }

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useInfiniteScroll } from '@vueuse/core'
-
 import { Loading } from '@cloudfly/eno-ui'
-import SongItem from '~/shared/components/SongItem.vue'
+
+import { useInfiniteScroll } from '@vueuse/core'
 import { getUserArc } from '~/api'
+import SongItem from '~/shared/components/SongItem.vue'
 
 import { usePlayerStore, useSingerStore, useUiStore } from '~/stores'
 

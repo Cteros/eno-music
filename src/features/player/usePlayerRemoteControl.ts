@@ -1,12 +1,13 @@
-import { onMounted, onUnmounted, watch } from 'vue'
 import type { Ref } from 'vue'
+import type { PlayerRemoteCmd } from '~/shared/playerBridge'
+import type { Song } from '~/stores/types'
+import { onMounted, onUnmounted, watch } from 'vue'
 import {
   PLAYER_CMD,
   PLAYER_PENDING_CMD_KEY,
   PLAYER_STATE_KEY,
-  type PlayerRemoteCmd,
+
 } from '~/shared/playerBridge'
-import type { Song } from '~/stores/types'
 
 interface ProgressLike {
   current: number
@@ -69,14 +70,15 @@ export function usePlayerRemoteControl(options: UsePlayerRemoteControlOptions) {
   }
 
   function onMessage(
-    message: { type?: string, cmd?: PlayerRemoteCmd },
+    message: unknown,
     _sender: unknown,
     sendResponse: (response: { ok: boolean }) => void,
-  ) {
-    if (message?.type !== PLAYER_CMD || !message.cmd)
-      return undefined
+  ): boolean {
+    const payload = message as { type?: string, cmd?: PlayerRemoteCmd }
+    if (payload?.type !== PLAYER_CMD || !payload.cmd)
+      return false
 
-    Promise.resolve(handleCmd(message.cmd))
+    Promise.resolve(handleCmd(payload.cmd))
       .then(async () => {
         await publishState()
         sendResponse({ ok: true })
@@ -105,7 +107,7 @@ export function usePlayerRemoteControl(options: UsePlayerRemoteControlOptions) {
   }
 
   onMounted(() => {
-    browser.runtime.onMessage.addListener(onMessage)
+    browser.runtime.onMessage.addListener(onMessage as any)
     publishState()
     consumePendingCmd()
     publishTimer = window.setInterval(() => {
@@ -115,7 +117,7 @@ export function usePlayerRemoteControl(options: UsePlayerRemoteControlOptions) {
   })
 
   onUnmounted(() => {
-    browser.runtime.onMessage.removeListener(onMessage)
+    browser.runtime.onMessage.removeListener(onMessage as any)
     if (publishTimer)
       clearInterval(publishTimer)
     browser.storage.local.set({

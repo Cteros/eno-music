@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { MessageAPI } from '@cloudfly/eno-ui'
 import type { song } from '~/stores'
+import { MessageAPI } from '@cloudfly/eno-ui'
 import { useApiClient } from '~/api'
 import SongItem from '~/shared/components/SongItem.vue'
 import { useLibraryStore, usePlayerStore } from '~/stores'
@@ -199,7 +199,7 @@ async function getCollectedDataLoop() {
   <div class="fav-card">
     <div class="fav-head" @click="handleClick">
       <div class="fav-title">
-        <div :class="`w-1em h-1em ${status.open ? 'i-mingcute:folder-open-2-fill' : 'i-mingcute:folder-fill'}`" />
+        <div class="w-1em h-1em" :class="status.open ? 'i-mingcute:folder-open-2-fill' : 'i-mingcute:folder-fill'" />
         <h2 class="max-w-[50vw] truncate" v-html="props.fav.title || props.fav.name || '未命名收藏夹'" />
       </div>
       <div class="fav-ops">

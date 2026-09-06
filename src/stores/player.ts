@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
-import { cloneDeep } from 'lodash'
-import { useStorage } from '@vueuse/core'
 import type { Song } from './types'
+import { useStorage } from '@vueuse/core'
+import { cloneDeep } from 'lodash'
+import { defineStore } from 'pinia'
 
 export const usePlayerStore = defineStore('player', {
   state: () => ({

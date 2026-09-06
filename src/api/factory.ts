@@ -57,7 +57,7 @@ function createApiProxy(API_MAP: EndpointMap) {
     const contentScriptQuery = message.contentScriptQuery
     if (!contentScriptQuery || !API_MAP[contentScriptQuery])
       return console.error(`Cannot find this contentScriptQuery: ${contentScriptQuery}`)
-    if (API_MAP[contentScriptQuery] instanceof Function)
+    if (typeof API_MAP[contentScriptQuery] === 'function')
       return (API_MAP[contentScriptQuery] as EndpointFunction)(message, sender, sendResponse)
 
     try {

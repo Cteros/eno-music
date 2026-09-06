@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import cn from 'classnames'
-import { VIDEO_MODE, usePlayerStore, useUiStore } from '~/stores'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { usePlayerStore, useUiStore, VIDEO_MODE } from '~/stores'
 
 const props = defineProps({
   isPlaying: Boolean,
@@ -120,7 +120,7 @@ function stopSyncLoop() {
 
 function startSyncLoop() {
   stopSyncLoop()
-  syncTimer.value = window.setInterval(() => syncVideo(false), 400)
+  syncTimer.value = window.setInterval(syncVideo, 400, false)
 }
 
 function ensureMuted() {

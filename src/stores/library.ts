@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
+import type { Playlist, Song } from './types'
 import { useLocalStorage } from '@vueuse/core'
 import { nanoid } from 'nanoid'
-import type { Playlist, Song } from './types'
+import { defineStore } from 'pinia'
 
 export type { Song, song } from './types'
 

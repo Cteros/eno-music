@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import QRCode from 'qrcode'
-import { toPng } from 'html-to-image'
 import { Dialog, MessageAPI } from '@cloudfly/eno-ui'
-import { usePlayerStore } from '~/stores'
+import { toPng } from 'html-to-image'
+import QRCode from 'qrcode'
+import { ref } from 'vue'
 import { useApiClient } from '~/api'
+import { usePlayerStore } from '~/stores'
 
 const store = usePlayerStore()
 const api = useApiClient()

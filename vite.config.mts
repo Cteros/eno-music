@@ -1,16 +1,16 @@
 /// <reference types="vitest" />
 
-import { dirname, relative } from 'node:path'
 import type { UserConfig } from 'vite'
-import { defineConfig } from 'vite'
+import { dirname, relative } from 'node:path'
 import Vue from '@vitejs/plugin-vue'
-import Icons from 'unplugin-icons/vite'
-import IconsResolver from 'unplugin-icons/resolver'
-import Components from 'unplugin-vue-components/vite'
-import AutoImport from 'unplugin-auto-import/vite'
 import UnoCSS from 'unocss/vite'
-import { isDev, port, r } from './scripts/utils'
-import packageJson from './package.json'
+import AutoImport from 'unplugin-auto-import/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+import Icons from 'unplugin-icons/vite'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig } from 'vite'
+import packageJson from './package.json' with { type: 'json' }
+import { isDev, port, r } from './scripts/utils.ts'
 
 export const sharedConfig: UserConfig = {
   root: r('src'),

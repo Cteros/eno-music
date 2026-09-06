@@ -65,4 +65,4 @@ function getCollectedFavorites({ mid }: { mid: number }) {
   })
 }
 
-export { getUserArc, getSeasonInfo, getFavorites, getUserInfo, getCollectedFavorites }
+export { getCollectedFavorites, getFavorites, getSeasonInfo, getUserArc, getUserInfo }

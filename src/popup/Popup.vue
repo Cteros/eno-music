@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import type { PlayerPopupState, PlayerRemoteCmd } from '~/shared/playerBridge'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import {
+  emptyPlayerPopupState,
+  formatPlayerTime,
   PLAYER_CMD,
   PLAYER_PENDING_CMD_KEY,
   PLAYER_STATE_KEY,
-  type PlayerPopupState,
-  type PlayerRemoteCmd,
-  emptyPlayerPopupState,
-  formatPlayerTime,
+
 } from '~/shared/playerBridge'
 
 const state = ref<PlayerPopupState>(emptyPlayerPopupState())
