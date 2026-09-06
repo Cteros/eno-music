@@ -1,7 +1,5 @@
 import { backgroundListener } from '@meanc/webext-fetch'
 
 backgroundListener()
-// 点击浏览器图标, 打开选项页
-browser.action?.onClicked.addListener(() => {
-  browser.runtime.openOptionsPage()
-})
+
+// 工具栏点击由 default_popup 接管；完整播放器入口在 popup 内。

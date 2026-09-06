@@ -5,6 +5,7 @@ import ShareCard from './ShareCard.vue'
 import Video from './Video.vue'
 import useControl from './keys'
 import { usePlayerEngine } from './usePlayerEngine'
+import { usePlayerRemoteControl } from './usePlayerRemoteControl'
 import SongItem from '~/shared/components/SongItem.vue'
 import { EQService, VIDEO_MODE, useEqStore, useLibraryStore, useUiStore } from '~/stores'
 
@@ -32,6 +33,14 @@ const {
 } = usePlayerEngine()
 
 const showList = ref(false)
+
+usePlayerRemoteControl({
+  isPlaying,
+  progress,
+  getPlay: () => store.play,
+  playControl,
+  change,
+})
 
 useControl({
   play: () => playControl(),

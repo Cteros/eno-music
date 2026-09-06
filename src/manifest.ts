@@ -23,7 +23,13 @@ export async function getManifest() {
       ],
     },
     action: {
-      default_icon: 'assets/128px.png',
+      default_icon: {
+        16: 'assets/16.png',
+        48: 'assets/48.png',
+        128: 'assets/128px.png',
+      },
+      default_title: 'ENO-M',
+      default_popup: 'dist/popup/index.html',
     },
     options_ui: {
       page: 'dist/options/index.html',
@@ -39,8 +45,8 @@ export async function getManifest() {
           type: 'module',
         },
     icons: {
-      16: 'assets/128px.png',
-      48: 'assets/128px.png',
+      16: 'assets/16.png',
+      48: 'assets/48.png',
       128: 'assets/128px.png',
     },
     permissions: [
