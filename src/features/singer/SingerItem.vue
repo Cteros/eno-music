@@ -23,8 +23,8 @@ const desc = computed(() => {
 })
 
 function handleSingerDetail(singerMid) {
-  store.mode = 'singerDetail'
   PLstore.currentSinger = singerMid
+  store.go('singerDetail')
 }
 </script>
 

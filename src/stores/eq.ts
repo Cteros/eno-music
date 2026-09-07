@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@vueuse/core'
 import { Howler } from 'howler'
 import { defineStore } from 'pinia'
 
@@ -31,9 +32,9 @@ export const useEqStore = defineStore('eq', {
       jazz: [3, 2, -1, -2, 1, 3],
       classical: [3, 2, 0, -1, 2, 4],
     },
-    currentPreset: 'flat',
-    values: [0, 0, 0, 0, 0, 0],
-    customPresets: {},
+    currentPreset: useLocalStorage('eqPreset', 'flat' as PresetName),
+    values: useLocalStorage('eqValues', [0, 0, 0, 0, 0, 0]),
+    customPresets: useLocalStorage('eqCustomPresets', {} as CustomPresets),
   }),
 
   actions: {

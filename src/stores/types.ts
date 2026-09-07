@@ -10,12 +10,5 @@ export interface Playlist {
   id: string | number
   name: string
   songs: Song[]
+  cover?: string
 }
-
-export const VIDEO_MODE = {
-  FLOATING: 'floating',
-  DRAWER: 'drawer',
-  HIDDEN: 'hidden',
-} as const
-
-export type VideoMode = typeof VIDEO_MODE[keyof typeof VIDEO_MODE]

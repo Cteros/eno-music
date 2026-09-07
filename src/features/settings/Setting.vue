@@ -1,41 +1,151 @@
 <script setup lang="ts">
 import { Button, MessageAPI } from '@cloudfly/eno-ui'
+import { nanoid } from 'nanoid'
 import Eq from '~/features/player/Eq.vue'
-import { useLibraryStore, useSingerStore } from '~/stores'
+import { songKey } from '~/shared/playerBridge'
+import { useEqStore, useLibraryStore, usePlayerStore, useRecentStore, useSingerStore, useUiStore } from '~/stores'
 
 const playlistStore = useLibraryStore()
 const singerStore = useSingerStore()
+const eqStore = useEqStore()
+const recent = useRecentStore()
+const player = usePlayerStore()
+const ui = useUiStore()
+
+async function openInClient() {
+  const cookies = await chrome.cookies.getAll({ domain: '.bilibili.com' })
+  const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ')
+  window.open(`eno-m://cookie?cookie=${encodeURIComponent(cookieString)}`)
+}
+
+function openAfdian() {
+  window.open('https://afdian.com/a/meanc')
+}
+
+function readVoice() {
+  const raw = localStorage.getItem('voice')
+  const value = raw == null ? 1 : Number(JSON.parse(raw))
+  return Number.isFinite(value) ? value : 1
+}
+
+function writeVoice(value: number) {
+  localStorage.setItem('voice', JSON.stringify(value))
+}
+
+function collectBackup() {
+  return {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    singers: singerStore.singers,
+    list: playlistStore.list,
+    listenLater: playlistStore.listenLater,
+    playHistory: recent.playHistory,
+    searchHistory: recent.searchHistory,
+    eqPreset: eqStore.currentPreset,
+    eqValues: [...eqStore.values],
+    eqCustomPresets: { ...eqStore.customPresets },
+    loopMode: player.loopMode,
+    voice: readVoice(),
+  }
+}
 
 function exportData() {
-  const data = { singers: singerStore.singers, list: playlistStore.list }
-  const json = JSON.stringify(data)
+  const json = JSON.stringify(collectBackup(), null, 2)
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'blbl_data.json'
+  a.download = `eno-m-backup.json`
   a.click()
+  URL.revokeObjectURL(url)
 }
 
-async function importData() {
-  try {
-    const [fileHandle] = await window.showOpenFilePicker({
-      types: [{
-        description: 'JSON文件',
-        accept: { 'application/json': ['.json'] },
-      }],
-    })
-    const fileData = await fileHandle.getFile()
-    const json = await fileData.text()
-    const data = JSON.parse(json)
+function uniqueSongs(list: any[] = []) {
+  const seen = new Set<string>()
+  const next: any[] = []
+  for (const song of list) {
+    const key = songKey(song)
+    if (key && seen.has(key))
+      continue
+    if (key)
+      seen.add(key)
+    next.push(song)
+  }
+  return next
+}
 
-    if (!data.singers || !data.list) {
-      MessageAPI.show({ type: 'warning', message: '数据格式不正确' })
-      return
-    }
+function applyBackup(data: any, merge: boolean) {
+  if (!data?.singers || !data?.list) {
+    MessageAPI.show({ type: 'warning', message: '数据格式不正确' })
+    return false
+  }
+
+  if (!merge) {
     singerStore.singers = data.singers
     playlistStore.list = data.list
-    MessageAPI.show({ type: 'success', message: '导入成功' })
+    if (Array.isArray(data.listenLater))
+      playlistStore.listenLater = data.listenLater
+    if (Array.isArray(data.playHistory))
+      recent.playHistory = data.playHistory
+    if (Array.isArray(data.searchHistory))
+      recent.searchHistory = data.searchHistory
+    if (Array.isArray(data.eqValues))
+      eqStore.values = [...data.eqValues]
+    if (data.eqPreset)
+      eqStore.currentPreset = data.eqPreset
+    if (data.eqCustomPresets)
+      eqStore.customPresets = { ...data.eqCustomPresets }
+    if (data.loopMode)
+      player.loopMode = data.loopMode
+    if (typeof data.voice === 'number')
+      writeVoice(data.voice)
+    return true
+  }
+
+  const singerSet = new Set(singerStore.singers.map(String))
+  for (const mid of data.singers) {
+    if (!singerSet.has(String(mid)))
+      singerStore.singers.push(String(mid))
+  }
+
+  const ids = new Set(playlistStore.list.map(item => String(item.id)))
+  for (const playlist of data.list) {
+    const next = {
+      ...playlist,
+      id: ids.has(String(playlist.id)) ? nanoid() : playlist.id,
+      songs: uniqueSongs(playlist.songs),
+    }
+    ids.add(String(next.id))
+    playlistStore.list.push(next)
+  }
+
+  if (Array.isArray(data.listenLater))
+    playlistStore.listenLater = uniqueSongs([...data.listenLater, ...playlistStore.listenLater])
+  if (Array.isArray(data.playHistory))
+    recent.playHistory = uniqueSongs([...data.playHistory, ...recent.playHistory]).slice(0, 40)
+  if (Array.isArray(data.searchHistory)) {
+    recent.searchHistory = [...new Set([...data.searchHistory, ...recent.searchHistory])].slice(0, 12)
+  }
+  return true
+}
+
+async function pickBackup() {
+  const [fileHandle] = await window.showOpenFilePicker({
+    types: [{
+      description: 'JSON文件',
+      accept: { 'application/json': ['.json'] },
+    }],
+  })
+  const fileData = await fileHandle.getFile()
+  return JSON.parse(await fileData.text())
+}
+
+async function importData(merge = false) {
+  try {
+    const data = await pickBackup()
+    if (!applyBackup(data, merge))
+      return
+    MessageAPI.show({ type: 'success', message: merge ? '已合并导入' : '导入成功' })
   }
   catch (error) {
     console.error(error)
@@ -54,7 +164,7 @@ async function importData() {
             设置
           </h1>
           <p class="settings-desc">
-            管理你的数据与均衡器偏好
+            管理数据、客户端和关于信息
           </p>
         </div>
       </div>
@@ -70,7 +180,7 @@ async function importData() {
                 数据管理
               </div>
               <div class="settings-card__subtitle">
-                导入或导出你的歌手列表和播放列表数据
+                导入或导出歌单、歌手、稍后播放、播放历史和均衡器
               </div>
             </div>
           </div>
@@ -78,21 +188,26 @@ async function importData() {
             <div class="settings-card__actions">
               <Button variant="secondary" size="sm" @click="exportData">
                 <span class="i-tabler:download w-1em h-1em" />
-                导出数据
+                导出备份
               </Button>
-              <Button variant="secondary" size="sm" @click="importData">
+              <Button variant="secondary" size="sm" @click="importData(false)">
                 <span class="i-tabler:upload w-1em h-1em" />
-                导入数据
+                覆盖导入
+              </Button>
+              <Button variant="secondary" size="sm" @click="importData(true)">
+                <span class="i-tabler:git-merge w-1em h-1em" />
+                合并导入
               </Button>
             </div>
             <div class="settings-card__notes">
               <p>当前导出的数据包含：</p>
               <ul>
-                <li>歌手列表数据</li>
-                <li>播放列表数据</li>
+                <li>歌手列表、ENO 歌单</li>
+                <li>稍后播放、播放历史、搜索历史</li>
+                <li>均衡器预设、循环模式、音量</li>
               </ul>
               <p class="mt-2 text-$eno-text-3">
-                导入会覆盖当前的数据，请谨慎操作。
+                覆盖导入会替换当前数据；合并导入会追加歌单和歌手，不改均衡器。
               </p>
             </div>
           </div>
@@ -113,6 +228,36 @@ async function importData() {
           </div>
           <div class="settings-card__body">
             <Eq />
+          </div>
+        </div>
+
+        <div class="settings-card settings-card--wide">
+          <div class="settings-card__header">
+            <span class="i-tabler:apps settings-card__icon" />
+            <div>
+              <div class="settings-card__title">
+                应用
+              </div>
+              <div class="settings-card__subtitle">
+                客户端、关于与赞助
+              </div>
+            </div>
+          </div>
+          <div class="settings-card__body">
+            <div class="settings-card__actions">
+              <Button variant="secondary" size="sm" @click="openInClient">
+                <span class="i-mingcute:flash-line w-1em h-1em" />
+                打开客户端
+              </Button>
+              <Button variant="secondary" size="sm" @click="ui.go('about')">
+                <span class="i-tabler:info-circle w-1em h-1em" />
+                关于 ENO-M
+              </Button>
+              <Button variant="secondary" size="sm" @click="openAfdian">
+                <span class="i-tabler:heart w-1em h-1em" />
+                赞助
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -153,6 +298,10 @@ async function importData() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.settings-card--wide {
+  grid-column: 1 / -1;
 }
 
 @media (max-width: 800px) {

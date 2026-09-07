@@ -5,11 +5,10 @@ import { useInfiniteScroll } from '@vueuse/core'
 import { getUserArc } from '~/api'
 import SongItem from '~/shared/components/SongItem.vue'
 
-import { usePlayerStore, useSingerStore, useUiStore } from '~/stores'
+import { usePlayerStore, useSingerStore } from '~/stores'
 
 const PLstore = useSingerStore()
 const store = usePlayerStore()
-const ui = useUiStore()
 
 const info = computed(() => {
   return PLstore.singerCardCache[PLstore.currentSinger]
@@ -76,9 +75,6 @@ function handlePlayUser() {
 <template>
   <section class="singer-detail">
     <header class="singer-hero">
-      <button class="back-btn" type="button" @click.stop="ui.mode = 'singerList'">
-        <div class="i-mingcute:square-arrow-left-line" />
-      </button>
       <img :src="info?.face" class="header-avatar" alt="">
       <div class="header-meta">
         <div class="kicker">
@@ -146,22 +142,6 @@ function handlePlayUser() {
   align-items: flex-end;
   gap: 24px;
   padding: 24px 32px 8px;
-}
-
-.back-btn {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  display: inline-flex;
-  width: 32px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #fff;
-  background: rgb(0 0 0 / 55%);
-  cursor: pointer;
 }
 
 .header-avatar {
@@ -281,7 +261,7 @@ h1 {
   .singer-hero {
     flex-direction: column;
     align-items: flex-start;
-    padding: 48px 16px 8px;
+    padding: 16px 16px 8px;
   }
 
   .header-avatar {

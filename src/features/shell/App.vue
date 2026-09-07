@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
+import type { AppView } from '~/stores'
 import { storeToRefs } from 'pinia'
 import About from '~/features/about/About.vue'
 import Home from '~/features/home/index.vue'
 import AddSong from '~/features/library/AddSong.vue'
 import Playlist from '~/features/library/index.vue'
 import ListenLater from '~/features/library/ListenLater.vue'
+import Recent from '~/features/library/Recent.vue'
 import Play from '~/features/player/Play.vue'
 import Search from '~/features/search/Search.vue'
 import Setting from '~/features/settings/Setting.vue'
@@ -17,13 +19,14 @@ import { useUiStore } from '~/stores'
 
 const ui = useUiStore()
 const { mode } = storeToRefs(ui)
-const { userInfo, syncCookieAndUser } = useBiliCookie()
+const { userInfo, ready, syncCookieAndUser } = useBiliCookie()
 
-const pages: { mode: string, component: Component }[] = [
+const pages: { mode: AppView, component: Component }[] = [
   { mode: 'home', component: Home },
   { mode: 'search', component: Search },
   { mode: 'playlist', component: Playlist },
   { mode: 'listenLater', component: ListenLater },
+  { mode: 'recent', component: Recent },
   { mode: 'singerList', component: SingerList },
   { mode: 'singerDetail', component: SingerDetail },
   { mode: 'about', component: About },
@@ -32,8 +35,13 @@ const pages: { mode: string, component: Component }[] = [
 
 onMounted(() => {
   syncCookieAndUser()
+  const splash = document.getElementById('eno-splash')
+  if (splash) {
+    window.setTimeout(() => splash.remove(), Math.max(0, 3000 - performance.now()))
+  }
 })
 provide('userInfo', userInfo)
+const isLoggedIn = computed(() => Boolean((userInfo.value as any)?.mid || (userInfo.value as any)?.isLogin))
 </script>
 
 <template>
@@ -41,13 +49,33 @@ provide('userInfo', userInfo)
     <AddSong />
     <Sider />
     <div class="sp-main fadeInWrapper">
-      <div
-        v-for="page in pages"
-        :key="page.mode"
-        class="page-host"
-        :class="{ 'page-host--hidden': mode !== page.mode }"
-      >
-        <component :is="page.component" />
+      <div v-if="ready && !isLoggedIn" class="login-banner">
+        <span>未登录 B 站，收藏夹和部分音轨可能不可用。</span>
+        <a href="https://www.bilibili.com" target="_blank" rel="noreferrer">去登录</a>
+      </div>
+      <div class="sp-pages">
+        <div class="sp-chrome">
+          <button
+            class="sp-back"
+            type="button"
+            :disabled="!ui.canBack"
+            :title="ui.canBack ? '返回' : '没有上一页'"
+            @click="ui.back()"
+          >
+            <div class="i-mingcute:arrow-left-line" />
+          </button>
+          <span class="sp-chrome-title">{{ ui.pageTitle }}</span>
+        </div>
+        <div class="sp-stage">
+          <div
+            v-for="page in pages"
+            :key="page.mode"
+            class="page-host"
+            :class="{ 'page-host--hidden': mode !== page.mode }"
+          >
+            <component :is="page.component" />
+          </div>
+        </div>
       </div>
     </div>
     <Play />
@@ -76,12 +104,86 @@ html {
 
 .sp-main {
   position: relative;
+  display: flex;
   min-width: 0;
   flex: 1;
+  flex-direction: column;
   height: calc(100% - 88px);
   overflow: hidden;
   border-radius: 8px;
   background: #121212;
+}
+
+.sp-pages {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.sp-chrome {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 16px;
+  background: rgb(0 0 0 / 28%);
+}
+
+.sp-back {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(0 0 0 / 55%);
+  cursor: pointer;
+}
+
+.sp-back:hover:not(:disabled) {
+  background: rgb(0 0 0 / 75%);
+  transform: scale(1.06);
+}
+
+.sp-back:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.sp-chrome-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sp-stage {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+}
+
+.login-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  background: #282828;
+  color: #b3b3b3;
+  font-size: 12px;
+}
+
+.login-banner a {
+  color: #1ed760;
+  text-decoration: none;
+  font-weight: 700;
 }
 
 .page-host {

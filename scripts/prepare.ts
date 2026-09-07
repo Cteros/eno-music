@@ -4,6 +4,24 @@ import chokidar from 'chokidar'
 import fs from 'fs-extra'
 import { isDev, log, port, r } from './utils'
 
+const OFFSCREEN_HTML = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>ENO-M Offscreen Audio</title>
+</head>
+<body>
+  <script src="./index.js"></script>
+</body>
+</html>
+`
+
+async function writeOffscreenHtml() {
+  await fs.ensureDir(r('extension/dist/offscreen'))
+  await fs.writeFile(r('extension/dist/offscreen/index.html'), OFFSCREEN_HTML)
+  log('PRE', 'stub offscreen')
+}
+
 /**
  * Stub index.html to use Vite in development
  */
@@ -16,12 +34,11 @@ async function stubIndexHtml() {
   for (const view of views) {
     await fs.ensureDir(r(`extension/dist/${view}`))
     let data = await fs.readFile(r(`src/${view}/index.html`), 'utf-8')
-    data = data
-      .replace('"./main.ts"', `"http://localhost:${port}/${view}/main.ts"`)
-      .replace('<div id="app"></div>', '<div id="app">Vite server did not start</div>')
+    data = data.replace('"./main.ts"', `"http://localhost:${port}/${view}/main.ts"`)
     await fs.writeFile(r(`extension/dist/${view}/index.html`), data, 'utf-8')
     log('PRE', `stub ${view}`)
   }
+  await writeOffscreenHtml()
 }
 
 function writeManifest() {
@@ -40,4 +57,7 @@ if (isDev) {
     .on('change', () => {
       writeManifest()
     })
+}
+else {
+  void writeOffscreenHtml()
 }

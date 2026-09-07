@@ -3,12 +3,14 @@ import { cloneDeep } from 'lodash'
 import { computed, onMounted } from 'vue'
 import SingerItem from '~/features/singer/SingerItem.vue'
 import SongItem from '~/shared/components/SongItem.vue'
-import { useHomeStore, usePlayerStore, useSingerStore } from '~/stores'
+import { useHomeStore, usePlayerStore, useRecentStore, useSingerStore, useUiStore } from '~/stores'
 import RankOverview from './RankOverview.vue'
 
 const home = useHomeStore()
 const player = usePlayerStore()
 const singerStore = useSingerStore()
+const recent = useRecentStore()
+const ui = useUiStore()
 
 onMounted(() => {
   home.initHomePage()
@@ -17,9 +19,18 @@ function handlePlayRank() {
   player.playList = cloneDeep(home.musicRankList)
   player.play = home.musicRankList[0] || {}
 }
-const mainSong = computed(() => {
-  return home.musicRankList[0]
-})
+function playContinue() {
+  const list = cloneDeep(recent.playHistory)
+  if (!list.length)
+    return
+  player.playList = list
+  player.play = list[0]
+}
+function playRecent(song: any) {
+  player.startPlay(song)
+}
+const mainSong = computed(() => home.musicRankList[0])
+const recentSongs = computed(() => recent.playHistory.slice(0, 12))
 </script>
 
 <template>
@@ -48,6 +59,38 @@ const mainSong = computed(() => {
       </button>
     </div>
 
+    <div v-if="recentSongs.length" class="continue-block">
+      <div class="continue-head">
+        <h2 class="section-title continue-title">
+          继续听
+        </h2>
+        <div class="continue-ops">
+          <button type="button" class="text-btn" @click="ui.go('recent')">
+            全部
+          </button>
+          <button type="button" class="text-btn" @click="playContinue">
+            播放全部
+          </button>
+          <button type="button" class="text-btn" @click="recent.clearPlay()">
+            清空
+          </button>
+        </div>
+      </div>
+      <div class="continue-row">
+        <button
+          v-for="song in recentSongs"
+          :key="song.id || song.bvid"
+          type="button"
+          class="continue-card"
+          @click="playRecent(song)"
+        >
+          <img :src="song.cover" :alt="song.title">
+          <span class="continue-name">{{ song.title }}</span>
+          <span class="continue-author">{{ song.author }}</span>
+        </button>
+      </div>
+    </div>
+
     <div v-if="mainSong" class="track-table">
       <div class="track-head">
         <span class="col-index">#</span>
@@ -66,9 +109,14 @@ const mainSong = computed(() => {
       <div>加载中...</div>
     </div>
 
-    <h2 class="section-title">
-      关注歌手
-    </h2>
+    <div class="continue-head artist-head">
+      <h2 class="section-title continue-title">
+        关注歌手
+      </h2>
+      <button type="button" class="text-btn" @click="ui.go('singerList')">
+        全部
+      </button>
+    </div>
     <div class="artist-row">
       <SingerItem v-for="serid in singerStore.singers" :key="serid" :singer-mid="serid" can-del />
     </div>
@@ -188,11 +236,99 @@ const mainSong = computed(() => {
   letter-spacing: -0.02em;
 }
 
+.artist-head {
+  margin: 24px 16px 8px;
+}
+
 .artist-row {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
   padding: 0 24px 40px;
+}
+
+.continue-block {
+  padding: 8px 16px 16px;
+}
+
+.continue-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 16px 12px;
+}
+
+.continue-title {
+  margin: 0;
+}
+
+.continue-ops {
+  display: flex;
+  gap: 12px;
+}
+
+.text-btn {
+  border: 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b3b3b3;
+  background: transparent;
+  cursor: pointer;
+}
+
+.text-btn:hover {
+  color: #fff;
+}
+
+.continue-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 0 16px 8px;
+}
+
+.continue-card {
+  display: flex;
+  width: 148px;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: left;
+  color: #fff;
+  background: #181818;
+  cursor: pointer;
+}
+
+.continue-card:hover {
+  background: #282828;
+}
+
+.continue-card img {
+  width: 124px;
+  height: 124px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.continue-name,
+.continue-author {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.continue-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.continue-author {
+  font-size: 12px;
+  color: #b3b3b3;
 }
 
 @media (max-width: 860px) {

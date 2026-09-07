@@ -106,6 +106,8 @@ jobs:
     environment: chrome-webstore
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           name: extension-zip
@@ -132,10 +134,8 @@ jobs:
             echo "缺少 CWS_CRX_PRIVATE_KEY_B64。商店已开启 Verified CRX，必须用同一把私钥打包 .crx"
             exit 1
           fi
-          mkdir -p extension
-          unzip -q extension.zip -d extension
           echo "$CWS_CRX_PRIVATE_KEY_B64" | base64 --decode > key.pem
-          npx --yes crx pack extension -o extension.crx -p key.pem
+          node scripts/pack-crx.mjs --zip extension.zip --out extension.crx --key key.pem
           rm -f key.pem
           if [ "$CWS_MODE" = "upload" ]; then
             npx --yes chrome-webstore-upload-cli@4 upload --source extension.crx --extension-id "$EXTENSION_ID"

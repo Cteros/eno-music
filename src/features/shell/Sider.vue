@@ -1,20 +1,23 @@
 <script setup lang="ts">
+import type { AppView } from '~/stores'
 import { useLocalStorage } from '@vueuse/core'
 import cn from 'classnames'
-import { useUiStore } from '~/stores'
+import { useLibraryStore, useUiStore } from '~/stores'
 
-const primaryTabs = [
+const primaryTabs: { icon: string, title: string, mode: AppView }[] = [
   { icon: 'i-tabler:smart-home', title: '首页', mode: 'home' },
   { icon: 'i-tabler:search', title: '搜索', mode: 'search' },
 ]
 
-const libraryTabs = [
+const libraryPins: { icon: string, title: string, mode: AppView }[] = [
   { icon: 'i-tabler:playlist', title: '媒体库', mode: 'playlist' },
-  { icon: 'i-tabler:user-star', title: '关注的音乐人', mode: 'singerList' },
   { icon: 'i-tabler:clock-play', title: '稍后播放', mode: 'listenLater' },
+  { icon: 'i-tabler:history', title: '最近播放', mode: 'recent' },
+  { icon: 'i-tabler:user-star', title: '关注的音乐人', mode: 'singerList' },
 ]
 
-const store = useUiStore()
+const ui = useUiStore()
+const library = useLibraryStore()
 const open = useLocalStorage('sider-open', true)
 const asideClass = computed(() => {
   return cn('sider-shell', {
@@ -22,23 +25,30 @@ const asideClass = computed(() => {
   })
 })
 
-function openAfdian() {
-  window.open('https://afdian.com/a/meanc')
+function playlistCover(playlist: { cover?: string, songs?: { cover?: string }[] }) {
+  return playlist.cover || playlist.songs?.find(song => song?.cover)?.cover || ''
 }
 
-async function openInClient() {
-  const cookies = await chrome.cookies.getAll({ domain: '.bilibili.com' })
-  const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ')
-  const url = `eno-m://cookie?cookie=${encodeURIComponent(cookieString)}`
-  window.open(url)
+function isPinActive(mode: AppView) {
+  if (mode === 'playlist')
+    return ui.mode === 'playlist' && ui.playlistId == null
+  if (mode === 'singerList')
+    return ui.mode === 'singerList' || ui.mode === 'singerDetail'
+  return ui.mode === mode
 }
 
-function switchMode(mode: string) {
-  if (mode === 'openInClient') {
-    openInClient()
-    return
-  }
-  store.mode = mode
+function isPlaylistActive(id: string | number) {
+  return ui.mode === 'playlist' && String(ui.playlistId) === String(id)
+}
+
+function switchMode(mode: AppView) {
+  ui.go(mode)
+}
+
+async function startCreate() {
+  ui.go('playlist')
+  await nextTick()
+  library.promptCreate = true
 }
 </script>
 
@@ -53,7 +63,7 @@ function switchMode(mode: string) {
         v-for="tab in primaryTabs"
         :key="tab.mode"
         type="button"
-        :class="cn('nav-item', { 'nav-item--active': store.mode === tab.mode })"
+        :class="cn('nav-item', { 'nav-item--active': ui.mode === tab.mode })"
         @click="switchMode(tab.mode)"
       >
         <div class="nav-icon" :class="tab.icon" />
@@ -67,49 +77,66 @@ function switchMode(mode: string) {
           <div class="i-tabler:books nav-icon" />
           <span v-if="open">你的音乐库</span>
         </button>
+        <button
+          v-if="open"
+          class="library-add"
+          type="button"
+          title="新建歌单"
+          @click="startCreate"
+        >
+          <div class="i-tabler:plus" />
+        </button>
       </div>
 
       <div class="sider-scroll">
         <button
-          v-for="tab in libraryTabs"
+          v-for="tab in libraryPins"
           :key="tab.mode"
           type="button"
-          :class="cn('lib-item', { 'lib-item--active': store.mode === tab.mode })"
+          :class="cn('lib-item', { 'lib-item--active': isPinActive(tab.mode) })"
+          :title="tab.title"
           @click="switchMode(tab.mode)"
         >
           <div class="lib-icon" :class="tab.icon" />
           <span v-if="open" class="lib-text">{{ tab.title }}</span>
+        </button>
+
+        <div v-if="open && library.list.length" class="lib-label">
+          歌单
+        </div>
+
+        <button
+          v-for="playlist in library.list"
+          :key="playlist.id"
+          type="button"
+          :class="cn('lib-item lib-playlist', { 'lib-item--active': isPlaylistActive(playlist.id) })"
+          :title="playlist.name"
+          @click="ui.openPlaylist(playlist.id)"
+        >
+          <img
+            v-if="playlistCover(playlist)"
+            class="lib-cover"
+            :src="playlistCover(playlist)"
+            alt=""
+          >
+          <div v-else class="lib-cover lib-cover--empty">
+            <div class="i-mingcute:folder-fill" />
+          </div>
+          <span v-if="open" class="lib-text">
+            {{ playlist.name }}
+            <small>{{ playlist.songs.length }} 首</small>
+          </span>
         </button>
       </div>
 
       <div class="sider-foot">
         <button
           type="button"
-          class="foot-item"
-          @click="switchMode('openInClient')"
-        >
-          <div class="i-mingcute:flash-line nav-icon" />
-          <span v-if="open">打开客户端</span>
-        </button>
-        <button
-          type="button"
-          :class="cn('foot-item', { 'foot-item--active': store.mode === 'setting' })"
+          :class="cn('foot-item', { 'foot-item--active': ui.mode === 'setting' || ui.mode === 'about' })"
           @click="switchMode('setting')"
         >
           <div class="i-tabler:settings nav-icon" />
           <span v-if="open">设置</span>
-        </button>
-        <button
-          type="button"
-          :class="cn('foot-item', { 'foot-item--active': store.mode === 'about' })"
-          @click="switchMode('about')"
-        >
-          <div class="i-tabler:info-circle nav-icon" />
-          <span v-if="open">关于</span>
-        </button>
-        <button type="button" class="foot-item" @click.stop="openAfdian">
-          <div class="i-tabler:external-link nav-icon" />
-          <span v-if="open">探索</span>
         </button>
       </div>
     </div>
@@ -216,12 +243,35 @@ function switchMode(mode: string) {
 }
 
 .library-head {
+  display: flex;
+  align-items: center;
   padding: 4px 0 8px;
 }
 
 .library-toggle {
+  flex: 1;
+  min-width: 0;
   color: #b3b3b3;
   font-size: 16px;
+}
+
+.library-add {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  color: #b3b3b3;
+  background: transparent;
+  cursor: pointer;
+}
+
+.library-add:hover {
+  color: #fff;
+  background: #1a1a1a;
 }
 
 .sider-scroll {
@@ -251,9 +301,55 @@ function switchMode(mode: string) {
 }
 
 .lib-text {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.lib-text,
+.lib-text small {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.lib-text small {
+  margin-top: 2px;
+  color: #7a7a7a;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lib-label {
+  padding: 12px 12px 6px;
+  color: #7a7a7a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lib-playlist {
+  gap: 12px;
+}
+
+.lib-cover {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.lib-cover--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b3b3b3;
+  background: #2a2a2a;
 }
 
 .sider-foot {

@@ -52,6 +52,7 @@ export async function getManifest() {
     permissions: [
       'storage',
       'cookies',
+      'offscreen',
       'declarativeNetRequest',
       'declarativeNetRequestFeedback',
     ],
@@ -59,6 +60,7 @@ export async function getManifest() {
       'https://*.bilibili.com/*',
       'https://*.bilivideo.com/*',
       'https://*.bilivideo.cn/*',
+      'https://*.hdslb.com/*',
     ],
     content_security_policy: {
       extension_pages: isDev

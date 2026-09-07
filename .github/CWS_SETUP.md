@@ -53,6 +53,8 @@ npx chrome-webstore-upload-keys
 | `CWS_PUBLISHER_ID` | 开发者后台的 Publisher ID |
 | `CWS_CRX_PRIVATE_KEY_B64` | 签名 crx 的私钥（base64）。商店已开 Verified CRX，必须上传 `.crx` |
 
+`pnpm pack:crx` 用仓库里的 `scripts/pack-crx.mjs` 签 CRXv3，不再依赖已停更的 `crx` 包。本地需要 `keys/cws-upload-private.pem`。
+
 写入私钥（不要把 pem 提交进 git）：
 
 ```sh

@@ -123,5 +123,7 @@ export default defineConfig(({ command }) => ({
   test: {
     globals: true,
     environment: 'jsdom',
+    root: r(),
+    include: ['test/**/*.test.ts'],
   },
 }))

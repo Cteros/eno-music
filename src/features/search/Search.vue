@@ -1,24 +1,65 @@
 <script setup lang="ts">
-import { Loading } from '@cloudfly/eno-ui'
+import { Loading, MessageAPI } from '@cloudfly/eno-ui'
 import { useInfiniteScroll } from '@vueuse/core'
 
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useApiClient } from '~/api'
 import AddCollection from '~/features/library/AddCollection.vue'
 import SongItem from '~/shared/components/SongItem.vue'
+import { useRecentStore } from '~/stores'
 
 const scrollRef = ref(null)
 const pageNum = ref(1)
 
 const api = useApiClient()
+const recent = useRecentStore()
 const keyword = ref('')
-const result = ref([])
+const result = ref([] as any[])
 const isLoading = ref(false)
 const enableScrollGetMore = ref(true)
+const durationFilter = ref<'all' | 'short' | 'medium' | 'long'>('all')
+const authorFilter = ref('')
+const durationOptions = [
+  { id: 'all', label: '全部时长' },
+  { id: 'short', label: '5 分钟内' },
+  { id: 'medium', label: '5–15 分钟' },
+  { id: 'long', label: '15 分钟以上' },
+] as const
 
-function isUrl(url) {
+function isUrl(url: string) {
   return /bilibili.com/.test(url)
 }
+
+function durationSeconds(input: unknown) {
+  if (typeof input === 'number' && Number.isFinite(input))
+    return input
+  if (typeof input !== 'string')
+    return 0
+  if (input.includes(':')) {
+    const parts = input.split(':').map(n => Number(n) || 0)
+    if (parts.length === 3)
+      return parts[0] * 3600 + parts[1] * 60 + parts[2]
+    if (parts.length === 2)
+      return parts[0] * 60 + parts[1]
+  }
+  return Number(input) || 0
+}
+
+const displayed = computed(() => {
+  const author = authorFilter.value.trim()
+  return result.value.filter((item) => {
+    if (author && !String(item.author || '').includes(author))
+      return false
+    const seconds = durationSeconds(item.duration)
+    if (durationFilter.value === 'short')
+      return seconds > 0 && seconds < 5 * 60
+    if (durationFilter.value === 'medium')
+      return seconds >= 5 * 60 && seconds <= 15 * 60
+    if (durationFilter.value === 'long')
+      return seconds > 15 * 60
+    return true
+  })
+})
 
 useInfiniteScroll(
   scrollRef,
@@ -34,58 +75,91 @@ useInfiniteScroll(
 async function getMoreData() {
   isLoading.value = true
   pageNum.value++
-  const res = await api.blbl.search({
-    keyword: keyword.value,
-    page: pageNum.value,
-  })
-  isLoading.value = false
-
-  return res.data.result.map((item) => {
-    return {
-      id: item.id || item.bvid,
-      eno_song_type: 'bvid',
-      cover: `http:${item.pic}`,
-      title: item.title,
-      description: item.description || item.desc,
-      author: item.author || item.owner?.name || '未知',
-      duration: item.duration,
-      bvid: item.bvid,
-      pages: item.pages,
-      mid: item.mid,
-    }
-  })
+  try {
+    const res = await api.blbl.search({
+      keyword: keyword.value,
+      page: pageNum.value,
+    })
+    return (res.data?.result || []).map((item) => {
+      return {
+        id: item.id || item.bvid,
+        eno_song_type: 'bvid',
+        cover: `http:${item.pic}`,
+        title: item.title,
+        description: item.description || item.desc,
+        author: item.author || item.owner?.name || '未知',
+        duration: item.duration,
+        bvid: item.bvid,
+        pages: item.pages,
+        mid: item.mid,
+      }
+    })
+  }
+  catch (error) {
+    enableScrollGetMore.value = false
+    MessageAPI.show({
+      type: 'error',
+      message: error instanceof Error ? error.message : '搜索失败，请稍后重试',
+    })
+    return []
+  }
+  finally {
+    isLoading.value = false
+  }
 }
 
 async function handleSearch() {
   enableScrollGetMore.value = true
-  if (isUrl(keyword.value)) {
-    const bvid = keyword.value.match(/BV([a-zA-Z0-9]+)/)[0]
-    const item = await api.blbl.getVideoInfo({
-      bvid,
-    }).then(res => res.data)
+  const query = keyword.value.trim()
+  if (!query)
+    return
+  recent.recordSearch(query)
+  try {
+    if (isUrl(keyword.value)) {
+      const matched = keyword.value.match(/BV([a-zA-Z0-9]+)/)
+      if (!matched) {
+        MessageAPI.show({ type: 'warning', message: '没有识别到 BV 号' })
+        return
+      }
+      const bvid = matched[0]
+      const item = await api.blbl.getVideoInfo({
+        bvid,
+      }).then(res => res.data)
 
-    const searchSong = {
-      id: item.id || item.bvid,
-      eno_song_type: 'bvid',
-      cover: item.pic,
-      title: item.title,
-      description: item.description || item.desc,
-      author: item.author || item.owner?.name || '未知',
-      duration: item.duration,
-      bvid: item.bvid,
-      pages: item.pages,
-      mid: item.mid,
+      const searchSong = {
+        id: item.id || item.bvid,
+        eno_song_type: 'bvid',
+        cover: item.pic,
+        title: item.title,
+        description: item.description || item.desc,
+        author: item.author || item.owner?.name || '未知',
+        duration: item.duration,
+        bvid: item.bvid,
+        pages: item.pages,
+        mid: item.mid,
+      }
+
+      result.value = [searchSong]
+      enableScrollGetMore.value = false
     }
+    else {
+      pageNum.value = 0
+      result.value = []
+      const newList = await getMoreData()
+      result.value = newList
+    }
+  }
+  catch (error) {
+    MessageAPI.show({
+      type: 'error',
+      message: error instanceof Error ? error.message : '搜索失败，请稍后重试',
+    })
+  }
+}
 
-    result.value = [searchSong]
-    enableScrollGetMore.value = false
-  }
-  else {
-    pageNum.value = 0
-    result.value = []
-    const newList = await getMoreData()
-    result.value = newList
-  }
+function searchFromHistory(query: string) {
+  keyword.value = query
+  void handleSearch()
 }
 </script>
 
@@ -111,14 +185,32 @@ async function handleSearch() {
           <Loading v-if="isLoading" class="search-loading" />
         </div>
       </div>
+      <div v-if="result.length" class="search-filters">
+        <button
+          v-for="item in durationOptions"
+          :key="item.id"
+          type="button"
+          class="filter-chip"
+          :class="{ 'filter-chip--on': durationFilter === item.id }"
+          @click="durationFilter = item.id"
+        >
+          {{ item.label }}
+        </button>
+        <input
+          v-model="authorFilter"
+          class="author-filter"
+          type="text"
+          placeholder="按 UP 筛选"
+        >
+      </div>
     </header>
 
-    <div v-if="result.length" ref="scrollRef" class="result-panel">
+    <div v-if="displayed.length" ref="scrollRef" class="result-panel">
       <h2 class="result-title">
         歌曲
       </h2>
       <SongItem
-        v-for="(item, index) in result"
+        v-for="(item, index) in displayed"
         :key="item.bvid"
         :song="item"
         :index="index + 1"
@@ -126,9 +218,34 @@ async function handleSearch() {
       />
     </div>
 
+    <div v-else-if="result.length" class="empty-panel">
+      <h3>没有符合筛选的结果</h3>
+      <p>试试改时长或 UP 名称。</p>
+    </div>
+
     <div v-else class="empty-panel">
       <h3>开始搜索</h3>
       <p>输入关键词，或直接粘贴 Bilibili 视频链接。</p>
+      <div v-if="recent.searchHistory.length" class="history-block">
+        <div class="history-head">
+          <span>最近搜索</span>
+          <button type="button" class="history-clear" @click="recent.clearSearch()">
+            清空
+          </button>
+        </div>
+        <div class="history-chips">
+          <button
+            v-for="item in recent.searchHistory"
+            :key="item"
+            type="button"
+            class="history-chip"
+            @click="searchFromHistory(item)"
+          >
+            {{ item }}
+            <span class="history-remove" @click.stop="recent.removeSearch(item)">×</span>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -228,6 +345,75 @@ async function handleSearch() {
 .empty-panel p {
   margin: 0;
   font-size: 14px;
+}
+
+.search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 640px;
+  margin-top: 16px;
+}
+
+.filter-chip,
+.history-chip {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: #282828;
+  cursor: pointer;
+}
+
+.filter-chip--on,
+.history-chip:hover,
+.filter-chip:hover {
+  background: #3e3e3e;
+}
+
+.author-filter {
+  height: 32px;
+  min-width: 140px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #fff;
+  background: #282828;
+}
+
+.history-block {
+  margin-top: 24px;
+}
+
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b3b3b3;
+}
+
+.history-clear {
+  border: 0;
+  padding: 0;
+  color: #b3b3b3;
+  background: transparent;
+  cursor: pointer;
+}
+
+.history-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-remove {
+  margin-left: 6px;
+  opacity: 0.7;
 }
 
 @media (max-width: 860px) {

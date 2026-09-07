@@ -1,5 +1,4 @@
-import { useActiveElement, useMagicKeys, whenever } from '@vueuse/core'
-import { logicAnd } from '@vueuse/math'
+import { onMounted, onUnmounted } from 'vue'
 
 interface ControlOptions {
   play: () => void
@@ -7,22 +6,44 @@ interface ControlOptions {
   back?: () => void
 }
 
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement))
+    return false
+  const tag = target.tagName
+  return tag === 'INPUT'
+    || tag === 'TEXTAREA'
+    || tag === 'SELECT'
+    || target.isContentEditable
+}
+
 function useControl(callbacks: ControlOptions) {
-  const activeElement = useActiveElement()
-  const notUsingInput = computed(() =>
-    activeElement.value?.tagName !== 'INPUT'
-    && activeElement.value?.tagName !== 'TEXTAREA')
+  function onKeydown(event: KeyboardEvent) {
+    if (event.repeat || event.metaKey || event.ctrlKey || event.altKey)
+      return
+    if (isTypingTarget(event.target))
+      return
 
-  const keys = useMagicKeys()
+    if (event.code === 'Space') {
+      event.preventDefault()
+      callbacks.play()
+      return
+    }
+    if (event.code === 'ArrowRight') {
+      event.preventDefault()
+      callbacks.forward?.()
+      return
+    }
+    if (event.code === 'ArrowLeft') {
+      event.preventDefault()
+      callbacks.back?.()
+    }
+  }
 
-  whenever(logicAnd(keys.space, notUsingInput), () => {
-    callbacks.play()
+  onMounted(() => {
+    window.addEventListener('keydown', onKeydown)
   })
-  whenever(logicAnd(keys.arrowRight, notUsingInput), () => {
-    callbacks.forward?.()
-  })
-  whenever(logicAnd(keys.arrowLeft, notUsingInput), () => {
-    callbacks.back?.()
+  onUnmounted(() => {
+    window.removeEventListener('keydown', onKeydown)
   })
 }
 

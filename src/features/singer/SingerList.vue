@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Dialog } from '@cloudfly/eno-ui'
+import { Dialog, MessageAPI } from '@cloudfly/eno-ui'
+import { getFollowings } from '~/api'
 import SingerItem from '~/features/singer/SingerItem.vue'
 import { defaultSingers, useSingerStore } from '~/stores'
 
@@ -15,6 +16,9 @@ function getMidFromUrl(url) {
 }
 
 const PLstore = useSingerStore()
+const userInfo = inject('userInfo', ref<Record<string, any>>({}))
+const importing = ref(false)
+
 onMounted(() => {
   PLstore.fetchSingerInfoList()
 })
@@ -31,16 +35,55 @@ function addSinger() {
   PLstore.addSinger(mid)
   dialogVis.value = false
 }
+
+async function importFollowings() {
+  const mid = Number((userInfo.value as any)?.mid)
+  if (!mid) {
+    MessageAPI.show({ type: 'warning', message: '请先登录 B 站' })
+    return
+  }
+  importing.value = true
+  try {
+    const res = await getFollowings({ mid, ps: 50 })
+    const list = res?.data?.list || []
+    let added = 0
+    for (const item of list) {
+      const followMid = String(item.mid)
+      if (!followMid || PLstore.singers.includes(followMid))
+        continue
+      PLstore.addSinger(followMid)
+      added++
+    }
+    MessageAPI.show({
+      type: 'success',
+      message: added ? `已导入 ${added} 位关注` : '没有新的关注可导入',
+    })
+  }
+  catch (error) {
+    MessageAPI.show({
+      type: 'error',
+      message: error instanceof Error ? error.message : '导入关注失败',
+    })
+  }
+  finally {
+    importing.value = false
+  }
+}
 </script>
 
 <template>
   <section class="singer-list-page">
     <div class="page-head">
-      <h1>关注歌手</h1>
-      <button type="button" class="add-btn" @click.stop="dialogVis = true">
-        <div class="i-mdi:user-add" />
-        添加歌手
-      </button>
+      <h1>关注的音乐人</h1>
+      <div class="head-ops">
+        <button type="button" class="add-btn ghost" :disabled="importing" @click.stop="importFollowings">
+          {{ importing ? '导入中…' : '导入 B 站关注' }}
+        </button>
+        <button type="button" class="add-btn" @click.stop="dialogVis = true">
+          <div class="i-mdi:user-add" />
+          添加歌手
+        </button>
+      </div>
     </div>
     <div class="artist-grid">
       <SingerItem v-for="serid in PLstore.singers" :key="serid" :singer-mid="serid" can-del />
@@ -93,6 +136,21 @@ h1 {
   color: #000;
   background: #fff;
   cursor: pointer;
+}
+
+.head-ops {
+  display: flex;
+  gap: 8px;
+}
+
+.add-btn.ghost {
+  color: #fff;
+  background: #282828;
+}
+
+.add-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .artist-grid {

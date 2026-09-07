@@ -42,13 +42,73 @@ async function getSeasonInfo(params: Record<string, any>) {
   return res
 }
 
-function getFavorites({ mid }: { mid: number }) {
+async function getBiliCsrf() {
+  const cookie = await chrome.cookies.get({
+    url: 'https://www.bilibili.com',
+    name: 'bili_jct',
+  })
+  return cookie?.value || ''
+}
+
+function getFavorites({ mid, rid }: { mid: number, rid?: number }) {
   const urlserachparams = new URLSearchParams()
-  urlserachparams.set('type', '0')
   urlserachparams.set('up_mid', mid.toString())
+  if (rid) {
+    urlserachparams.set('type', '2')
+    urlserachparams.set('rid', String(rid))
+  }
+  else {
+    urlserachparams.set('type', '0')
+  }
 
   return efetch(`https://api.bilibili.com/x/v3/fav/folder/created/list-all?${urlserachparams.toString()}`, {
     method: 'GET',
+  })
+}
+
+async function addToBiliFavorite({ aid, mediaId }: { aid: number, mediaId: string | number }) {
+  const csrf = await getBiliCsrf()
+  if (!csrf)
+    throw new Error('未登录 B 站')
+
+  const body = new URLSearchParams()
+  body.set('rid', String(aid))
+  body.set('type', '2')
+  body.set('add_media_ids', String(mediaId))
+  body.set('csrf', csrf)
+  body.set('platform', 'web')
+
+  return efetch('https://api.bilibili.com/x/v3/fav/resource/deal', {
+    method: 'POST',
+    headers: {
+      'Referer': 'https://www.bilibili.com/',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: body.toString(),
+  })
+}
+
+async function createBiliFavoriteFolder(title: string) {
+  const csrf = await getBiliCsrf()
+  if (!csrf)
+    throw new Error('未登录 B 站')
+
+  const name = title.trim()
+  if (!name)
+    throw new Error('请填写收藏夹名称')
+
+  const body = new URLSearchParams()
+  body.set('title', name)
+  body.set('privacy', '0')
+  body.set('csrf', csrf)
+
+  return efetch('https://api.bilibili.com/x/v3/fav/folder/add', {
+    method: 'POST',
+    headers: {
+      'Referer': 'https://www.bilibili.com/',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: body.toString(),
   })
 }
 
@@ -65,4 +125,32 @@ function getCollectedFavorites({ mid }: { mid: number }) {
   })
 }
 
-export { getCollectedFavorites, getFavorites, getSeasonInfo, getUserArc, getUserInfo }
+function getFollowings({ mid, pn = 1, ps = 50 }: { mid: number, pn?: number, ps?: number }) {
+  const params = new URLSearchParams()
+  params.set('vmid', String(mid))
+  params.set('pn', String(pn))
+  params.set('ps', String(ps))
+  params.set('order_type', 'attention')
+  return efetch(`https://api.bilibili.com/x/relation/followings?${params.toString()}`, {
+    method: 'GET',
+  })
+}
+
+function getPlayerV2({ bvid, cid }: { bvid: string, cid: string | number }) {
+  const params = new URLSearchParams()
+  params.set('bvid', bvid)
+  params.set('cid', String(cid))
+  return efetch(`https://api.bilibili.com/x/player/v2?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+      Referer: 'https://www.bilibili.com/',
+    },
+  })
+}
+
+function fetchRemoteJson(url: string) {
+  const href = url.startsWith('http') ? url : `https:${url}`
+  return efetch(href, { method: 'GET' })
+}
+
+export { addToBiliFavorite, createBiliFavoriteFolder, fetchRemoteJson, getBiliCsrf, getCollectedFavorites, getFavorites, getFollowings, getPlayerV2, getSeasonInfo, getUserArc, getUserInfo }

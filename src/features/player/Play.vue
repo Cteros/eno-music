@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { Drawer, LoopSwitch } from '@cloudfly/eno-ui'
-import cn from 'classnames'
+import { Drawer, LoopSwitch, MessageAPI } from '@cloudfly/eno-ui'
+import { useLocalStorage } from '@vueuse/core'
 import SongItem from '~/shared/components/SongItem.vue'
-import { EQService, useEqStore, useLibraryStore, useUiStore, VIDEO_MODE } from '~/stores'
+import { sendPlayerMessage, songKey } from '~/shared/playerBridge'
+import { useEqStore, useLibraryStore, useUiStore } from '~/stores'
 import useControl from './keys'
+import Lyrics from './Lyrics.vue'
 import ShareCard from './ShareCard.vue'
+import SleepTimer from './SleepTimer.vue'
 import { usePlayerEngine } from './usePlayerEngine'
-import { usePlayerRemoteControl } from './usePlayerRemoteControl'
 import Video from './Video.vue'
 
 const PLstore = useLibraryStore()
@@ -30,17 +32,18 @@ const {
   playControl,
   handleChangeVoice,
   setVoice,
+  lastError,
+  rate,
+  rateLabel,
+  cycleRate,
+  sleepUntil,
+  sleepAfterCurrent,
+  setSleep,
+  retryPlay,
 } = usePlayerEngine()
 
 const showList = ref(false)
-
-usePlayerRemoteControl({
-  isPlaying,
-  progress,
-  getPlay: () => store.play,
-  playControl,
-  change,
-})
+const showLyrics = useLocalStorage('showLyrics', false)
 
 useControl({
   play: () => playControl(),
@@ -56,6 +59,30 @@ function deleteSong(index: number) {
   store.playList.splice(index, 1)
 }
 
+function shuffleQueue() {
+  const currentKey = songKey(store.play)
+  const rest = store.playList.filter(song => songKey(song) !== currentKey)
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const swap = rest[i]
+    rest[i] = rest[j]
+    rest[j] = swap
+  }
+  store.playList = currentKey && store.play ? [store.play, ...rest] : rest
+  MessageAPI.show({ type: 'success', message: '已打乱当前队列' })
+}
+
+function saveQueue() {
+  if (!store.playList.length) {
+    MessageAPI.show({ type: 'warning', message: '队列是空的' })
+    return
+  }
+  const stamp = new Date()
+  const name = `队列 ${stamp.getMonth() + 1}/${stamp.getDate()} ${String(stamp.getHours()).padStart(2, '0')}:${String(stamp.getMinutes()).padStart(2, '0')}`
+  PLstore.createPlaylist(name, store.playList.map(song => ({ ...song })))
+  MessageAPI.show({ type: 'success', message: `已保存为「${name}」` })
+}
+
 const fullScreenStatus = ref(false)
 function fullScreenTheBody() {
   if (document.fullscreenElement)
@@ -68,17 +95,20 @@ function fullScreenTheBody() {
 function openBlTab() {
   window.open(`https://www.bilibili.com/video/${store.play.bvid}`)
 }
-function changeVideoMode() {
-  ui.videoMode = ui.videoMode === VIDEO_MODE.FLOATING ? VIDEO_MODE.DRAWER : VIDEO_MODE.FLOATING
+function toggleVideo() {
+  ui.showVideo = !ui.showVideo
 }
 
-watch(() => store.howl, () => {
-  if (store.howl)
-    store.eqService = new EQService()
-})
-watch(() => eqStore.currentPreset, () => {
-  if (store.eqService)
-    store.eqService.updateFilters(eqStore.values)
+watch(() => eqStore.values, (values) => {
+  void sendPlayerMessage({
+    type: 'ENO_PLAYER_SET_EQ',
+    eqValues: [...values],
+  })
+}, { deep: true })
+
+watch(lastError, (message) => {
+  if (message)
+    MessageAPI.show({ type: 'error', message })
 })
 </script>
 
@@ -89,17 +119,26 @@ watch(() => eqStore.currentPreset, () => {
         <span
           v-if="store.play.cover"
           relative shrink-0 cursor-pointer class="group"
-          @click.stop="changeVideoMode"
+          :title="ui.showVideo ? '关闭视频' : '打开视频'"
+          @click.stop="toggleVideo"
         >
           <img class="eno-cover" :src="store.play.cover">
-          <div class="eno-cover-mask">
-            <i i-mingcute:arrows-up-fill :class="cn('text-lg', { 'rotate-180': ui.videoMode === VIDEO_MODE.FLOATING })" />
+          <div class="eno-cover-mask" :class="{ 'eno-cover-mask--on': ui.showVideo }">
+            <i :class="ui.showVideo ? 'i-mingcute:close-line text-lg' : 'i-mingcute:fullscreen-2-line text-lg'" />
           </div>
         </span>
         <div class="eno-meta">
           <div class="eno-title" v-html="displayData.title" />
           <div class="eno-author">
-            {{ store.play.author }}{{ store.play.description }}
+            <span>{{ store.play.author }}{{ store.play.description }}</span>
+            <button
+              v-if="lastError"
+              type="button"
+              class="eno-retry"
+              @click.stop="retryPlay"
+            >
+              重试
+            </button>
           </div>
         </div>
         <div class="eno-mini-actions">
@@ -112,6 +151,15 @@ watch(() => eqStore.currentPreset, () => {
       <div class="eno-center">
         <div class="eno-controls">
           <LoopSwitch v-model="store.loopMode" />
+          <button
+            type="button"
+            class="eno-rate"
+            :class="{ 'eno-rate--on': rate !== 1 }"
+            title="播放速度"
+            @click.stop="cycleRate"
+          >
+            {{ rateLabel }}
+          </button>
           <div class="i-tabler:player-track-prev-filled eno-ctrl" @click.stop="change('prev')" />
           <button
             type="button"
@@ -169,6 +217,17 @@ watch(() => eqStore.currentPreset, () => {
           step="0.01"
           @change="handleChangeVoice"
         >
+        <SleepTimer
+          :sleep-until="sleepUntil"
+          :sleep-after-current="sleepAfterCurrent"
+          @set="setSleep"
+        />
+        <div
+          class="i-mingcute:music-2-fill eno-ctrl"
+          :class="{ 'eno-ctrl--on': showLyrics }"
+          title="歌词"
+          @click.stop="showLyrics = !showLyrics"
+        />
         <div class="i-tabler:playlist eno-ctrl" @click="toggleList" />
         <div
           v-if="fullScreenStatus"
@@ -182,16 +241,33 @@ watch(() => eqStore.currentPreset, () => {
         />
         <Drawer :open="showList" title="播放列表" position="right" @visible-change="vis => showList = vis">
           <div class="w-100">
+            <div class="queue-ops">
+              <button type="button" class="queue-btn" @click="shuffleQueue">
+                打乱
+              </button>
+              <button type="button" class="queue-btn" @click="saveQueue">
+                存为歌单
+              </button>
+            </div>
             <SongItem v-for="(song, index) in store.playList" :key="song.id" show-active del :song="song" size="mini" @delete-song="deleteSong(index)" />
           </div>
         </Drawer>
       </div>
     </div>
+    <Lyrics
+      v-if="showLyrics"
+      :bvid="store.play.bvid"
+      :cid="store.play.cid"
+      :current="progress.current"
+    />
     <Video
-      v-if="ui.videoMode !== VIDEO_MODE.HIDDEN"
+      v-if="ui.showVideo"
       :is-playing="isPlaying"
+      :is-dragging="isDragging"
       :video-url="store.play.video"
+      :cover="store.play.cover"
       :audio-time="progress.current"
+      :audio-rate="rate"
     />
   </section>
 </template>
@@ -243,7 +319,8 @@ watch(() => eqStore.currentPreset, () => {
   background: rgb(0 0 0 / 50%);
 }
 
-.group:hover .eno-cover-mask {
+.group:hover .eno-cover-mask,
+.eno-cover-mask--on {
   display: flex;
 }
 
@@ -263,12 +340,32 @@ watch(() => eqStore.currentPreset, () => {
 }
 
 .eno-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 2px;
   font-size: 11px;
   color: #b3b3b3;
+}
+
+.eno-author span {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.eno-retry {
+  flex-shrink: 0;
+  height: 18px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: #1ed760;
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .eno-mini-actions {
@@ -313,6 +410,50 @@ watch(() => eqStore.currentPreset, () => {
 
 .eno-ctrl:hover {
   color: #fff;
+}
+
+.eno-ctrl--on {
+  color: #1ed760;
+}
+
+.eno-rate {
+  min-width: 36px;
+  height: 22px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #b3b3b3;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.eno-rate:hover,
+.eno-rate--on {
+  color: #1ed760;
+}
+
+.queue-ops {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.queue-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #282828;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.queue-btn:hover {
+  background: #3e3e3e;
 }
 
 button.eno-play-btn {

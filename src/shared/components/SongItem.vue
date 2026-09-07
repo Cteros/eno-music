@@ -105,8 +105,8 @@ function addToLater() {
 function handleSingerDetail(singerMid) {
   if (!singerMid)
     return
-  ui.mode = 'singerDetail'
   singerStore.currentSinger = singerMid
+  ui.go('singerDetail')
 }
 </script>
 

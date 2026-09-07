@@ -1,26 +1,10 @@
-/* eslint-disable no-console */
 import { useLocalStorage } from '@vueuse/core'
 import { getUserInfo } from '~/api'
 
 export function useBiliCookie() {
   const CST = useLocalStorage('cookieSetTime', 0)
-  const userInfo = ref({})
-
-  function getCookie() {
-    // 这部分暂时不删除, 调试太麻烦
-    const domain = 'https://api.bilibili.com'
-    fetch(domain, {
-      method: 'GET',
-      mode: 'no-cors',
-      credentials: 'include',
-    }).then((res) => {
-      const cookie = res.headers.get('set-cookie')
-
-      chrome.cookies?.set({
-        ...cookie as any,
-      })
-    })
-  }
+  const userInfo = ref<Record<string, any>>({})
+  const ready = ref(false)
 
   function getBLCookie() {
     chrome.cookies.getAll({ domain: '.bilibili.com' }, (cookies) => {
@@ -37,30 +21,27 @@ export function useBiliCookie() {
           }, () => {
             if (chrome.runtime.lastError)
               console.error(`Error setting cookie ${cookie.name}: ${chrome.runtime.lastError}`)
-            else
-              console.log(`Cookie ${cookie.name} set`)
           })
         })
-      }
-      else {
-        console.log('No Bilibili cookies found')
       }
     })
   }
 
   function syncCookieAndUser() {
     getBLCookie()
-    if (Date.now() - CST.value > 24 * 60 * 60 * 1000) {
-      CST.value = Date.now()
-      getCookie()
-    }
+    CST.value = Date.now()
     getUserInfo().then((res: any) => {
-      userInfo.value = res.data
+      userInfo.value = res.data || {}
+    }).catch((error) => {
+      console.warn('[cookie] getUserInfo failed', error)
+    }).finally(() => {
+      ready.value = true
     })
   }
 
   return {
     userInfo,
+    ready,
     syncCookieAndUser,
   }
 }
