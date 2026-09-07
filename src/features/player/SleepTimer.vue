@@ -106,11 +106,20 @@ onUnmounted(() => {
   color: #b3b3b3;
   font-size: 16px;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .sleep-btn:hover,
 .sleep-btn--on {
   color: #1ed760;
+}
+
+.sleep-btn:hover {
+  transform: scale(1.08);
+}
+
+.sleep-btn:active {
+  transform: scale(0.9);
 }
 
 .sleep-left {
@@ -146,6 +155,10 @@ onUnmounted(() => {
 
 .sleep-item:hover {
   background: #3e3e3e;
+}
+
+.sleep-item:active {
+  background: #232323;
 }
 
 .sleep-item--muted {

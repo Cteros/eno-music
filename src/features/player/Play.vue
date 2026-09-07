@@ -83,14 +83,15 @@ function saveQueue() {
   MessageAPI.show({ type: 'success', message: `已保存为「${name}」` })
 }
 
-const fullScreenStatus = ref(false)
+const fullScreenStatus = ref(Boolean(document.fullscreenElement))
+function syncFullScreen() {
+  fullScreenStatus.value = Boolean(document.fullscreenElement)
+}
 function fullScreenTheBody() {
   if (document.fullscreenElement)
-    document.exitFullscreen()
+    void document.exitFullscreen()
   else
-    document.body.requestFullscreen()
-
-  fullScreenStatus.value = document.fullscreenElement
+    void document.body.requestFullscreen()
 }
 function openBlTab() {
   window.open(`https://www.bilibili.com/video/${store.play.bvid}`)
@@ -109,6 +110,15 @@ watch(() => eqStore.values, (values) => {
 watch(lastError, (message) => {
   if (message)
     MessageAPI.show({ type: 'error', message })
+})
+
+onMounted(() => {
+  document.addEventListener('fullscreenchange', syncFullScreen)
+  syncFullScreen()
+})
+
+onUnmounted(() => {
+  document.removeEventListener('fullscreenchange', syncFullScreen)
 })
 </script>
 
@@ -231,12 +241,14 @@ watch(lastError, (message) => {
         <div class="i-tabler:playlist eno-ctrl" @click="toggleList" />
         <div
           v-if="fullScreenStatus"
-          class="i-mingcute:fullscreen-fill eno-ctrl"
+          class="i-mingcute:fullscreen-exit-fill eno-ctrl"
+          title="退出全屏"
           @click.stop="fullScreenTheBody"
         />
         <div
           v-else
-          class="i-mingcute:fullscreen-exit-fill eno-ctrl"
+          class="i-mingcute:fullscreen-fill eno-ctrl"
+          title="进入全屏"
           @click.stop="fullScreenTheBody"
         />
         <Drawer :open="showList" title="播放列表" position="right" @visible-change="vis => showList = vis">
@@ -410,6 +422,11 @@ watch(lastError, (message) => {
 
 .eno-ctrl:hover {
   color: #fff;
+  transform: scale(1.12);
+}
+
+.eno-ctrl:active {
+  transform: scale(0.88);
 }
 
 .eno-ctrl--on {
@@ -427,11 +444,20 @@ watch(lastError, (message) => {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .eno-rate:hover,
 .eno-rate--on {
   color: #1ed760;
+}
+
+.eno-rate:hover {
+  transform: scale(1.08);
+}
+
+.eno-rate:active {
+  transform: scale(0.9);
 }
 
 .queue-ops {
@@ -450,10 +476,16 @@ watch(lastError, (message) => {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .queue-btn:hover {
   background: #3e3e3e;
+  transform: scale(1.03);
+}
+
+.queue-btn:active {
+  transform: scale(0.97);
 }
 
 button.eno-play-btn {
@@ -468,18 +500,18 @@ button.eno-play-btn {
   background: #fff;
   background-color: #fff;
   cursor: pointer;
-  transition: transform 0.12s var(--eno-ease), background-color 0.12s var(--eno-ease);
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 button.eno-play-btn:hover {
-  transform: scale(1.06);
+  transform: scale(1.08);
   background: #fff;
   background-color: #fff;
   color: #000;
 }
 
 button.eno-play-btn:active {
-  transform: scale(1);
+  transform: scale(0.94);
 }
 
 button.eno-play-btn .eno-play-icon {
@@ -581,6 +613,11 @@ input[type="range"]::-webkit-slider-thumb {
   background: #fff;
   border: none;
   margin-top: -4px;
+  transition: transform 0.12s var(--eno-ease);
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
 }
 
 input[type="range"]::-moz-range-track {

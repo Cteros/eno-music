@@ -263,10 +263,15 @@ watch(() => PLStore.addSongDialog, (open) => {
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
 }
 
 .add-row:hover {
   background: rgb(255 255 255 / 10%);
+}
+
+.add-row:active {
+  background: rgb(255 255 255 / 14%);
 }
 
 .add-row--busy {

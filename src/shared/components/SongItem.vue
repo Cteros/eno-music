@@ -148,6 +148,7 @@ function handleSingerDetail(singerMid) {
   border-radius: 4px;
   color: #b3b3b3;
   cursor: pointer;
+  transition: background-color 0.12s var(--eno-ease), color 0.12s var(--eno-ease);
 }
 
 .song-item--mini {
@@ -234,10 +235,16 @@ function handleSingerDetail(singerMid) {
 .action-icon {
   opacity: 0;
   cursor: pointer;
+  transition: opacity 0.16s var(--eno-ease), color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .action-icon:hover {
   color: #fff;
+  transform: scale(1.14);
+}
+
+.action-icon:active {
+  transform: scale(0.9);
 }
 
 .song-item--mini .action-icon,

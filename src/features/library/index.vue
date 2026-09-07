@@ -351,7 +351,7 @@ watch(userInfo, () => {
 .detail-page {
   height: 100%;
   overflow: auto;
-  background: linear-gradient(180deg, #2a5a45 0%, #121212 42%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 14%, transparent) 0%, transparent 46%);
 }
 
 .detail-hero {
@@ -417,10 +417,17 @@ watch(userInfo, () => {
   background: #1ed760;
   font-size: 24px;
   cursor: pointer;
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.05);
+  transform: scale(1.06);
+  background: #3be477;
+}
+
+.play-all:active {
+  transform: scale(0.94);
+  background: #1abc54;
 }
 
 .ghost {
@@ -433,6 +440,10 @@ watch(userInfo, () => {
 
 .ghost:hover {
   color: #fff;
+}
+
+.ghost:active {
+  transform: scale(0.96);
 }
 
 .ghost--danger:hover {
@@ -477,11 +488,17 @@ watch(userInfo, () => {
   color: #000;
   background: #fff;
   cursor: pointer;
+  transition: transform 0.16s var(--eno-ease);
 }
 
 .media-action-btn:hover,
 :deep(.media-action-btn):hover {
   transform: scale(1.04);
+}
+
+.media-action-btn:active,
+:deep(.media-action-btn):active {
+  transform: scale(0.97);
 }
 
 .section-label {
@@ -508,10 +525,16 @@ watch(userInfo, () => {
   color: #fff;
   background: #181818;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
 }
 
 .playlist-tile:hover {
   background: #282828;
+  transform: translateY(-2px);
+}
+
+.playlist-tile:active {
+  transform: translateY(0) scale(0.99);
 }
 
 .drag-grip {

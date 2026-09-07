@@ -128,8 +128,7 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
   height: 100%;
   overflow: auto;
   padding-bottom: 24px;
-  background:
-    linear-gradient(180deg, #3e3e3e 0%, #121212 42%);
+  background: transparent;
 }
 
 .home-hero {
@@ -189,12 +188,17 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
   color: #000;
   background: #1ed760;
   cursor: pointer;
-  transition: transform 0.12s var(--eno-ease), background-color 0.12s var(--eno-ease);
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.05);
+  transform: scale(1.06);
   background: #3be477;
+}
+
+.play-all:active {
+  transform: scale(0.94);
+  background: #1abc54;
 }
 
 .play-all-icon {
@@ -281,6 +285,10 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
   color: #fff;
 }
 
+.text-btn:active {
+  transform: scale(0.96);
+}
+
 .continue-row {
   display: flex;
   gap: 12px;
@@ -301,10 +309,16 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
   color: #fff;
   background: #181818;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
 }
 
 .continue-card:hover {
   background: #282828;
+  transform: translateY(-2px);
+}
+
+.continue-card:active {
+  transform: translateY(0) scale(0.99);
 }
 
 .continue-card img {

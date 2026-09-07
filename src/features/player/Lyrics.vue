@@ -99,8 +99,7 @@ watch(activeIndex, (index) => {
   margin: 0 auto;
   overflow: hidden;
   border-radius: 12px;
-  background: rgb(18 18 18 / 92%);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 40%);
+  background: rgb(18 18 18 / 90%);
 }
 
 .lyrics-scroll {

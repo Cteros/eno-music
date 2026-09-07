@@ -8,18 +8,29 @@ import AddSong from '~/features/library/AddSong.vue'
 import Playlist from '~/features/library/index.vue'
 import ListenLater from '~/features/library/ListenLater.vue'
 import Recent from '~/features/library/Recent.vue'
+import CoverStage from '~/features/player/CoverStage.vue'
 import Play from '~/features/player/Play.vue'
+import { useCoverVisual } from '~/features/player/useCoverVisual'
 import Search from '~/features/search/Search.vue'
 import Setting from '~/features/settings/Setting.vue'
 import Sider from '~/features/shell/Sider.vue'
 import { useBiliCookie } from '~/features/shell/useBiliCookie'
 import SingerDetail from '~/features/singer/SingerDetail.vue'
 import SingerList from '~/features/singer/SingerList.vue'
-import { useUiStore } from '~/stores'
+import { chromeStorageLocal, offChromeStorageChanged, onChromeStorageChanged } from '~/shared/chromeApi'
+import { PLAYER_STATE_KEY } from '~/shared/playerBridge'
+import { usePlayerStore, useUiStore } from '~/stores'
 
 const ui = useUiStore()
+const player = usePlayerStore()
 const { mode } = storeToRefs(ui)
 const { userInfo, ready, syncCookieAndUser } = useBiliCookie()
+const playing = ref(false)
+const { root, coverSrc } = useCoverVisual(() => player.play?.cover)
+
+function readPlaying(value?: { isPlaying?: boolean }) {
+  playing.value = Boolean(value?.isPlaying)
+}
 
 const pages: { mode: AppView, component: Component }[] = [
   { mode: 'home', component: Home },
@@ -33,22 +44,39 @@ const pages: { mode: AppView, component: Component }[] = [
   { mode: 'setting', component: Setting },
 ]
 
+function onPlayingStorage(
+  changes: Record<string, { newValue?: unknown }>,
+  area: string,
+) {
+  if (area !== 'local' || !changes[PLAYER_STATE_KEY])
+    return
+  readPlaying(changes[PLAYER_STATE_KEY].newValue as { isPlaying?: boolean } | undefined)
+}
+
 onMounted(() => {
   syncCookieAndUser()
   const splash = document.getElementById('eno-splash')
   if (splash) {
     window.setTimeout(() => splash.remove(), Math.max(0, 3000 - performance.now()))
   }
+  void chromeStorageLocal().get(PLAYER_STATE_KEY).then((data) => {
+    readPlaying(data[PLAYER_STATE_KEY] as { isPlaying?: boolean } | undefined)
+  }).catch(() => {})
+  onChromeStorageChanged(onPlayingStorage)
+})
+onUnmounted(() => {
+  offChromeStorageChanged(onPlayingStorage)
 })
 provide('userInfo', userInfo)
 const isLoggedIn = computed(() => Boolean((userInfo.value as any)?.mid || (userInfo.value as any)?.isLogin))
 </script>
 
 <template>
-  <main class="sp-app">
+  <main ref="root" class="sp-app">
     <AddSong />
     <Sider />
     <div class="sp-main fadeInWrapper">
+      <CoverStage :src="coverSrc" :playing="playing" />
       <div v-if="ready && !isLoggedIn" class="login-banner">
         <span>未登录 B 站，收藏夹和部分音轨可能不可用。</span>
         <a href="https://www.bilibili.com" target="_blank" rel="noreferrer">去登录</a>
@@ -111,11 +139,12 @@ html {
   height: calc(100% - 88px);
   overflow: hidden;
   border-radius: 8px;
-  background: #121212;
+  background: var(--eno-cover-dim, #121212);
 }
 
 .sp-pages {
   position: relative;
+  z-index: 1;
   display: flex;
   min-height: 0;
   flex: 1;
@@ -170,12 +199,14 @@ html {
 }
 
 .login-banner {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 8px 16px;
-  background: #282828;
+  background: rgb(18 18 18 / 72%);
   color: #b3b3b3;
   font-size: 12px;
 }

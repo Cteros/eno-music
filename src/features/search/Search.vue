@@ -256,8 +256,7 @@ function searchFromHistory(query: string) {
   height: 100%;
   flex-direction: column;
   overflow: hidden;
-  background:
-    linear-gradient(180deg, #1e1e1e 0%, #121212 220px);
+  background: transparent;
 }
 
 .search-hero {
@@ -365,12 +364,23 @@ function searchFromHistory(query: string) {
   color: #fff;
   background: #282828;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .filter-chip--on,
 .history-chip:hover,
 .filter-chip:hover {
   background: #3e3e3e;
+}
+
+.filter-chip:hover,
+.history-chip:hover {
+  transform: scale(1.04);
+}
+
+.filter-chip:active,
+.history-chip:active {
+  transform: scale(0.96);
 }
 
 .author-filter {
@@ -403,6 +413,15 @@ function searchFromHistory(query: string) {
   color: #b3b3b3;
   background: transparent;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
+}
+
+.history-clear:hover {
+  color: #fff;
+}
+
+.history-clear:active {
+  transform: scale(0.96);
 }
 
 .history-chips {

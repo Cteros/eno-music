@@ -236,10 +236,15 @@ async function getCollectedDataLoop() {
   justify-content: space-between;
   padding: 12px 16px;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease);
 }
 
 .fav-head:hover {
   background: #282828;
+}
+
+.fav-head:active {
+  background: #232323;
 }
 
 .fav-title {
@@ -259,10 +264,16 @@ async function getCollectedDataLoop() {
 
 .op-icon {
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .op-icon:hover {
   color: #fff;
+  transform: scale(1.12);
+}
+
+.op-icon:active {
+  transform: scale(0.9);
 }
 
 .hint {

@@ -15,3 +15,308 @@
     outline: none;
     outline-width: 2px;
 }
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled) {
+  transition:
+    color 0.16s var(--eno-ease),
+    background-color 0.16s var(--eno-ease),
+    transform 0.16s var(--eno-ease),
+    opacity 0.16s var(--eno-ease),
+    filter 0.16s var(--eno-ease),
+    border-color 0.16s var(--eno-ease);
+}
+
+.play-all {
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+}
+
+.play-all:hover {
+  transform: scale(1.06);
+  background: var(--sp-green-hover);
+}
+
+.play-all:active {
+  transform: scale(0.94);
+  background: var(--sp-green-press);
+}
+
+.ghost {
+  transition: color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease), opacity 0.16s var(--eno-ease);
+}
+
+.ghost:hover {
+  color: #fff;
+}
+
+.ghost:active {
+  transform: scale(0.96);
+  opacity: 0.8;
+}
+
+.ghost--danger:hover {
+  color: #f87171;
+}
+
+.media-action-btn,
+.btn {
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), filter 0.16s var(--eno-ease);
+}
+
+.media-action-btn:hover,
+.btn:hover {
+  transform: scale(1.04);
+  filter: brightness(1.04);
+}
+
+.media-action-btn:active,
+.btn:active {
+  transform: scale(0.97);
+  filter: brightness(0.96);
+}
+
+.icon-btn {
+  transition: opacity 0.16s var(--eno-ease), color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.icon-btn:hover {
+  opacity: 1;
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+.eno-ctrl {
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.eno-ctrl:hover {
+  color: #fff;
+  transform: scale(1.12);
+}
+
+.eno-ctrl:active {
+  color: #fff;
+  transform: scale(0.88);
+}
+
+.eno-ctrl--on {
+  color: #1ed760;
+}
+
+.eno-ctrl--on:hover {
+  color: #3be477;
+}
+
+.eno-play-btn:hover {
+  transform: scale(1.08);
+}
+
+.eno-play-btn:active {
+  transform: scale(0.94);
+}
+
+.queue-btn {
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.queue-btn:hover {
+  background: #3e3e3e;
+  transform: scale(1.03);
+}
+
+.queue-btn:active {
+  transform: scale(0.97);
+}
+
+.eno-rate:hover,
+.rate:hover,
+.loop:hover,
+.mute:hover,
+.sleep-btn:hover {
+  transform: scale(1.08);
+}
+
+.eno-rate:active,
+.rate:active,
+.loop:active,
+.mute:active,
+.sleep-btn:active {
+  transform: scale(0.9);
+}
+
+.ctrl:hover {
+  transform: scale(1.12);
+  color: #fff;
+}
+
+.ctrl:active {
+  transform: scale(0.88);
+}
+
+.play:hover,
+.open-btn:hover,
+.retry:hover {
+  transform: scale(1.06);
+}
+
+.play:active,
+.open-btn:active,
+.retry:active {
+  transform: scale(0.94);
+}
+
+.open-btn:hover,
+.retry:hover {
+  background: var(--sp-green-hover);
+}
+
+.filter-chip,
+.history-chip,
+.rank-chip {
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease), color 0.16s var(--eno-ease);
+}
+
+.filter-chip:hover,
+.history-chip:hover,
+.rank-chip:hover:not(.rank-chip--active) {
+  transform: scale(1.04);
+  background: #3e3e3e;
+}
+
+.filter-chip:active,
+.history-chip:active,
+.rank-chip:active {
+  transform: scale(0.96);
+}
+
+.rank-nav {
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.rank-nav:hover {
+  transform: scale(1.08);
+}
+
+.rank-nav:active {
+  transform: scale(0.9);
+}
+
+.library-add {
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.library-add:hover {
+  transform: scale(1.08);
+}
+
+.library-add:active {
+  transform: scale(0.9);
+}
+
+.nav-item:hover,
+.foot-item:hover,
+.library-toggle:hover,
+.lib-item:hover,
+.brand-row:hover {
+  background: rgb(255 255 255 / 8%);
+}
+
+.nav-item:active,
+.foot-item:active,
+.library-toggle:active,
+.lib-item:active,
+.brand-row:active,
+.sleep-item:active {
+  background: var(--sp-press);
+  transform: none;
+}
+
+.playlist-tile,
+.continue-card,
+.singer-card {
+  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
+}
+
+.playlist-tile:hover,
+.continue-card:hover,
+.singer-card:hover {
+  transform: translateY(-2px);
+}
+
+.playlist-tile:active,
+.continue-card:active,
+.singer-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.action-icon {
+  transition: opacity 0.16s var(--eno-ease), color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.action-icon:hover {
+  transform: scale(1.14);
+}
+
+.action-icon:active {
+  transform: scale(0.9);
+}
+
+.text-btn,
+.history-clear {
+  transition: color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
+}
+
+.text-btn:hover,
+.history-clear:hover {
+  color: #fff;
+}
+
+.text-btn:active,
+.history-clear:active {
+  transform: scale(0.96);
+}
+
+.video-close {
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+}
+
+.video-close:hover {
+  transform: scale(1.06);
+}
+
+.video-close:active {
+  transform: scale(0.92);
+}
+
+.del-btn {
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+}
+
+.del-btn:hover {
+  transform: scale(1.08);
+}
+
+.del-btn:active {
+  transform: scale(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  .eno-ctrl,
+  .icon-btn,
+  .action-icon,
+  .play-all,
+  .playlist-tile,
+  .continue-card,
+  .singer-card {
+    transition: color 0.01ms, background-color 0.01ms !important;
+    transform: none !important;
+  }
+}

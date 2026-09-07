@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useUiStore } from '~/stores'
 
 const props = defineProps({
@@ -21,6 +21,7 @@ const ui = useUiStore()
 const videoDom = ref<HTMLVideoElement | null>(null)
 const syncTimer = ref<number | null>(null)
 let lastTarget = 0
+let playGen = 0
 
 function syncVideo(force = false) {
   const el = videoDom.value
@@ -92,20 +93,39 @@ function ensureMuted() {
   el.playsInline = true
 }
 
+function fitVideoBox() {
+  const el = videoDom.value
+  if (!el || !el.videoWidth || !el.videoHeight)
+    return
+  el.style.aspectRatio = `${el.videoWidth} / ${el.videoHeight}`
+}
+
 async function playVideo() {
   const el = videoDom.value
   if (!el || !props.videoUrl)
     return
 
+  const gen = ++playGen
   ensureMuted()
 
   const start = async () => {
+    if (gen !== playGen)
+      return
+    fitVideoBox()
     syncVideo(true)
+    if (gen !== playGen || !props.isPlaying) {
+      el.pause()
+      return
+    }
     try {
       await el.play()
     }
     catch {
       // autoplay / abort can throw; sync loop will retry on next tick
+    }
+    if (gen !== playGen || !props.isPlaying) {
+      el.pause()
+      return
     }
     startSyncLoop()
   }
@@ -116,14 +136,20 @@ async function playVideo() {
   }
 
   el.addEventListener('loadedmetadata', () => {
+    fitVideoBox()
     void start()
   }, { once: true })
 }
 
 function pauseVideo() {
+  playGen++
   stopSyncLoop()
-  syncVideo(true)
-  videoDom.value?.pause()
+  const el = videoDom.value
+  if (el) {
+    el.pause()
+    if (el.readyState >= 1)
+      syncVideo(true)
+  }
 }
 
 async function alignPlayback() {
@@ -166,6 +192,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  playGen++
   stopSyncLoop()
   window.removeEventListener('focus', onWindowFocus)
   window.removeEventListener('keydown', onKeydown)
@@ -174,7 +201,7 @@ onBeforeUnmount(() => {
 
 <template>
   <Teleport to="body">
-    <div class="video-stage" @click.self="closeVideo">
+    <div class="video-stage">
       <button
         class="video-close"
         type="button"
@@ -183,6 +210,18 @@ onBeforeUnmount(() => {
       >
         <div class="i-mingcute:close-line" />
       </button>
+      <img
+        v-if="props.cover"
+        class="video-aura"
+        :src="props.cover"
+        alt=""
+      >
+      <img
+        v-if="props.cover"
+        class="video-aura video-aura--right"
+        :src="props.cover"
+        alt=""
+      >
       <video
         v-if="props.videoUrl"
         id="video-eno"
@@ -221,10 +260,37 @@ onBeforeUnmount(() => {
 
 .video-el,
 .video-cover {
-  width: 100%;
+  position: relative;
+  z-index: 1;
   height: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: contain;
-  background: #000;
+  background: transparent;
+}
+
+.video-aura {
+  position: absolute;
+  inset: -18% 0;
+  z-index: 0;
+  width: 100%;
+  height: 136%;
+  object-fit: cover;
+  filter: blur(64px) saturate(1.45);
+  opacity: 0.58;
+  pointer-events: none;
+}
+
+.video-aura--right {
+  inset: auto -8% 0 42%;
+  width: auto;
+  height: 130%;
+  object-position: right center;
+  filter: blur(72px) saturate(1.6);
+  opacity: 0.72;
+  mask-image: linear-gradient(90deg, transparent, #000 28%);
 }
 
 .video-close {
@@ -243,10 +309,16 @@ onBeforeUnmount(() => {
   background: rgb(0 0 0 / 55%);
   font-size: 20px;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .video-close:hover {
   background: rgb(0 0 0 / 75%);
+  transform: scale(1.06);
+}
+
+.video-close:active {
+  transform: scale(0.92);
 }
 
 .video-empty {

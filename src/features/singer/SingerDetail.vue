@@ -134,7 +134,7 @@ function handlePlayUser() {
   height: 100%;
   flex-direction: column;
   overflow: hidden;
-  background: linear-gradient(180deg, #3e3e3e 0%, #121212 280px);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 14%, transparent) 0%, transparent 46%);
 }
 
 .singer-hero {
@@ -206,10 +206,17 @@ h1 {
   background: #1ed760;
   font-size: 24px;
   cursor: pointer;
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.05);
+  transform: scale(1.06);
+  background: #3be477;
+}
+
+.play-all:active {
+  transform: scale(0.94);
+  background: #1abc54;
 }
 
 .count {

@@ -227,6 +227,13 @@ async function startCreate() {
 .library-toggle:hover,
 .lib-item:hover {
   color: #fff;
+  background: rgb(255 255 255 / 8%);
+}
+
+.nav-item:active,
+.foot-item:active,
+.lib-item:active {
+  background: #232323;
 }
 
 .nav-item--active,
@@ -267,11 +274,17 @@ async function startCreate() {
   color: #b3b3b3;
   background: transparent;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .library-add:hover {
   color: #fff;
   background: #1a1a1a;
+  transform: scale(1.08);
+}
+
+.library-add:active {
+  transform: scale(0.9);
 }
 
 .sider-scroll {

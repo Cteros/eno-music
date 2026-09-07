@@ -117,10 +117,15 @@ function addNewSeasonPlayList() {
   color: #000;
   background: #fff;
   cursor: pointer;
+  transition: transform 0.16s var(--eno-ease);
 }
 
 .media-action-btn:hover {
   transform: scale(1.04);
+}
+
+.media-action-btn:active {
+  transform: scale(0.97);
 }
 
 .media-action-btn-lg {

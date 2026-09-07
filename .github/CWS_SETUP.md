@@ -80,6 +80,12 @@ base64 < keys/cws-upload-private.pem | tr -d '\n' | gh secret set CWS_CRX_PRIVAT
 
 `manifest.json` 的 `version` 来自 `package.json`，必须比商店上当前版本高，否则上传会失败。
 
+## 隐私权规范：offscreen 理由
+
+商店「隐私权规范」标签必须填写为何使用 `offscreen`。可直接粘贴：
+
+ENO-M is a music player. A Chrome MV3 service worker cannot keep HTMLAudioElement / Howler playing after the toolbar popup and the full options page are closed. The offscreen permission is used only to create a single offscreen document with reason AUDIO_PLAYBACK. That document hosts the audio engine so playback continues for audio the user already started. It has no visible UI, does not collect personal information, and is not used for advertising, analytics, fingerprinting, or any background work unrelated to playback.
+
 ## 本地发布
 
 ```sh

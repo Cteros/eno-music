@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { PlayerEnvelope, PlayerPopupState, PlayerRemoteCmd } from '~/shared/playerBridge'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import CoverStage from '~/features/player/CoverStage.vue'
 import SleepTimer from '~/features/player/SleepTimer.vue'
+import { useCoverVisual } from '~/features/player/useCoverVisual'
 import {
   chromeRuntime,
   chromeStorageLocal,
@@ -28,6 +30,7 @@ const dragging = ref(false)
 const dragRatio = ref(0)
 const draggingVoice = ref(false)
 const voiceDraft = ref(1)
+const { root, coverSrc } = useCoverVisual(() => state.value.cover)
 let lastVoice = 1
 let appliedAt = 0
 
@@ -216,147 +219,158 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="popup">
-    <header class="popup-head">
-      <div class="brand">
-        <div class="i-mingcute:disc-fill brand-icon" />
-        <span>ENO-M</span>
-      </div>
-      <button type="button" class="open-btn" @click="openFullPlayer">
-        打开完整播放器
-      </button>
-    </header>
-
-    <section class="now">
-      <img
-        v-if="state.cover"
-        class="cover"
-        :src="state.cover"
-        alt=""
-      >
-      <div v-else class="cover cover--empty">
-        <div class="i-tabler:music" />
-      </div>
-      <div class="meta">
-        <div class="title" :title="state.title">
-          {{ state.title }}
+  <div ref="root" class="popup">
+    <CoverStage :src="coverSrc" :playing="state.isPlaying" />
+    <div class="popup-body">
+      <header class="popup-head">
+        <div class="brand">
+          <div class="i-mingcute:disc-fill brand-icon" />
+          <span>ENO-M</span>
         </div>
-        <div class="author" :title="state.author">
-          {{ state.author || (state.hasSong ? '未知歌手' : '在完整页点歌后，关页也能继续播') }}
+        <button type="button" class="open-btn" @click="openFullPlayer">
+          打开完整播放器
+        </button>
+      </header>
+
+      <section class="now">
+        <img
+          v-if="state.cover"
+          class="cover"
+          :class="{ 'cover--playing': state.isPlaying }"
+          :src="state.cover"
+          alt=""
+        >
+        <div v-else class="cover cover--empty">
+          <div class="i-tabler:music" />
+        </div>
+        <div class="meta">
+          <div class="title" :title="state.title">
+            {{ state.title }}
+          </div>
+          <div class="author" :title="state.author">
+            {{ state.author || (state.hasSong ? '未知歌手' : '在完整页点歌后，关页也能继续播') }}
+          </div>
+        </div>
+      </section>
+
+      <div class="progress">
+        <div class="progress-track">
+          <div class="progress-fill" :style="progressStyle" />
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.001"
+            class="progress-range"
+            :value="progressPercent"
+            :disabled="busy || !state.hasSong"
+            @input="onSeekInput"
+            @change="onSeekChange"
+          >
+        </div>
+        <div class="time">
+          <span>{{ formatPlayerTime(dragging ? dragRatio * state.total : state.current) }}</span>
+          <span>{{ formatPlayerTime(state.total) }}</span>
         </div>
       </div>
-    </section>
 
-    <div class="progress">
-      <div class="progress-track">
-        <div class="progress-fill" :style="progressStyle" />
+      <div class="controls">
+        <button type="button" class="ctrl" aria-label="上一首" :disabled="busy" @click="sendCmd('prev')">
+          <div class="i-tabler:player-track-prev-filled" />
+        </button>
+        <button type="button" class="play" aria-label="播放/暂停" :disabled="busy" @click="sendCmd('toggle')">
+          <div v-if="state.isPlaying" class="i-tabler:player-pause-filled" />
+          <div v-else class="i-tabler:player-play-filled" />
+        </button>
+        <button type="button" class="ctrl" aria-label="下一首" :disabled="busy" @click="sendCmd('next')">
+          <div class="i-tabler:player-track-next-filled" />
+        </button>
+      </div>
+
+      <div class="volume">
+        <button
+          type="button"
+          class="mute"
+          :title="state.volume > 0 ? '静音' : '取消静音'"
+          @click="toggleMute"
+        >
+          <span v-if="state.volume > 0" class="i-mingcute:volume-line" />
+          <span v-else class="i-mingcute:volume-mute-line" />
+        </button>
         <input
           type="range"
           min="0"
           max="1"
-          step="0.001"
-          class="progress-range"
-          :value="progressPercent"
-          :disabled="busy || !state.hasSong"
-          @input="onSeekInput"
-          @change="onSeekChange"
+          step="0.01"
+          class="volume-range"
+          :style="volumeStyle"
+          :value="state.volume"
+          @input="onVoiceInput"
+          @change="onVoiceChange"
         >
       </div>
-      <div class="time">
-        <span>{{ formatPlayerTime(dragging ? dragRatio * state.total : state.current) }}</span>
-        <span>{{ formatPlayerTime(state.total) }}</span>
+
+      <div class="extras">
+        <button
+          type="button"
+          class="loop"
+          :class="{ 'loop--on': state.loopMode !== 'list' }"
+          :title="loopModeLabel(state.loopMode)"
+          :disabled="busy"
+          @click="cycleLoop"
+        >
+          <span v-if="state.loopMode === 'single'" class="i-tabler:repeat-once" />
+          <span v-else-if="state.loopMode === 'random'" class="i-tabler:arrows-shuffle" />
+          <span v-else class="i-tabler:repeat" />
+        </button>
+        <button
+          type="button"
+          class="rate"
+          :class="{ 'rate--on': state.rate !== 1 }"
+          title="播放速度"
+          :disabled="busy"
+          @click="cycleRate"
+        >
+          {{ formatPlaybackRate(state.rate) }}
+        </button>
+        <SleepTimer
+          :sleep-until="state.sleepUntil"
+          :sleep-after-current="state.sleepAfterCurrent"
+          @set="setSleep"
+        />
       </div>
-    </div>
 
-    <div class="controls">
-      <button type="button" class="ctrl" aria-label="上一首" :disabled="busy" @click="sendCmd('prev')">
-        <div class="i-tabler:player-track-prev-filled" />
-      </button>
-      <button type="button" class="play" aria-label="播放/暂停" :disabled="busy" @click="sendCmd('toggle')">
-        <div v-if="state.isPlaying" class="i-tabler:player-pause-filled" />
-        <div v-else class="i-tabler:player-play-filled" />
-      </button>
-      <button type="button" class="ctrl" aria-label="下一首" :disabled="busy" @click="sendCmd('next')">
-        <div class="i-tabler:player-track-next-filled" />
-      </button>
+      <p v-if="hint || state.error" class="hint">
+        <span>{{ hint || state.error }}</span>
+        <button
+          v-if="state.error && state.hasSong"
+          type="button"
+          class="retry"
+          :disabled="busy"
+          @click="retryPlay"
+        >
+          重试
+        </button>
+      </p>
     </div>
-
-    <div class="volume">
-      <button
-        type="button"
-        class="mute"
-        :title="state.volume > 0 ? '静音' : '取消静音'"
-        @click="toggleMute"
-      >
-        <span v-if="state.volume > 0" class="i-mingcute:volume-line" />
-        <span v-else class="i-mingcute:volume-mute-line" />
-      </button>
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        class="volume-range"
-        :style="volumeStyle"
-        :value="state.volume"
-        @input="onVoiceInput"
-        @change="onVoiceChange"
-      >
-    </div>
-
-    <div class="extras">
-      <button
-        type="button"
-        class="loop"
-        :class="{ 'loop--on': state.loopMode !== 'list' }"
-        :title="loopModeLabel(state.loopMode)"
-        :disabled="busy"
-        @click="cycleLoop"
-      >
-        <span v-if="state.loopMode === 'single'" class="i-tabler:repeat-once" />
-        <span v-else-if="state.loopMode === 'random'" class="i-tabler:arrows-shuffle" />
-        <span v-else class="i-tabler:repeat" />
-      </button>
-      <button
-        type="button"
-        class="rate"
-        :class="{ 'rate--on': state.rate !== 1 }"
-        title="播放速度"
-        :disabled="busy"
-        @click="cycleRate"
-      >
-        {{ formatPlaybackRate(state.rate) }}
-      </button>
-      <SleepTimer
-        :sleep-until="state.sleepUntil"
-        :sleep-after-current="state.sleepAfterCurrent"
-        @set="setSleep"
-      />
-    </div>
-
-    <p v-if="hint || state.error" class="hint">
-      <span>{{ hint || state.error }}</span>
-      <button
-        v-if="state.error && state.hasSong"
-        type="button"
-        class="retry"
-        :disabled="busy"
-        @click="retryPlay"
-      >
-        重试
-      </button>
-    </p>
   </div>
 </template>
 
 <style scoped>
 .popup {
+  position: relative;
   box-sizing: border-box;
   width: 320px;
   overflow: visible;
-  padding: 12px;
-  background: #121212;
+  padding: 0;
+  background: var(--eno-cover-dim, #121212);
   color: #fff;
+}
+
+.popup-body {
+  position: relative;
+  z-index: 1;
+  padding: 12px;
 }
 
 .popup-head {
@@ -391,10 +405,16 @@ onUnmounted(() => {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .open-btn:hover {
   background: #3be477;
+  transform: scale(1.05);
+}
+
+.open-btn:active {
+  transform: scale(0.95);
 }
 
 .now {
@@ -411,6 +431,21 @@ onUnmounted(() => {
   border-radius: 6px;
   object-fit: cover;
   background: #282828;
+}
+
+.cover--playing {
+  animation: cover-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes cover-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--eno-cover-accent, #1ed760);
+  }
+
+  50% {
+    box-shadow: 0 0 12px 1px var(--eno-cover-accent, #1ed760);
+  }
 }
 
 .cover--empty {
@@ -501,6 +536,7 @@ input[type='range'] {
   background: transparent;
   color: #fff;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .ctrl {
@@ -512,6 +548,11 @@ input[type='range'] {
 
 .ctrl:hover {
   color: #fff;
+  transform: scale(1.12);
+}
+
+.ctrl:active {
+  transform: scale(0.88);
 }
 
 .play {
@@ -521,10 +562,15 @@ input[type='range'] {
   background: #fff;
   color: #000;
   font-size: 22px;
+  transition: transform 0.16s var(--eno-ease);
 }
 
 .play:hover {
-  transform: scale(1.04);
+  transform: scale(1.08);
+}
+
+.play:active {
+  transform: scale(0.94);
 }
 
 .ctrl:disabled,
@@ -563,10 +609,16 @@ input[type='range'] {
   color: #b3b3b3;
   font-size: 16px;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .mute:hover {
   color: #fff;
+  transform: scale(1.1);
+}
+
+.mute:active {
+  transform: scale(0.9);
 }
 
 .volume-range {
@@ -602,11 +654,20 @@ input[type='range'] {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .rate:hover,
 .rate--on {
   color: #1ed760;
+}
+
+.rate:hover {
+  transform: scale(1.08);
+}
+
+.rate:active {
+  transform: scale(0.9);
 }
 
 .loop {
@@ -620,11 +681,20 @@ input[type='range'] {
   color: #b3b3b3;
   font-size: 16px;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .loop:hover,
 .loop--on {
   color: #1ed760;
+}
+
+.loop:hover {
+  transform: scale(1.1);
+}
+
+.loop:active {
+  transform: scale(0.9);
 }
 
 .hint {
@@ -648,6 +718,15 @@ input[type='range'] {
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+}
+
+.retry:hover {
+  transform: scale(1.05);
+}
+
+.retry:active {
+  transform: scale(0.94);
 }
 
 .retry:disabled {

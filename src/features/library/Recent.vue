@@ -58,7 +58,7 @@ function playAll() {
 .recent-page {
   height: 100%;
   overflow: auto;
-  background: linear-gradient(180deg, #1e3a5f 0%, #121212 42%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 14%, transparent) 0%, transparent 46%);
 }
 
 .recent-hero {
@@ -78,7 +78,7 @@ function playAll() {
   border-radius: 4px;
   font-size: 80px;
   color: #fff;
-  background: linear-gradient(135deg, #1e3a5f, #8ab4f8);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 42%, #282828), #181818);
   box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
 }
 
@@ -119,10 +119,17 @@ p {
   background: #1ed760;
   font-size: 24px;
   cursor: pointer;
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.05);
+  transform: scale(1.06);
+  background: #3be477;
+}
+
+.play-all:active {
+  transform: scale(0.94);
+  background: #1abc54;
 }
 
 .ghost {
@@ -135,6 +142,10 @@ p {
 
 .ghost:hover {
   color: #fff;
+}
+
+.ghost:active {
+  transform: scale(0.96);
 }
 
 .recent-list {

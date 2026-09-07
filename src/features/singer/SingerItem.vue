@@ -64,11 +64,16 @@ function handleSingerDetail(singerMid) {
   border-radius: 8px;
   background: #181818;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
 }
 
 .singer-card:hover {
   background: #282828;
+  transform: translateY(-2px);
+}
+
+.singer-card:active {
+  transform: translateY(0) scale(0.99);
 }
 
 .avatar-wrap {
@@ -102,6 +107,14 @@ function handleSingerDetail(singerMid) {
 
 .group:hover .del-btn {
   display: inline-flex;
+}
+
+.del-btn:hover {
+  transform: scale(1.08);
+}
+
+.del-btn:active {
+  transform: scale(0.9);
 }
 
 .singer-name {

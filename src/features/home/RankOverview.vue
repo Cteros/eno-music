@@ -63,10 +63,16 @@ function goTo(id, index) {
   color: #fff;
   background: rgb(0 0 0 / 40%);
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .rank-nav:hover {
   background: rgb(0 0 0 / 60%);
+  transform: scale(1.08);
+}
+
+.rank-nav:active {
+  transform: scale(0.9);
 }
 
 .rank-list {
@@ -89,6 +95,16 @@ function goTo(id, index) {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease), color 0.16s var(--eno-ease);
+}
+
+.rank-chip:hover:not(.rank-chip--active) {
+  transform: scale(1.04);
+  background: rgb(255 255 255 / 16%);
+}
+
+.rank-chip:active {
+  transform: scale(0.96);
 }
 
 .rank-chip--active {
