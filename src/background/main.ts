@@ -48,8 +48,8 @@ async function ensureOffscreenDocument() {
 
   creating = offscreen.createDocument({
     url: OFFSCREEN_URL,
-    reasons: ['AUDIO_PLAYBACK'],
-    justification: 'Play user-started Bilibili audio after the popup and options pages close. The offscreen document exists only for AUDIO_PLAYBACK with Howler; it is not used for ads, tracking, or a visible UI.',
+    reasons: ['AUDIO_PLAYBACK', 'WEB_RTC'],
+    justification: 'Play user-started Bilibili audio after the popup and options pages close, and mirror the live picture to the open player page over WebRTC. The offscreen document is not used for ads, tracking, or a visible UI.',
   }).catch(async (error) => {
     if (String(error).includes('Only a single offscreen'))
       return

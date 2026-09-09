@@ -81,6 +81,19 @@ export function normalizeCoverUrl(url = '') {
   return url
 }
 
+export function coverIdentity(url = '') {
+  const href = normalizeCoverUrl(url)
+  if (!href)
+    return ''
+  try {
+    const parsed = new URL(href)
+    return `${parsed.origin}${parsed.pathname}`
+  }
+  catch {
+    return href
+  }
+}
+
 export async function extractCoverPalette(url: string): Promise<CoverPalette | null> {
   const href = normalizeCoverUrl(url)
   if (!href)

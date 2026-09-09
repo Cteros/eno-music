@@ -10,6 +10,7 @@ import {
 } from '~/shared/chromeApi'
 import {
   emptyPlayerPopupState,
+  findTrackIndex,
   formatPlaybackRate,
   nextPlaybackRate,
   PLAYER_STATE_KEY,
@@ -36,7 +37,9 @@ export function usePlayerEngine() {
   const rate = ref(1)
   const sleepUntil = ref(0)
   const sleepAfterCurrent = ref(false)
+  const crossfade = useLocalStorage('crossfade', true)
   let remoteSongKey = ''
+  let pendingSongKey = ''
   let appliedAt = 0
   let sampleCurrent = 0
   let sampleAt = 0
@@ -59,18 +62,16 @@ export function usePlayerEngine() {
     if (!state.hasSong)
       return
 
-    const matched = store.playList.find(item =>
-      (state.id != null && state.id !== '' && item?.id === state.id)
-      || (state.bvid && item?.bvid === state.bvid),
-    )
+    const matched = store.playList[findTrackIndex(store.playList, state)]
 
     if (matched) {
       store.play = {
         ...matched,
         video: state.video || matched.video,
-        cover: state.cover || matched.cover,
+        cover: matched.cover || state.cover,
         title: state.title || matched.title,
         author: state.author || matched.author,
+        cid: state.cid ?? matched.cid,
       }
       return
     }
@@ -79,6 +80,7 @@ export function usePlayerEngine() {
       ...store.play,
       id: state.id as any,
       bvid: state.bvid as any,
+      cid: state.cid,
       title: state.title,
       author: state.author,
       cover: state.cover,
@@ -89,8 +91,13 @@ export function usePlayerEngine() {
   function applyState(state?: PlayerPopupState) {
     if (!state)
       return
+    const incoming = songKey(state)
+    if (pendingSongKey && incoming && incoming !== pendingSongKey)
+      return
     if (state.updatedAt && state.updatedAt < appliedAt)
       return
+    if (pendingSongKey && incoming === pendingSongKey)
+      pendingSongKey = ''
     appliedAt = state.updatedAt || Date.now()
     isPlaying.value = Boolean(state.isPlaying)
     sampleCurrent = state.current || 0
@@ -182,8 +189,10 @@ export function usePlayerEngine() {
       loopMode: store.loopMode,
     })
     applyState(result?.state)
-    if (!result?.ok)
+    if (!result?.ok) {
+      pendingSongKey = ''
       lastError.value = result?.error || '播放失败'
+    }
   }
 
   async function change(type: 'prev' | 'next') {
@@ -278,14 +287,15 @@ export function usePlayerEngine() {
   }
 
   watch(
-    () => [store.play?.id, store.play?.bvid] as const,
-    async ([id, bvid], prev) => {
-      if (!id && !bvid)
+    () => songKey(store.play),
+    async (key, prev) => {
+      if (!key || key === prev)
         return
-      if (prev && id === prev[0] && bvid === prev[1])
+      if (key === remoteSongKey) {
+        pendingSongKey = ''
         return
-      if (songKey(store.play) === remoteSongKey)
-        return
+      }
+      pendingSongKey = key
       await playSongNow()
     },
   )
@@ -299,12 +309,24 @@ export function usePlayerEngine() {
       applyState(result.state)
   })
 
-  watch(() => store.playList.length, async () => {
+  watch(crossfade, async (enabled) => {
     await sendPlayerMessage({
-      type: 'ENO_PLAYER_SET_PLAYLIST',
-      playList: store.playList,
+      type: 'ENO_PLAYER_SET_CROSSFADE',
+      crossfade: enabled,
     })
   })
+
+  watch(
+    () => store.playList.map(item => songKey(item)).join('\n'),
+    async (next, prev) => {
+      if (!next || next === prev)
+        return
+      await sendPlayerMessage({
+        type: 'ENO_PLAYER_SET_PLAYLIST',
+        playList: store.playList,
+      })
+    },
+  )
 
   onMounted(() => {
     onExtMessage(onPlayerBroadcast)
@@ -327,6 +349,10 @@ export function usePlayerEngine() {
       await sendPlayerMessage({
         type: 'ENO_PLAYER_SET_EQ',
         eqValues: [...(eqStore?.values || [])],
+      })
+      await sendPlayerMessage({
+        type: 'ENO_PLAYER_SET_CROSSFADE',
+        crossfade: crossfade.value,
       })
     })()
   })

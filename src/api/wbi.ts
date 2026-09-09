@@ -91,13 +91,19 @@ function encWbi(params: Record<string, any>, img_key: string, sub_key: string): 
 
 async function getWbiKeys(): Promise<{ img_key: string, sub_key: string }> {
   const res = await fetch('https://api.bilibili.com/x/web-interface/nav', {
+    credentials: 'include',
     headers: {
-      'Cookie': 'SESSDATA=xxxxxx',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-      'Referer': 'https://www.bilibili.com/',
+      Referer: 'https://www.bilibili.com/',
     },
   })
-  const { data: { wbi_img: { img_url, sub_url } } } = await res.json()
+  const text = await res.text()
+  if (!text.trim() || text.trim().startsWith('<'))
+    throw new Error('无法获取搜索签名，请稍后重试')
+  const json = JSON.parse(text)
+  const img_url = json?.data?.wbi_img?.img_url
+  const sub_url = json?.data?.wbi_img?.sub_url
+  if (!img_url || !sub_url)
+    throw new Error('无法获取搜索签名')
 
   return {
     img_key: img_url.slice(

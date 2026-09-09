@@ -61,6 +61,7 @@ export async function getManifest() {
       'https://*.bilivideo.com/*',
       'https://*.bilivideo.cn/*',
       'https://*.hdslb.com/*',
+      'https://*.akamaized.net/*',
     ],
     content_security_policy: {
       extension_pages: isDev

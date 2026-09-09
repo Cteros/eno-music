@@ -141,7 +141,7 @@ async function copyToClipboard() {
   <span class="w-1rem h-1rem">
     <!-- 打开卡片的按钮 -->
     <div class="i-mingcute:card-pay-line w-1rem h-1rem cursor-pointer block" @click.stop="showShareCard" />
-    <Dialog :open="dialogVis" title="分享卡片" height="auto" @visible-change="dialogVis = $event">
+    <Dialog :open="dialogVis" title="分享卡片" @visible-change="dialogVis = $event">
       <div v-if="videoInfo" class="share-card-container">
         <!-- 分享卡片主体 -->
         <div ref="cardRef" class="share-card">

@@ -27,6 +27,32 @@ describe('collectAudioUrls', () => {
     expect(collectAudioUrls(undefined)).toEqual([])
     expect(collectAudioUrls({})).toEqual([])
   })
+
+  it('prefers aac over flac and dolby', () => {
+    expect(collectAudioUrls({
+      audio: [
+        {
+          id: 30251,
+          codecs: 'fLaC',
+          baseUrl: 'https://upos.example/hires.m4s',
+        },
+        {
+          id: 30250,
+          codecs: 'ec-3',
+          baseUrl: 'https://upos.example/dolby.m4s',
+        },
+        {
+          id: 30280,
+          codecs: 'mp4a.40.2',
+          baseUrl: 'https://upos.example/aac.m4s',
+          backupUrl: ['https://upos.example/aac-b.m4s'],
+        },
+      ],
+    })).toEqual([
+      'https://upos.example/aac.m4s',
+      'https://upos.example/aac-b.m4s',
+    ])
+  })
 })
 
 describe('pickAudioUrl', () => {

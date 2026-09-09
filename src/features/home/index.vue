@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { MessageAPI } from '@cloudfly/eno-ui'
 import { cloneDeep } from 'lodash'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import SingerItem from '~/features/singer/SingerItem.vue'
 import SongItem from '~/shared/components/SongItem.vue'
+import { fetchHourlyRadio } from '~/shared/fetchHourlyRadio'
 import { useHomeStore, usePlayerStore, useRecentStore, useSingerStore, useUiStore } from '~/stores'
 import RankOverview from './RankOverview.vue'
 
@@ -12,9 +14,6 @@ const singerStore = useSingerStore()
 const recent = useRecentStore()
 const ui = useUiStore()
 
-onMounted(() => {
-  home.initHomePage()
-})
 function handlePlayRank() {
   player.playList = cloneDeep(home.musicRankList)
   player.play = home.musicRankList[0] || {}
@@ -29,12 +28,73 @@ function playContinue() {
 function playRecent(song: any) {
   player.startPlay(song)
 }
+
+const radioBusy = ref(false)
+
+onMounted(() => {
+  home.initHomePage()
+  singerStore.fetchSingerInfoList()
+})
+
+async function playHourlyRadio() {
+  if (radioBusy.value)
+    return
+  const mids = singerStore.singers
+  if (!mids.length) {
+    MessageAPI.show({ type: 'warning', message: '先添加关注的音乐人' })
+    ui.go('singerList')
+    return
+  }
+  radioBusy.value = true
+  try {
+    const tracks = await fetchHourlyRadio(mids)
+    if (!tracks.length) {
+      MessageAPI.show({ type: 'warning', message: '关注的人最近没有合适长度的稿' })
+      return
+    }
+    player.playAlbum(tracks)
+    const minutes = Math.round(tracks.reduce((sum, track) => sum + (Number(track.duration) || 0), 0) / 60)
+    MessageAPI.show({ type: 'success', message: `今晚的台 · ${tracks.length} 首 · 约 ${minutes} 分钟` })
+  }
+  catch (error) {
+    console.warn('[radio]', error)
+    MessageAPI.show({ type: 'error', message: '编台失败，稍后再试' })
+  }
+  finally {
+    radioBusy.value = false
+  }
+}
 const mainSong = computed(() => home.musicRankList[0])
 const recentSongs = computed(() => recent.playHistory.slice(0, 12))
+const nowPlaying = computed(() => {
+  const song = player.play
+  if (!song?.title || !(song.bvid || song.id || song.cid))
+    return null
+  return song
+})
 </script>
 
 <template>
   <section class="home-page">
+    <article v-if="nowPlaying" class="now-card">
+      <img v-if="nowPlaying.cover" class="now-cover" :src="nowPlaying.cover" alt="">
+      <div v-else class="now-cover now-cover--empty" />
+      <div class="now-meta">
+        <div class="now-kicker">
+          正在播放
+        </div>
+        <div class="now-title">
+          {{ nowPlaying.title }}
+        </div>
+        <div class="now-sub">
+          {{ nowPlaying.author }}
+          <template v-if="nowPlaying.album">
+            · {{ nowPlaying.album }}
+          </template>
+        </div>
+      </div>
+    </article>
+
     <header v-if="mainSong" class="home-hero">
       <img class="hero-cover" :src="mainSong.cover" alt="">
       <div class="hero-meta">
@@ -56,6 +116,14 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
     <div v-if="mainSong" class="home-actions">
       <button class="play-all" type="button" title="播放全部" @click="handlePlayRank">
         <div class="i-tabler:player-play-filled play-all-icon" />
+      </button>
+      <button
+        class="radio-play"
+        type="button"
+        :disabled="radioBusy"
+        @click="playHourlyRadio"
+      >
+        {{ radioBusy ? '编台中…' : '关注电台' }}
       </button>
     </div>
 
@@ -113,9 +181,19 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
       <h2 class="section-title continue-title">
         关注歌手
       </h2>
-      <button type="button" class="text-btn" @click="ui.go('singerList')">
-        全部
-      </button>
+      <div class="continue-ops">
+        <button
+          type="button"
+          class="text-btn"
+          :disabled="radioBusy"
+          @click="playHourlyRadio"
+        >
+          {{ radioBusy ? '编台中…' : '开一台' }}
+        </button>
+        <button type="button" class="text-btn" @click="ui.go('singerList')">
+          全部
+        </button>
+      </div>
     </div>
     <div class="artist-row">
       <SingerItem v-for="serid in singerStore.singers" :key="serid" :singer-mid="serid" can-del />
@@ -129,6 +207,49 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
   overflow: auto;
   padding-bottom: 24px;
   background: transparent;
+}
+
+.now-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 32px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgb(24 24 24 / 72%);
+}
+
+.now-cover {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.now-cover--empty {
+  background: #282828;
+}
+
+.now-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--eno-primary, #1ed760);
+}
+
+.now-title {
+  margin-top: 4px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.now-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #b3b3b3;
 }
 
 .home-hero {
@@ -174,6 +295,7 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
 .home-actions {
   display: flex;
   align-items: center;
+  gap: 16px;
   padding: 20px 32px 8px;
 }
 
@@ -205,6 +327,32 @@ const recentSongs = computed(() => recent.playHistory.slice(0, 12))
   width: 24px;
   height: 24px;
   font-size: 24px;
+}
+
+.radio-play {
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #282828;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.radio-play:hover:not(:disabled) {
+  background: #333;
+  transform: scale(1.03);
+}
+
+.radio-play:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.radio-play:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .track-table {

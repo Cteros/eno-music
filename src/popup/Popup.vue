@@ -245,6 +245,7 @@ onUnmounted(() => {
         </div>
         <div class="meta">
           <div class="title" :title="state.title">
+            <span v-if="state.live" class="live-badge">LIVE</span>
             {{ state.title }}
           </div>
           <div class="author" :title="state.author">
@@ -255,7 +256,8 @@ onUnmounted(() => {
 
       <div class="progress">
         <div class="progress-track">
-          <div class="progress-fill" :style="progressStyle" />
+          <div v-if="state.live" class="progress-fill progress-fill--live" />
+          <div v-else class="progress-fill" :style="progressStyle" />
           <input
             type="range"
             min="0"
@@ -263,7 +265,7 @@ onUnmounted(() => {
             step="0.001"
             class="progress-range"
             :value="progressPercent"
-            :disabled="busy || !state.hasSong"
+            :disabled="busy || !state.hasSong || state.live"
             @input="onSeekInput"
             @change="onSeekChange"
           >
@@ -468,6 +470,8 @@ onUnmounted(() => {
 }
 
 .title {
+  display: flex;
+  align-items: center;
   margin-bottom: 4px;
   font-size: 14px;
   font-weight: 700;
@@ -490,10 +494,18 @@ onUnmounted(() => {
   background: #282828;
 }
 
-.progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: #1ed760;
+.progress-fill--live {
+  width: 100%;
+  background: #e91429;
+}
+
+.live-badge {
+  margin-right: 6px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: #e91429;
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .progress-range {

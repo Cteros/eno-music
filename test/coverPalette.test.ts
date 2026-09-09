@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeCoverUrl, paletteFromPixels } from '~/features/player/coverPalette'
+import { coverIdentity, normalizeCoverUrl, paletteFromPixels } from '~/features/player/coverPalette'
 
 describe('normalizeCoverUrl', () => {
   it('upgrades protocol-relative and http covers', () => {
     expect(normalizeCoverUrl('//i0.hdslb.com/a.jpg')).toBe('https://i0.hdslb.com/a.jpg')
     expect(normalizeCoverUrl('http://i0.hdslb.com/a.jpg')).toBe('https://i0.hdslb.com/a.jpg')
     expect(normalizeCoverUrl('https://i0.hdslb.com/a.jpg')).toBe('https://i0.hdslb.com/a.jpg')
+  })
+})
+
+describe('coverIdentity', () => {
+  it('treats http/https and query strings as the same cover', () => {
+    expect(coverIdentity('http://i0.hdslb.com/a.jpg?x=1')).toBe(coverIdentity('https://i0.hdslb.com/a.jpg'))
   })
 })
 

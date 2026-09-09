@@ -1,7 +1,20 @@
 type FetchAfterHandler = ((data: Response) => Promise<any>) | ((data: any) => any)
 
+export async function readBiliJson(response: Response) {
+  const text = await response.text()
+  const trimmed = text.trim()
+  if (!trimmed || trimmed.startsWith('<'))
+    throw new Error('B 站返回了网页而不是数据，请先登录或稍后重试')
+  try {
+    return JSON.parse(trimmed)
+  }
+  catch {
+    throw new Error('B 站接口解析失败，请稍后重试')
+  }
+}
+
 function toJsonHandler(data: Response): Promise<any> {
-  return data.json()
+  return readBiliJson(data)
 }
 
 function toData(data: Promise<any>): Promise<any> {
@@ -90,7 +103,7 @@ function createApiProxy(API_MAP: EndpointMap) {
           ? new URLSearchParams(targetBody)
           : JSON.stringify(targetBody)
       }
-      const fetchOpt = { method, headers }
+      const fetchOpt: RequestInit = { method, headers, credentials: 'include' }
       if (!isGET) {
         Object.assign(fetchOpt, { body: targetBody })
       }

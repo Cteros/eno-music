@@ -5,6 +5,7 @@ import SongItem from '~/shared/components/SongItem.vue'
 import { sendPlayerMessage, songKey } from '~/shared/playerBridge'
 import { useEqStore, useLibraryStore, useUiStore } from '~/stores'
 import useControl from './keys'
+import LiveVideo from './LiveVideo.vue'
 import Lyrics from './Lyrics.vue'
 import ShareCard from './ShareCard.vue'
 import SleepTimer from './SleepTimer.vue'
@@ -44,6 +45,7 @@ const {
 
 const showList = ref(false)
 const showLyrics = useLocalStorage('showLyrics', false)
+const isLive = computed(() => store.play?.eno_song_type === 'live')
 
 useControl({
   play: () => playControl(),
@@ -94,7 +96,10 @@ function fullScreenTheBody() {
     void document.body.requestFullscreen()
 }
 function openBlTab() {
-  window.open(`https://www.bilibili.com/video/${store.play.bvid}`)
+  if (isLive.value && store.play.roomid)
+    window.open(`https://live.bilibili.com/${store.play.roomid}`)
+  else
+    window.open(`https://www.bilibili.com/video/${store.play.bvid}`)
 }
 function toggleVideo() {
   ui.showVideo = !ui.showVideo
@@ -138,7 +143,10 @@ onUnmounted(() => {
           </div>
         </span>
         <div class="eno-meta">
-          <div class="eno-title" v-html="displayData.title" />
+          <div class="eno-title">
+            <span v-if="isLive" class="eno-live-badge">LIVE</span>
+            <span v-html="displayData.title" />
+          </div>
           <div class="eno-author">
             <span>{{ store.play.author }}{{ store.play.description }}</span>
             <button
@@ -165,6 +173,7 @@ onUnmounted(() => {
             type="button"
             class="eno-rate"
             :class="{ 'eno-rate--on': rate !== 1 }"
+            :disabled="isLive"
             title="播放速度"
             @click.stop="cycleRate"
           >
@@ -190,25 +199,36 @@ onUnmounted(() => {
         </div>
 
         <div class="eno-progress">
-          <div class="eno-time">
-            {{ timeDisplay.current }}
-          </div>
-          <div class="eno-progress-track">
-            <div class="eno-progress-fill" :style="progressFillStyle" />
-            <input
-              v-model="progress.percent"
-              type="range"
-              min="0"
-              max="1"
-              step="0.001"
-              class="eno-progress-range"
-              @input="isDragging = true"
-              @change="changeProgress"
-            >
-          </div>
-          <div class="eno-time">
-            {{ timeDisplay.total }}
-          </div>
+          <template v-if="isLive">
+            <div class="eno-time">
+              {{ timeDisplay.current }}
+            </div>
+            <div class="eno-live-line" />
+            <div class="eno-time">
+              LIVE
+            </div>
+          </template>
+          <template v-else>
+            <div class="eno-time">
+              {{ timeDisplay.current }}
+            </div>
+            <div class="eno-progress-track">
+              <div class="eno-progress-fill" :style="progressFillStyle" />
+              <input
+                v-model="progress.percent"
+                type="range"
+                min="0"
+                max="1"
+                step="0.001"
+                class="eno-progress-range"
+                @input="isDragging = true"
+                @change="changeProgress"
+              >
+            </div>
+            <div class="eno-time">
+              {{ timeDisplay.total }}
+            </div>
+          </template>
         </div>
       </div>
 
@@ -233,6 +253,7 @@ onUnmounted(() => {
           @set="setSleep"
         />
         <div
+          v-if="!isLive"
           class="i-mingcute:music-2-fill eno-ctrl"
           :class="{ 'eno-ctrl--on': showLyrics }"
           title="歌词"
@@ -267,13 +288,18 @@ onUnmounted(() => {
       </div>
     </div>
     <Lyrics
-      v-if="showLyrics"
+      v-if="showLyrics && !isLive"
       :bvid="store.play.bvid"
       :cid="store.play.cid"
       :current="progress.current"
     />
+    <LiveVideo
+      v-if="ui.showVideo && isLive"
+      :session="store.play.roomid || store.play.id"
+      :cover="store.play.cover"
+    />
     <Video
-      v-if="ui.showVideo"
+      v-else-if="ui.showVideo"
       :is-playing="isPlaying"
       :is-dragging="isDragging"
       :video-url="store.play.video"
@@ -342,6 +368,9 @@ onUnmounted(() => {
 }
 
 .eno-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.3;
@@ -349,6 +378,23 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.eno-live-badge {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: #e91429;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.eno-live-line {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: #e91429;
 }
 
 .eno-author {

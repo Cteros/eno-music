@@ -3,6 +3,8 @@ import { MessageAPI } from '@cloudfly/eno-ui'
 import cn from 'classnames'
 import { computed } from 'vue'
 import { useApiClient } from '~/api'
+import { songKey } from '~/shared/playerBridge'
+import { expandVideoPages, pageCount } from '~/shared/videoPages'
 import { useLibraryStore, usePlayerStore, useSingerStore, useUiStore } from '~/stores'
 
 const props = defineProps({
@@ -50,39 +52,51 @@ const ui = useUiStore()
 const singerStore = useSingerStore()
 
 const { later, del, star, checkPages } = props
-const { cover, title, author, pages, mid } = props.song
+const { cover, title, author, pages, mid, page, album } = props.song
+const parts = computed(() => pageCount(pages))
 
 const isPlaying = computed(() => {
   if (!props.showActive)
     return false
-  const current = store.play
-  const type = current.eno_song_type || current.enu_song_type
-
-  if (type && current[type] === props?.song[type])
-    return true
-  return false
+  return songKey(store.play) === songKey(props.song)
 })
 
 const isMini = computed(() => props.size === 'mini')
 
 async function handleClick() {
-  if (!checkPages) {
-    store.startPlay(props.song)
+  const song = props.song
+  if (song?.eno_song_type === 'live') {
+    store.startPlay(song)
     return
   }
-  const item = await api.blbl.getVideoInfo({
-    bvid: props.song.bvid,
-  }).then(res => res.data)
-
-  if (item.pages.length > 1 && props.song) {
-    PLstore.openCollection = true
-    PLstore.collectionInfo = {
-      ...props.song,
-      pages: item.pages,
-    }
+  if (song?.eno_song_type === 'cid' && song?.cid) {
+    store.startPlay(song)
+    return
   }
-  else {
-    store.startPlay(props.song)
+  if (!checkPages && parts.value <= 1) {
+    store.startPlay(song)
+    return
+  }
+  try {
+    const item = await api.blbl.getVideoInfo({
+      bvid: song.bvid,
+    }).then(res => res.data)
+    const tracks = expandVideoPages({
+      ...song,
+      bvid: item.bvid || song.bvid,
+      title: item.title || song.title,
+      author: item.owner?.name || song.author,
+      cover: item.pic || song.cover,
+      mid: item.owner?.mid || song.mid,
+      aid: item.aid,
+    }, item.pages || [])
+    if (tracks.length > 1)
+      store.playAlbum(tracks)
+    else
+      store.startPlay(tracks[0] || song)
+  }
+  catch {
+    store.startPlay(song)
   }
 }
 
@@ -123,7 +137,9 @@ function handleSingerDetail(singerMid) {
     <div class="song-meta">
       <div class="song-title" :title="title" v-html="title" />
       <div class="song-author">
-        <span v-if="pages" class="song-tag">合集</span>
+        <span v-if="song.eno_song_type === 'live'" class="song-tag song-tag--live">LIVE</span>
+        <span v-else-if="parts > 1" class="song-tag">{{ parts }}P</span>
+        <span v-else-if="page && album" class="song-tag">P{{ page }}</span>
         <span class="author-link" @click.stop="handleSingerDetail(mid)">
           {{ author }}
         </span>
@@ -222,8 +238,8 @@ function handleSingerDetail(singerMid) {
   color: #fff;
 }
 
-.song-tag {
-  color: #1ed760;
+.song-tag--live {
+  color: #e91429;
 }
 
 .song-actions {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useUiStore } from '~/stores'
+import VideoStage from './VideoStage.vue'
 
 const props = defineProps({
   isPlaying: Boolean,
@@ -17,7 +17,6 @@ const props = defineProps({
   },
 })
 
-const ui = useUiStore()
 const videoDom = ref<HTMLVideoElement | null>(null)
 const syncTimer = ref<number | null>(null)
 let lastTarget = 0
@@ -107,6 +106,8 @@ async function playVideo() {
 
   const gen = ++playGen
   ensureMuted()
+  if (el.getAttribute('src') !== props.videoUrl)
+    el.src = props.videoUrl
 
   const start = async () => {
     if (gen !== playGen)
@@ -121,7 +122,7 @@ async function playVideo() {
       await el.play()
     }
     catch {
-      // autoplay / abort can throw; sync loop will retry on next tick
+      // autoplay / abort can throw; sync loop will retry
     }
     if (gen !== playGen || !props.isPlaying) {
       el.pause()
@@ -152,8 +153,10 @@ function pauseVideo() {
   }
 }
 
-async function alignPlayback() {
+async function alignPlayPause() {
   await nextTick()
+  if (!videoDom.value)
+    return
   if (props.isPlaying && props.videoUrl)
     await playVideo()
   else
@@ -163,101 +166,52 @@ async function alignPlayback() {
 function onWindowFocus() {
   if (props.isPlaying && props.videoUrl) {
     ensureMuted()
-    void videoDom.value?.play()
+    void videoDom.value?.play().catch(() => {})
     syncVideo(true)
     startSyncLoop()
   }
 }
 
-function onKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape')
-    ui.showVideo = false
-}
-
-function closeVideo() {
-  ui.showVideo = false
-}
-
 watch(
-  [() => props.isPlaying, () => props.videoUrl],
+  [() => props.videoUrl, () => props.isPlaying, videoDom],
   () => {
-    void alignPlayback()
+    void alignPlayPause()
   },
-  { immediate: true },
+  { flush: 'post' },
 )
 
 onMounted(() => {
   window.addEventListener('focus', onWindowFocus)
-  window.addEventListener('keydown', onKeydown)
+  void alignPlayPause()
 })
 
 onBeforeUnmount(() => {
   playGen++
   stopSyncLoop()
   window.removeEventListener('focus', onWindowFocus)
-  window.removeEventListener('keydown', onKeydown)
 })
 </script>
 
 <template>
-  <Teleport to="body">
-    <div class="video-stage">
-      <button
-        class="video-close"
-        type="button"
-        title="关闭视频"
-        @click="closeVideo"
-      >
-        <div class="i-mingcute:close-line" />
-      </button>
-      <img
-        v-if="props.cover"
-        class="video-aura"
-        :src="props.cover"
-        alt=""
-      >
-      <img
-        v-if="props.cover"
-        class="video-aura video-aura--right"
-        :src="props.cover"
-        alt=""
-      >
-      <video
-        v-if="props.videoUrl"
-        id="video-eno"
-        :key="props.videoUrl"
-        ref="videoDom"
-        class="video-el"
-        muted
-        playsinline
-        preload="auto"
-        :src="props.videoUrl"
-      />
-      <img
-        v-else-if="props.cover"
-        class="video-cover"
-        :src="props.cover"
-        alt=""
-      >
-      <div v-else class="video-empty">
-        暂无画面
-      </div>
-    </div>
-  </Teleport>
+  <VideoStage :cover="cover">
+    <video
+      ref="videoDom"
+      class="video-el"
+      :class="{ 'video-el--idle': !videoUrl }"
+      playsinline
+      muted
+      preload="auto"
+    />
+    <img
+      v-if="!videoUrl && cover"
+      class="video-cover"
+      :src="cover"
+      alt=""
+    >
+  </VideoStage>
 </template>
 
 <style scoped>
-.video-stage {
-  position: fixed;
-  inset: 0 0 80px;
-  z-index: 19;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: #000;
-}
-
 .video-el,
 .video-cover {
   position: relative;
@@ -271,64 +225,7 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 
-.video-aura {
-  position: absolute;
-  inset: -18% 0;
-  z-index: 0;
-  width: 100%;
-  height: 136%;
-  object-fit: cover;
-  filter: blur(64px) saturate(1.45);
-  opacity: 0.58;
-  pointer-events: none;
-}
-
-.video-aura--right {
-  inset: auto -8% 0 42%;
-  width: auto;
-  height: 130%;
-  object-position: right center;
-  filter: blur(72px) saturate(1.6);
-  opacity: 0.72;
-  mask-image: linear-gradient(90deg, transparent, #000 28%);
-}
-
-.video-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 2;
-  display: inline-flex;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #fff;
-  background: rgb(0 0 0 / 55%);
-  font-size: 20px;
-  cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.video-close:hover {
-  background: rgb(0 0 0 / 75%);
-  transform: scale(1.06);
-}
-
-.video-close:active {
-  transform: scale(0.92);
-}
-
-.video-empty {
-  color: #b3b3b3;
-  font-size: 14px;
-}
-
-@media (max-width: 900px) {
-  .video-stage {
-    inset: 0;
-  }
+.video-el--idle {
+  display: none;
 }
 </style>

@@ -3,14 +3,17 @@ import type { Component } from 'vue'
 import type { AppView } from '~/stores'
 import { storeToRefs } from 'pinia'
 import About from '~/features/about/About.vue'
+import FollowUpdates from '~/features/follow/FollowUpdates.vue'
 import Home from '~/features/home/index.vue'
 import AddSong from '~/features/library/AddSong.vue'
 import Playlist from '~/features/library/index.vue'
 import ListenLater from '~/features/library/ListenLater.vue'
 import Recent from '~/features/library/Recent.vue'
+import Live from '~/features/live/Live.vue'
 import CoverStage from '~/features/player/CoverStage.vue'
 import Play from '~/features/player/Play.vue'
 import { useCoverVisual } from '~/features/player/useCoverVisual'
+import { useVizMotion } from '~/features/player/useVizMotion'
 import Search from '~/features/search/Search.vue'
 import Setting from '~/features/settings/Setting.vue'
 import Sider from '~/features/shell/Sider.vue'
@@ -27,6 +30,7 @@ const { mode } = storeToRefs(ui)
 const { userInfo, ready, syncCookieAndUser } = useBiliCookie()
 const playing = ref(false)
 const { root, coverSrc } = useCoverVisual(() => player.play?.cover)
+useVizMotion()
 
 function readPlaying(value?: { isPlaying?: boolean }) {
   playing.value = Boolean(value?.isPlaying)
@@ -40,6 +44,8 @@ const pages: { mode: AppView, component: Component }[] = [
   { mode: 'recent', component: Recent },
   { mode: 'singerList', component: SingerList },
   { mode: 'singerDetail', component: SingerDetail },
+  { mode: 'live', component: Live },
+  { mode: 'followUpdates', component: FollowUpdates },
   { mode: 'about', component: About },
   { mode: 'setting', component: Setting },
 ]
@@ -57,7 +63,7 @@ onMounted(() => {
   syncCookieAndUser()
   const splash = document.getElementById('eno-splash')
   if (splash) {
-    window.setTimeout(() => splash.remove(), Math.max(0, 3000 - performance.now()))
+    window.setTimeout(() => splash.remove(), Math.max(0, 2100 - performance.now()))
   }
   void chromeStorageLocal().get(PLAYER_STATE_KEY).then((data) => {
     readPlaying(data[PLAYER_STATE_KEY] as { isPlaying?: boolean } | undefined)

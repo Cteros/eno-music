@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button, MessageAPI } from '@cloudfly/eno-ui'
+import { useLocalStorage } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import Eq from '~/features/player/Eq.vue'
 import { songKey } from '~/shared/playerBridge'
@@ -11,6 +12,7 @@ const eqStore = useEqStore()
 const recent = useRecentStore()
 const player = usePlayerStore()
 const ui = useUiStore()
+const crossfade = useLocalStorage('crossfade', true)
 
 async function openInClient() {
   const cookies = await chrome.cookies.getAll({ domain: '.bilibili.com' })
@@ -231,6 +233,31 @@ async function importData(merge = false) {
           </div>
         </div>
 
+        <div class="settings-card">
+          <div class="settings-card__header">
+            <span class="i-tabler:switch-3 settings-card__icon" />
+            <div>
+              <div class="settings-card__title">
+                曲间淡入
+              </div>
+              <div class="settings-card__subtitle">
+                切歌重叠 800 毫秒，失败则硬切
+              </div>
+            </div>
+          </div>
+          <div class="settings-card__body">
+            <button
+              class="xfade-toggle"
+              :class="{ 'xfade-toggle--on': crossfade }"
+              type="button"
+              @click="crossfade = !crossfade"
+            >
+              <span>{{ crossfade ? '已开启' : '已关闭' }}</span>
+              <span class="xfade-knob" />
+            </button>
+          </div>
+        </div>
+
         <div class="settings-card settings-card--wide">
           <div class="settings-card__header">
             <span class="i-tabler:apps settings-card__icon" />
@@ -365,5 +392,48 @@ async function importData(merge = false) {
   list-style: disc;
   padding-left: 20px;
   margin-top: 6px;
+}
+
+.xfade-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #282828;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.xfade-knob {
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: #535353;
+  position: relative;
+}
+
+.xfade-knob::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.16s var(--eno-ease);
+}
+
+.xfade-toggle--on .xfade-knob {
+  background: var(--eno-primary, #1ed760);
+}
+
+.xfade-toggle--on .xfade-knob::after {
+  transform: translateX(16px);
 }
 </style>

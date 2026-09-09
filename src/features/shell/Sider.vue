@@ -7,6 +7,8 @@ import { useLibraryStore, useUiStore } from '~/stores'
 const primaryTabs: { icon: string, title: string, mode: AppView }[] = [
   { icon: 'i-tabler:smart-home', title: '首页', mode: 'home' },
   { icon: 'i-tabler:search', title: '搜索', mode: 'search' },
+  { icon: 'i-tabler:broadcast', title: '直播', mode: 'live' },
+  { icon: 'i-tabler:news', title: '关注人更新', mode: 'followUpdates' },
 ]
 
 const libraryPins: { icon: string, title: string, mode: AppView }[] = [
@@ -251,6 +253,7 @@ async function startCreate() {
 
 .library-head {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   padding: 4px 0 8px;
 }
@@ -293,7 +296,15 @@ async function startCreate() {
   flex: 1;
   flex-direction: column;
   gap: 2px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+.lib-item,
+.lib-label {
+  flex-shrink: 0;
 }
 
 .lib-item {
@@ -367,6 +378,7 @@ async function startCreate() {
 
 .sider-foot {
   display: flex;
+  flex-shrink: 0;
   flex-direction: column;
   gap: 2px;
   padding-top: 8px;

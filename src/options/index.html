@@ -22,124 +22,72 @@
       align-items: center;
       justify-content: center;
       background: #000;
-      animation: splash-life 3s cubic-bezier(0.3, 0, 0, 1) forwards;
+      animation: splash-life 2.1s ease forwards;
       pointer-events: none;
     }
 
-    #eno-splash svg {
-      width: min(360px, 72vw);
-      height: auto;
-      overflow: visible;
+    #eno-splash .splash-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    #eno-splash .splash-glow {
-      transform-origin: 160px 148px;
-      animation: glow-pulse 3s ease-in-out forwards;
+    #eno-splash .splash-tally {
+      width: 3px;
+      height: 22px;
+      background: #1ed760;
+      transform: scaleY(0);
+      transform-origin: center;
+      animation: splash-tally 0.42s 0.06s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    #eno-splash .splash-disc {
-      transform-origin: 160px 148px;
-      animation: disc-spin 3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    #eno-splash .splash-arc {
-      stroke-dasharray: 578;
-      stroke-dashoffset: 578;
-      animation: arc-draw 1.4s 0.18s cubic-bezier(0.3, 0, 0, 1) forwards;
-    }
-
-    #eno-splash .splash-word {
-      fill: #fff;
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: 0.42em;
-      font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', sans-serif;
+    #eno-splash .splash-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
       opacity: 0;
-      animation: word-in 0.9s 0.7s cubic-bezier(0.3, 0, 0, 1) forwards;
+      transform: translate3d(-8px, 0, 0);
+      animation: splash-name 0.5s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    #eno-splash .bar {
-      transform-box: fill-box;
-      transform-origin: center bottom;
+    @keyframes splash-tally {
+      to { transform: scaleY(1); }
     }
 
-    #eno-splash .b1 { animation: bar-dance 0.7s 0.35s ease-in-out infinite alternate; }
-    #eno-splash .b2 { animation: bar-dance 0.62s 0.42s ease-in-out infinite alternate; }
-    #eno-splash .b3 { animation: bar-dance 0.54s 0.28s ease-in-out infinite alternate; }
-    #eno-splash .b4 { animation: bar-dance 0.66s 0.5s ease-in-out infinite alternate; }
-    #eno-splash .b5 { animation: bar-dance 0.58s 0.38s ease-in-out infinite alternate; }
-    #eno-splash .b6 { animation: bar-dance 0.72s 0.46s ease-in-out infinite alternate; }
-    #eno-splash .b7 { animation: bar-dance 0.5s 0.32s ease-in-out infinite alternate; }
+    @keyframes splash-name {
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
 
     @keyframes splash-life {
-      0%, 78% { opacity: 1; }
+      0%, 70% { opacity: 1; }
       100% { opacity: 0; visibility: hidden; }
     }
 
-    @keyframes disc-spin {
-      0% { transform: translate(160px, 148px) rotate(-28deg) scale(0.72); opacity: 0; }
-      18% { opacity: 1; }
-      100% { transform: translate(160px, 148px) rotate(148deg) scale(1); opacity: 1; }
-    }
+    @media (prefers-reduced-motion: reduce) {
+      #eno-splash {
+        animation: splash-life 0.7s linear forwards;
+      }
 
-    @keyframes arc-draw {
-      to { stroke-dashoffset: 120; }
-    }
-
-    @keyframes glow-pulse {
-      0% { opacity: 0; transform: scale(0.7); }
-      22% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0.55; transform: scale(1.08); }
-    }
-
-    @keyframes word-in {
-      from { opacity: 0; letter-spacing: 0.72em; }
-      to { opacity: 1; letter-spacing: 0.42em; }
-    }
-
-    @keyframes bar-dance {
-      from { transform: scaleY(0.35); opacity: 0.45; }
-      to { transform: scaleY(1.15); opacity: 1; }
+      #eno-splash .splash-tally,
+      #eno-splash .splash-name {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
     }
   </style>
 </head>
 
 <body>
   <div id="eno-splash" aria-hidden="true">
-    <svg viewBox="0 0 320 360" fill="none">
-      <defs>
-        <radialGradient id="eno-glow" cx="50%" cy="42%" r="48%">
-          <stop offset="0%" stop-color="#1ed760" stop-opacity="0.28" />
-          <stop offset="55%" stop-color="#1ed760" stop-opacity="0.06" />
-          <stop offset="100%" stop-color="#000" stop-opacity="0" />
-        </radialGradient>
-        <linearGradient id="eno-ring" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1ed760" />
-          <stop offset="100%" stop-color="#b6ffd0" />
-        </linearGradient>
-      </defs>
-      <circle class="splash-glow" cx="160" cy="148" r="132" fill="url(#eno-glow)" />
-      <g class="splash-disc" transform="translate(160 148)">
-        <circle r="92" fill="#141414" />
-        <circle r="92" stroke="#2a2a2a" stroke-width="2" />
-        <circle r="74" stroke="#1f1f1f" stroke-width="1.2" />
-        <circle r="58" stroke="#252525" stroke-width="1.2" />
-        <circle r="42" stroke="#2c2c2c" stroke-width="1.2" />
-        <circle class="splash-arc" r="92" stroke="url(#eno-ring)" stroke-width="3" stroke-linecap="round" />
-        <circle r="18" fill="#1ed760" />
-        <circle r="7" fill="#0b0b0b" />
-      </g>
-      <g class="splash-wave" transform="translate(112 268)">
-        <rect class="bar b1" x="0" y="8" width="6" height="16" rx="3" fill="#1ed760" />
-        <rect class="bar b2" x="14" y="4" width="6" height="24" rx="3" fill="#1ed760" />
-        <rect class="bar b3" x="28" y="0" width="6" height="32" rx="3" fill="#1ed760" />
-        <rect class="bar b4" x="42" y="4" width="6" height="24" rx="3" fill="#1ed760" />
-        <rect class="bar b5" x="56" y="10" width="6" height="12" rx="3" fill="#1ed760" />
-        <rect class="bar b6" x="70" y="6" width="6" height="20" rx="3" fill="#1ed760" />
-        <rect class="bar b7" x="84" y="2" width="6" height="28" rx="3" fill="#1ed760" />
-      </g>
-      <text class="splash-word" x="160" y="330" text-anchor="middle">ENO-M</text>
-    </svg>
+    <div class="splash-row">
+      <span class="splash-tally"></span>
+      <span class="splash-name">ENO-M</span>
+    </div>
   </div>
   <div id="app"></div>
   <script type="module" src="./main.ts"></script>

@@ -11,4 +11,5 @@ export {
   getSeasonInfo,
   getUserArc,
   getUserInfo,
+  searchVideos,
 } from './rest'

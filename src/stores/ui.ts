@@ -11,6 +11,8 @@ export type AppView
     | 'recent'
     | 'singerList'
     | 'singerDetail'
+    | 'live'
+    | 'followUpdates'
     | 'setting'
     | 'about'
 
@@ -27,6 +29,8 @@ const VIEW_TITLE: Record<AppView, string> = {
   recent: '最近播放',
   singerList: '关注的音乐人',
   singerDetail: '艺人',
+  live: '直播',
+  followUpdates: '关注人更新',
   setting: '设置',
   about: '关于',
 }

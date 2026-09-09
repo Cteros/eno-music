@@ -153,4 +153,38 @@ function fetchRemoteJson(url: string) {
   return efetch(href, { method: 'GET' })
 }
 
-export { addToBiliFavorite, createBiliFavoriteFolder, fetchRemoteJson, getBiliCsrf, getCollectedFavorites, getFavorites, getFollowings, getPlayerV2, getSeasonInfo, getUserArc, getUserInfo }
+async function searchVideos(params: Record<string, any> = {}) {
+  const web_keys = await getWbiKeys()
+  const query = encWbi({
+    search_type: 'video',
+    keyword: String(params.keyword || '').trim(),
+    page: Number(params.page) || 1,
+    page_size: Number(params.page_size) || 42,
+    platform: 'pc',
+    highlight: 1,
+  }, web_keys.img_key, web_keys.sub_key)
+
+  const response = await fetch(`https://api.bilibili.com/x/web-interface/wbi/search/type?${query}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      Referer: 'https://search.bilibili.com/',
+    },
+  })
+  const text = await response.text()
+  const trimmed = text.trim()
+  if (!trimmed || trimmed.startsWith('<'))
+    throw new Error('搜索被拦截，请先在浏览器打开 B 站并登录后再试')
+  let json: any
+  try {
+    json = JSON.parse(trimmed)
+  }
+  catch {
+    throw new Error('搜索结果解析失败')
+  }
+  if (json?.code && json.code !== 0)
+    throw new Error(json.message || `搜索失败（${json.code}）`)
+  return json
+}
+
+export { addToBiliFavorite, createBiliFavoriteFolder, fetchRemoteJson, getBiliCsrf, getCollectedFavorites, getFavorites, getFollowings, getPlayerV2, getSeasonInfo, getUserArc, getUserInfo, searchVideos }

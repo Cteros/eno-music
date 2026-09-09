@@ -73,5 +73,55 @@
       "resourceTypes": ["xmlhttprequest", "media", "websocket", "other"],
       "requestMethods": ["post", "get"]
     }
+  },
+  {
+    "id": 4,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        {
+          "header": "origin",
+          "operation": "set",
+          "value": "https://www.bilibili.com"
+        },
+        {
+          "header": "referer",
+          "operation": "set",
+          "value": "https://www.bilibili.com"
+        }
+      ]
+    },
+    "condition": {
+      "domainType": "thirdParty",
+      "urlFilter": "bilivideo.cn",
+      "resourceTypes": ["xmlhttprequest", "media", "websocket", "other"],
+      "requestMethods": ["post", "get"]
+    }
+  },
+  {
+    "id": 5,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        {
+          "header": "origin",
+          "operation": "set",
+          "value": "https://www.bilibili.com"
+        },
+        {
+          "header": "referer",
+          "operation": "set",
+          "value": "https://www.bilibili.com"
+        }
+      ]
+    },
+    "condition": {
+      "domainType": "thirdParty",
+      "urlFilter": "akamaized.net",
+      "resourceTypes": ["xmlhttprequest", "media", "websocket", "other"],
+      "requestMethods": ["post", "get"]
+    }
   }
 ]

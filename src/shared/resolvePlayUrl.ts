@@ -1,3 +1,6 @@
+import { resolveLivePlayUrl } from './fetchLiveRooms'
+import { isLiveTrack } from './liveRoom'
+
 function isUsableCdn(url?: string) {
   return Boolean(url) && !url!.startsWith('https://xy')
 }
@@ -7,14 +10,42 @@ function pushUnique(list: string[], url?: string) {
     list.push(url)
 }
 
-export function collectAudioUrls(dash: any): string[] {
+const UNPLAYABLE_AUDIO = /flac|ec-3|eac3|ac-3|\bac3\b|alac/i
+
+function backupsOf(obj: any): string[] {
+  const list = obj?.backup_url || obj?.backupUrl || []
+  return Array.isArray(list) ? list : []
+}
+
+export function isHtml5PlayableAudio(obj: any) {
+  const codecs = String(obj?.codecs || obj?.codec || '')
+  const mime = String(obj?.mimeType || obj?.mime_type || '')
+  const id = Number(obj?.id)
+  if (id === 30250 || id === 30251)
+    return false
+  if (UNPLAYABLE_AUDIO.test(codecs) || UNPLAYABLE_AUDIO.test(mime))
+    return false
+  return true
+}
+
+function collectStreamUrls(obj: any) {
   const urls: string[] = []
-  for (const obj of dash?.audio || []) {
-    pushUnique(urls, isUsableCdn(obj?.baseUrl) ? obj.baseUrl : '')
-    for (const backup of obj?.backup_url || [])
-      pushUnique(urls, isUsableCdn(backup) ? backup : '')
-  }
+  pushUnique(urls, isUsableCdn(obj?.baseUrl) ? obj.baseUrl : '')
+  pushUnique(urls, isUsableCdn(obj?.base_url) ? obj.base_url : '')
+  for (const backup of backupsOf(obj))
+    pushUnique(urls, isUsableCdn(backup) ? backup : '')
   return urls
+}
+
+export function collectAudioUrls(dash: any): string[] {
+  const playable: string[] = []
+  const fallback: string[] = []
+  for (const obj of dash?.audio || []) {
+    const target = isHtml5PlayableAudio(obj) ? playable : fallback
+    for (const url of collectStreamUrls(obj))
+      pushUnique(target, url)
+  }
+  return playable.length ? playable : fallback
 }
 
 export function pickAudioUrl(urls: string[] = [], skip: string[] = []) {
@@ -22,11 +53,7 @@ export function pickAudioUrl(urls: string[] = [], skip: string[] = []) {
 }
 
 function getUpUrl(obj: any) {
-  return pickAudioUrl([
-    obj?.baseUrl || '',
-    obj?.backup_url?.[0] || '',
-    obj?.backup_url?.[1] || '',
-  ].filter(isUsableCdn))
+  return pickAudioUrl(collectStreamUrls(obj))
 }
 
 async function fetchJson(url: string) {
@@ -51,6 +78,18 @@ export async function resolvePlayUrl(song: Record<string, any>) {
   const skip: string[] = Array.isArray(song.skipUrls) ? song.skipUrls : []
   if (song.url && !skip.includes(song.url))
     return song
+
+  if (isLiveTrack(song)) {
+    const roomid = song.roomid || String(song.id || '').replace(/^live:/, '')
+    if (!roomid)
+      throw new Error('没有直播间')
+    const url = await resolveLivePlayUrl(roomid)
+    return {
+      ...song,
+      url,
+      live: true,
+    }
+  }
 
   if (song.dash) {
     const url = pickAudioUrl(collectAudioUrls(song.dash), skip)

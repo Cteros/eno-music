@@ -82,6 +82,7 @@
   --eno-shadow-lg: 0 16px 40px rgb(0 0 0 / 55%);
 
   --eno-ease: cubic-bezier(0.3, 0, 0, 1);
+  --eno-bass: 0;
 
   --app-font-sans:
     'Helvetica Neue',

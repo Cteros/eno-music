@@ -2,6 +2,7 @@ import type { Song } from './types'
 import { useStorage } from '@vueuse/core'
 import { cloneDeep } from 'lodash'
 import { defineStore } from 'pinia'
+import { songKey } from '~/shared/playerBridge'
 
 export const usePlayerStore = defineStore('player', {
   state: () => ({
@@ -15,9 +16,16 @@ export const usePlayerStore = defineStore('player', {
     startPlay(item: Song) {
       const song = cloneDeep(item)
       this.play = song
-      const isInList = this.playList.some(item => item?.id === song.id)
+      const key = songKey(song)
+      const isInList = this.playList.some(item => songKey(item) === key)
       if (!isInList)
         this.playList.push(song)
+    },
+    playAlbum(tracks: Song[], startId?: string | number) {
+      if (!tracks.length)
+        return
+      this.playList = cloneDeep(tracks)
+      this.play = this.playList.find(item => item.id === startId) || this.playList[0]
     },
   },
 })

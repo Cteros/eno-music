@@ -1,4 +1,5 @@
 import { AHS } from './factory'
+import { searchVideos } from './rest'
 
 const baseUrl = 'https://api.bilibili.com'
 
@@ -15,23 +16,8 @@ export default {
     },
     afterHandle: AHS.J,
   },
-  search: {
-    url: `${baseUrl}/x/web-interface/search/type`,
-    _fetch: jsonGet,
-    params: {
-      page: 1,
-      page_size: 42,
-      platform: 'pc',
-      highlight: 1,
-      single_column: 0,
-      keyword: '',
-      category_id: '',
-      search_type: 'video',
-      dynamic_offset: 0,
-      preload: true,
-      com2co: true,
-    },
-    afterHandle: AHS.J,
+  search: (message: { keyword?: string, page?: number, page_size?: number }) => {
+    return searchVideos(message)
   },
   getAudioOfVideo: {
     url: `${baseUrl}/x/player/playurl`,
