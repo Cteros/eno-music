@@ -1,4 +1,5 @@
 import type { PlayerEnvelope, PlayerPopupState } from '~/shared/playerBridge'
+import type { Song } from '~/stores/types'
 import { useLocalStorage } from '@vueuse/core'
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import {
@@ -9,6 +10,7 @@ import {
   onExtMessage,
 } from '~/shared/chromeApi'
 import {
+  createStateOrder,
   emptyPlayerPopupState,
   findTrackIndex,
   formatPlaybackRate,
@@ -16,6 +18,7 @@ import {
   PLAYER_STATE_KEY,
   sendPlayerMessage,
   songKey,
+  trackMatches,
 } from '~/shared/playerBridge'
 import { useEqStore, usePlayerStore, useRecentStore } from '~/stores'
 import { useMediaSession } from './useMediaSession'
@@ -39,13 +42,17 @@ export function usePlayerEngine() {
   const sleepAfterCurrent = ref(false)
   const crossfade = useLocalStorage('crossfade', true)
   let remoteSongKey = ''
-  let pendingSongKey = ''
-  let appliedAt = 0
+  let remoteTrack: PlayerPopupState | null = null
+  let remoteLoopMode = ''
+  let remoteCrossfade: boolean | null = null
+  let pendingSong: Song | null = null
+  let playRequestToken = 0
   let sampleCurrent = 0
   let sampleAt = 0
   let samplePlaying = false
   let progressRaf = 0
   let lastRecordedKey = ''
+  const acceptState = createStateOrder()
 
   const { setMetadata } = useMediaSession({
     prev: () => change('prev'),
@@ -67,6 +74,8 @@ export function usePlayerEngine() {
     if (matched) {
       store.play = {
         ...matched,
+        eno_song_type: state.eno_song_type ?? matched.eno_song_type,
+        roomid: state.roomid ?? matched.roomid,
         video: state.video || matched.video,
         cover: matched.cover || state.cover,
         title: state.title || matched.title,
@@ -76,11 +85,14 @@ export function usePlayerEngine() {
       return
     }
 
+    // 不继承旧曲的 eno_song_type/roomid，否则直播切普通歌会把 key 染脏
     store.play = {
       ...store.play,
       id: state.id as any,
       bvid: state.bvid as any,
       cid: state.cid,
+      eno_song_type: state.eno_song_type,
+      roomid: state.roomid,
       title: state.title,
       author: state.author,
       cover: state.cover,
@@ -92,13 +104,13 @@ export function usePlayerEngine() {
     if (!state)
       return
     const incoming = songKey(state)
-    if (pendingSongKey && incoming && incoming !== pendingSongKey)
+    // 切歌请求在途时只放行同曲状态；同 BV 解析前后视为同曲
+    if (pendingSong && incoming && !trackMatches(pendingSong, state))
       return
-    if (state.updatedAt && state.updatedAt < appliedAt)
+    if (!acceptState(state))
       return
-    if (pendingSongKey && incoming === pendingSongKey)
-      pendingSongKey = ''
-    appliedAt = state.updatedAt || Date.now()
+    if (pendingSong && trackMatches(pendingSong, state))
+      pendingSong = null
     isPlaying.value = Boolean(state.isPlaying)
     sampleCurrent = state.current || 0
     sampleAt = state.updatedAt || Date.now()
@@ -109,14 +121,21 @@ export function usePlayerEngine() {
       voice.value = state.volume
       isCloseVoice.value = state.volume === 0
     }
-    if (state.loopMode)
+    if (state.loopMode) {
+      remoteLoopMode = state.loopMode
       store.loopMode = state.loopMode
+    }
     if (typeof state.rate === 'number' && state.rate > 0)
       rate.value = state.rate
+    if (typeof state.crossfade === 'boolean') {
+      remoteCrossfade = state.crossfade
+      crossfade.value = state.crossfade
+    }
     sleepUntil.value = state.sleepUntil || 0
     sleepAfterCurrent.value = Boolean(state.sleepAfterCurrent)
     lastError.value = state.error || ''
     remoteSongKey = songKey(state)
+    remoteTrack = state
     syncStorePlay(state)
     if (state.hasSong && remoteSongKey && remoteSongKey !== lastRecordedKey) {
       lastRecordedKey = remoteSongKey
@@ -151,10 +170,16 @@ export function usePlayerEngine() {
   async function refreshState() {
     try {
       const data = await chromeStorageLocal().get(PLAYER_STATE_KEY)
-      applyState((data[PLAYER_STATE_KEY] as PlayerPopupState) || emptyPlayerPopupState())
+      const state = data[PLAYER_STATE_KEY] as PlayerPopupState | undefined
+      if (state) {
+        applyState(state)
+        return state
+      }
+      return emptyPlayerPopupState()
     }
     catch (error) {
       console.warn('[player] refresh state failed', error)
+      return undefined
     }
   }
 
@@ -180,19 +205,24 @@ export function usePlayerEngine() {
   }
 
   async function playSongNow() {
-    if (!store.play?.id && !store.play?.bvid)
+    const song = store.play
+    if (!song?.id && !song?.bvid && !song?.roomid)
       return
+    const token = ++playRequestToken
+    pendingSong = song
     const result = await sendPlayerMessage({
       type: 'ENO_PLAYER_PLAY',
-      song: store.play,
+      song,
       playList: store.playList,
       loopMode: store.loopMode,
     })
+    if (token !== playRequestToken)
+      return
+    // 响应即本次请求的权威状态：先解除门控，避免解析前后 key 形式不一致卡死
+    pendingSong = null
     applyState(result?.state)
-    if (!result?.ok) {
-      pendingSongKey = ''
+    if (!result?.ok)
       lastError.value = result?.error || '播放失败'
-    }
   }
 
   async function change(type: 'prev' | 'next') {
@@ -208,10 +238,13 @@ export function usePlayerEngine() {
       await refreshState()
       return
     }
+    const token = playRequestToken
     const result = await sendPlayerMessage({
       type: 'ENO_PLAYER_CMD',
       cmd: 'toggle',
     })
+    if (token !== playRequestToken)
+      return
     if (!result?.ok) {
       await playSongNow()
       return
@@ -291,16 +324,18 @@ export function usePlayerEngine() {
     async (key, prev) => {
       if (!key || key === prev)
         return
-      if (key === remoteSongKey) {
-        pendingSongKey = ''
+      // 引擎同步回来的解析结果（bvid → cid）不算切歌；点击正在播的歌同理
+      if (remoteTrack && trackMatches(store.play, remoteTrack)) {
+        pendingSong = null
         return
       }
-      pendingSongKey = key
       await playSongNow()
     },
   )
 
-  watch(() => store.loopMode, async (mode) => {
+  watch(() => store.loopMode, async (mode, prev) => {
+    if (mode === prev || mode === remoteLoopMode)
+      return
     const result = await sendPlayerMessage({
       type: 'ENO_PLAYER_SET_LOOP',
       loopMode: mode,
@@ -309,7 +344,10 @@ export function usePlayerEngine() {
       applyState(result.state)
   })
 
-  watch(crossfade, async (enabled) => {
+  watch(crossfade, async (enabled, prev) => {
+    if (enabled === prev || enabled === remoteCrossfade)
+      return
+    remoteCrossfade = enabled
     await sendPlayerMessage({
       type: 'ENO_PLAYER_SET_CROSSFADE',
       crossfade: enabled,
@@ -333,7 +371,10 @@ export function usePlayerEngine() {
     onChromeStorageChanged(onStorageChanged)
     loopProgress()
     void (async () => {
-      await refreshState()
+      const state = await refreshState()
+      // 引擎有歌时它是状态源头，只在空闲时才用本地偏好做冷启动，避免覆盖引擎的音量/队列
+      if (state?.hasSong)
+        return
       await sendPlayerMessage({
         type: 'ENO_PLAYER_SET_PLAYLIST',
         playList: store.playList,

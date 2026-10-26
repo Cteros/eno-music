@@ -14,12 +14,32 @@ const videoDom = ref<HTMLVideoElement | null>(null)
 const failed = ref('')
 let pc: RTCPeerConnection | null = null
 let closed = false
+let connectTimer = 0
 
 function fitVideoBox() {
   const el = videoDom.value
   if (!el || !el.videoWidth || !el.videoHeight)
     return
   el.style.aspectRatio = `${el.videoWidth} / ${el.videoHeight}`
+}
+
+function clearConnectTimer() {
+  if (connectTimer) {
+    window.clearTimeout(connectTimer)
+    connectTimer = 0
+  }
+}
+
+function armConnectTimer() {
+  clearConnectTimer()
+  connectTimer = window.setTimeout(() => {
+    const el = videoDom.value
+    if (closed)
+      return
+    if (el?.srcObject && el.readyState >= 2)
+      return
+    failed.value = '画面连接超时'
+  }, 10000)
 }
 
 function attachStream(stream: MediaStream) {
@@ -31,6 +51,8 @@ function attachStream(stream: MediaStream) {
   el.volume = 0
   el.playsInline = true
   void el.play().catch(() => {})
+  clearConnectTimer()
+  failed.value = ''
 }
 
 async function sendSignal(signal: LiveMirrorSignal) {
@@ -82,13 +104,17 @@ async function start() {
   if (closed)
     return
   failed.value = ''
+  armConnectTimer()
   const result = await sendPlayerMessage({ type: 'ENO_LIVE_MIRROR_START' })
-  if (!result?.ok && !closed && !pc)
+  if (!result?.ok && !closed && !pc) {
+    clearConnectTimer()
     failed.value = result?.error || '暂时没有直播画面'
+  }
 }
 
 function stop() {
   closed = true
+  clearConnectTimer()
   pc?.close()
   pc = null
   const el = videoDom.value
@@ -97,6 +123,17 @@ function stop() {
     el.srcObject = null
   }
   void sendPlayerMessage({ type: 'ENO_LIVE_MIRROR_STOP' }).catch(() => {})
+}
+
+function retry() {
+  if (closed)
+    return
+  pc?.close()
+  pc = null
+  const el = videoDom.value
+  if (el)
+    el.srcObject = null
+  void start()
 }
 
 onMounted(() => {
@@ -136,7 +173,10 @@ onBeforeUnmount(() => {
       autoplay
     />
     <div v-if="failed" class="video-fail">
-      {{ failed }}
+      <span>{{ failed }}</span>
+      <button type="button" class="video-retry" @click="retry">
+        重试
+      </button>
     </div>
   </VideoStage>
 </template>
@@ -157,10 +197,25 @@ onBeforeUnmount(() => {
 .video-fail {
   position: absolute;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 12px;
   border-radius: 8px;
   background: rgb(0 0 0 / 65%);
   color: #fff;
   font-size: 13px;
+}
+
+.video-retry {
+  height: 22px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #1ed760;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
 }
 </style>

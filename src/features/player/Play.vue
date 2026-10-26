@@ -303,6 +303,7 @@ onUnmounted(() => {
       :is-playing="isPlaying"
       :is-dragging="isDragging"
       :video-url="store.play.video"
+      :song="store.play"
       :cover="store.play.cover"
       :audio-time="progress.current"
       :audio-rate="rate"

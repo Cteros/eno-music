@@ -2,7 +2,7 @@ import type { Song } from './types'
 import { useStorage } from '@vueuse/core'
 import { cloneDeep } from 'lodash'
 import { defineStore } from 'pinia'
-import { songKey } from '~/shared/playerBridge'
+import { trackMatches } from '~/shared/playerBridge'
 
 export const usePlayerStore = defineStore('player', {
   state: () => ({
@@ -16,8 +16,7 @@ export const usePlayerStore = defineStore('player', {
     startPlay(item: Song) {
       const song = cloneDeep(item)
       this.play = song
-      const key = songKey(song)
-      const isInList = this.playList.some(item => songKey(item) === key)
+      const isInList = this.playList.some(item => trackMatches(item, song))
       if (!isInList)
         this.playList.push(song)
     },

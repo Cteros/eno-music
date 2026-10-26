@@ -47,6 +47,8 @@ export class OffscreenAudioEngine {
   private live = new OffscreenLive()
   private liveMirror: LiveStreamMirror | null = null
   private blobByHowl = new Map<Howl, string>()
+  private session = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
+  private stateSeq = 0
 
   constructor() {
     this.bindMediaSession()
@@ -62,6 +64,8 @@ export class OffscreenAudioEngine {
       id: this.play?.id,
       bvid: this.play?.bvid,
       cid: this.play?.cid,
+      eno_song_type: this.play?.eno_song_type,
+      roomid: this.play?.roomid,
       title: stripHtml(this.play?.title) || '暂无歌曲',
       author: this.play?.author || '',
       cover: this.play?.cover || '',
@@ -81,6 +85,8 @@ export class OffscreenAudioEngine {
       live: isLiveTrack(this.play),
       error: this.lastError || undefined,
       updatedAt: Date.now(),
+      session: this.session,
+      seq: ++this.stateSeq,
     }
   }
 

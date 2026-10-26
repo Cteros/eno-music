@@ -2,7 +2,7 @@
 import { useInfiniteScroll } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { fetchMusicAreaLives, MUSIC_LIVE_AREAS } from '~/shared/fetchLiveRooms'
-import { songKey } from '~/shared/playerBridge'
+import { trackMatches } from '~/shared/playerBridge'
 import { usePlayerStore, useUiStore } from '~/stores'
 
 const player = usePlayerStore()
@@ -140,7 +140,7 @@ watch(() => ui.mode, (mode) => {
         v-for="room in lives"
         :key="room.id"
         class="live-card"
-        :class="{ 'live-card--on': listening && songKey(listening) === songKey(room) }"
+        :class="{ 'live-card--on': listening && trackMatches(listening, room) }"
         type="button"
         @click="playLive(room)"
       >

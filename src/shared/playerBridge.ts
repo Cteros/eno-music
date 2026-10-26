@@ -63,6 +63,8 @@ export interface PlayerPopupState {
   id?: string | number
   bvid?: string
   cid?: string | number
+  eno_song_type?: string
+  roomid?: string | number
   title: string
   author: string
   cover: string
@@ -80,6 +82,10 @@ export interface PlayerPopupState {
   live?: boolean
   error?: string
   updatedAt: number
+  /** offscreen 引擎会话标识，重启后变化 */
+  session?: string
+  /** 会话内单调递增，用于丢弃乱序到达的旧状态 */
+  seq?: number
 }
 
 export interface PlayerSongPayload {
@@ -150,7 +156,34 @@ export function emptyPlayerPopupState(): PlayerPopupState {
     sleepAfterCurrent: false,
     crossfade: true,
     live: false,
-    updatedAt: Date.now(),
+    updatedAt: 0,
+  }
+}
+
+/**
+ * 状态可能经 storage 变更和 runtime 广播两条通道到达，顺序会乱。
+ * 按引擎 session + 单调 seq 丢弃乱序旧状态；无 seq 时退回 updatedAt 比较。
+ */
+export function createStateOrder() {
+  let session = ''
+  let seq = -1
+  let updatedAt = 0
+  return (state?: PlayerPopupState): boolean => {
+    if (!state)
+      return false
+    const nextSession = state.session || ''
+    const nextSeq = typeof state.seq === 'number' ? state.seq : -1
+    if (nextSession && nextSession === session && nextSeq >= 0 && seq >= 0 && nextSeq < seq)
+      return false
+    if (!nextSession && nextSeq < 0 && state.updatedAt && state.updatedAt < updatedAt)
+      return false
+    if (nextSession)
+      session = nextSession
+    if (nextSeq >= 0)
+      seq = nextSeq
+    if (state.updatedAt)
+      updatedAt = state.updatedAt
+    return true
   }
 }
 
@@ -168,8 +201,10 @@ export function formatPlayerTime(seconds = 0) {
 export function songKey(song?: { id?: string | number, bvid?: string, cid?: string | number, eno_song_type?: string, roomid?: string | number } | null) {
   if (!song)
     return ''
-  if (song.eno_song_type === 'live')
-    return `live:${song.roomid || song.id || ''}`
+  if (song.eno_song_type === 'live') {
+    const room = String(song.roomid || song.id || '').replace(/^live:/, '')
+    return room ? `live:${room}` : ''
+  }
   if (song.cid != null && song.cid !== '')
     return `cid:${song.bvid || ''}:${song.cid}`
   if (song.id != null && song.id !== '')
@@ -212,6 +247,49 @@ export function sameTrack(
   if (!a || !b)
     return false
   return findTrackIndex([b], a) === 0
+}
+
+interface TrackIdentity {
+  id?: string | number
+  bvid?: string
+  cid?: string | number
+  eno_song_type?: string
+  roomid?: string | number
+}
+
+/**
+ * 宽松同曲判定：同 key 即同曲；同一 BV 的「未解析行」（无 cid）与
+ * 「解析后行」（有 cid）也视为同曲，否则切换歌曲后 UI 状态会被门控卡死。
+ * 不同分 P（cid 不同）永远不相等。
+ */
+export function trackMatches(a?: TrackIdentity | null, b?: TrackIdentity | null) {
+  if (!a || !b)
+    return false
+  const ka = songKey(a)
+  const kb = songKey(b)
+  if (ka && kb && ka === kb)
+    return true
+
+  const liveA = a.eno_song_type === 'live'
+  const liveB = b.eno_song_type === 'live'
+  if (liveA || liveB) {
+    if (!liveA || !liveB)
+      return false
+    const roomA = String(a.roomid || a.id || '').replace(/^live:/, '')
+    const roomB = String(b.roomid || b.id || '').replace(/^live:/, '')
+    return roomA !== '' && roomA === roomB
+  }
+
+  if (a.bvid && b.bvid && a.bvid === b.bvid) {
+    const cidA = a.cid == null || a.cid === '' ? '' : String(a.cid)
+    const cidB = b.cid == null || b.cid === '' ? '' : String(b.cid)
+    return cidA === cidB || cidA === '' || cidB === ''
+  }
+
+  if (a.id != null && a.id !== '' && b.id != null && b.id !== '')
+    return String(a.id) === String(b.id)
+
+  return false
 }
 
 export async function sendPlayerMessage(message: Omit<PlayerEnvelope, 'target'>): Promise<PlayerMessageResult> {

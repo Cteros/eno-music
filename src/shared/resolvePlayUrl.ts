@@ -97,6 +97,7 @@ export async function resolvePlayUrl(song: Record<string, any>) {
       return {
         ...song,
         url,
+        video: getUpUrl(song.dash?.video?.[0]) || song.video,
       }
     }
   }

@@ -13,6 +13,7 @@ import {
   onExtMessage,
 } from '~/shared/chromeApi'
 import {
+  createStateOrder,
   emptyPlayerPopupState,
   formatPlaybackRate,
   formatPlayerTime,
@@ -32,7 +33,7 @@ const draggingVoice = ref(false)
 const voiceDraft = ref(1)
 const { root, coverSrc } = useCoverVisual(() => state.value.cover)
 let lastVoice = 1
-let appliedAt = 0
+const acceptState = createStateOrder()
 
 const progressPercent = computed(() => {
   if (dragging.value)
@@ -56,9 +57,8 @@ const volumeStyle = computed(() => {
 function applyState(next?: PlayerPopupState) {
   if (!next)
     return
-  if (next.updatedAt && next.updatedAt < appliedAt)
+  if (!acceptState(next))
     return
-  appliedAt = next.updatedAt || Date.now()
   if (typeof next.volume === 'number' && next.volume > 0)
     lastVoice = next.volume
   if (draggingVoice.value)
@@ -70,7 +70,9 @@ function applyState(next?: PlayerPopupState) {
 async function refreshState() {
   try {
     const data = await chromeStorageLocal().get(PLAYER_STATE_KEY)
-    applyState(data[PLAYER_STATE_KEY] as PlayerPopupState | undefined)
+    const next = data[PLAYER_STATE_KEY] as PlayerPopupState | undefined
+    if (next)
+      applyState(next)
   }
   catch (error) {
     console.warn('[popup] read state failed', error)

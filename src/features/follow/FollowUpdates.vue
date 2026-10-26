@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { fetchFollowUpdates } from '~/shared/fetchFollowUpdates'
-import { songKey } from '~/shared/playerBridge'
+import { trackMatches } from '~/shared/playerBridge'
 import { usePlayerStore, useSingerStore, useUiStore } from '~/stores'
 
 const player = usePlayerStore()
@@ -106,7 +106,7 @@ watch(() => ui.mode, (mode) => {
         :key="song.bvid || song.id"
         type="button"
         class="update-row"
-        :class="{ 'update-row--on': songKey(player.play) === songKey(song) }"
+        :class="{ 'update-row--on': trackMatches(player.play, song) }"
         @click="playOne(song)"
       >
         <span class="ago">{{ song.pubAgo }}</span>

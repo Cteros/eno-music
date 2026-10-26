@@ -3,7 +3,7 @@ import { MessageAPI } from '@cloudfly/eno-ui'
 import cn from 'classnames'
 import { computed } from 'vue'
 import { useApiClient } from '~/api'
-import { songKey } from '~/shared/playerBridge'
+import { trackMatches } from '~/shared/playerBridge'
 import { expandVideoPages, pageCount } from '~/shared/videoPages'
 import { useLibraryStore, usePlayerStore, useSingerStore, useUiStore } from '~/stores'
 
@@ -58,7 +58,7 @@ const parts = computed(() => pageCount(pages))
 const isPlaying = computed(() => {
   if (!props.showActive)
     return false
-  return songKey(store.play) === songKey(props.song)
+  return trackMatches(store.play, props.song)
 })
 
 const isMini = computed(() => props.size === 'mini')
