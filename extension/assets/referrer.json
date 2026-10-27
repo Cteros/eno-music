@@ -20,6 +20,7 @@
     "condition": {
       "domainType": "thirdParty",
       "urlFilter": "bilivideo.com",
+      "excludedInitiatorDomains": ["bilibili.com"],
       "resourceTypes": ["xmlhttprequest", "media", "websocket", "script"],
       "requestMethods": ["post", "get"]
     }
@@ -45,6 +46,7 @@
     "condition": {
       "domainType": "thirdParty",
       "urlFilter": "https://api.bilibili.com/x/space/wbi",
+      "excludedInitiatorDomains": ["bilibili.com"],
       "resourceTypes": ["xmlhttprequest", "media", "websocket", "script"],
       "requestMethods": ["post", "get"]
     }
@@ -70,6 +72,7 @@
     "condition": {
       "domainType": "thirdParty",
       "urlFilter": "https://api.bilibili.com/",
+      "excludedInitiatorDomains": ["bilibili.com"],
       "resourceTypes": ["xmlhttprequest", "media", "websocket", "other"],
       "requestMethods": ["post", "get"]
     }
@@ -95,6 +98,7 @@
     "condition": {
       "domainType": "thirdParty",
       "urlFilter": "bilivideo.cn",
+      "excludedInitiatorDomains": ["bilibili.com"],
       "resourceTypes": ["xmlhttprequest", "media", "websocket", "other"],
       "requestMethods": ["post", "get"]
     }
@@ -120,6 +124,7 @@
     "condition": {
       "domainType": "thirdParty",
       "urlFilter": "akamaized.net",
+      "excludedInitiatorDomains": ["bilibili.com"],
       "resourceTypes": ["xmlhttprequest", "media", "websocket", "other"],
       "requestMethods": ["post", "get"]
     }
