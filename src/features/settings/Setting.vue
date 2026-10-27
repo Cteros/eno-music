@@ -310,15 +310,17 @@ async function importData(merge = false) {
 
 .settings-title {
   margin: 0 0 8px;
-  font-size: 32px;
-  font-weight: 800;
+  color: var(--eno-text-1, #fff);
+  font-family: var(--app-font-display, inherit);
+  font-size: 34px;
+  font-weight: 900;
   letter-spacing: -0.03em;
 }
 
 .settings-desc {
   margin: 0;
   font-size: 14px;
-  color: #b3b3b3;
+  color: var(--eno-text-2, #a8a8b3);
 }
 
 .settings-grid {
@@ -343,8 +345,16 @@ async function importData(merge = false) {
 
 .settings-card {
   overflow: hidden;
-  border-radius: 8px;
-  background: #181818;
+  border: 1px solid var(--eno-border, rgb(255 255 255 / 7%));
+  border-radius: var(--eno-radius-xl, 16px);
+  background: var(--eno-content, #16161c);
+  transition: border-color 0.2s var(--eno-ease), box-shadow 0.2s var(--eno-ease), transform 0.2s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1));
+}
+
+.settings-card:hover {
+  transform: translateY(-2px);
+  border-color: rgb(255 255 255 / 12%);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 40%);
 }
 
 .settings-card__header {

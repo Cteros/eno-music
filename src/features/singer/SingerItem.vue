@@ -61,19 +61,31 @@ function handleSingerDetail(singerMid) {
 .singer-card {
   width: 180px;
   padding: 16px;
-  border-radius: 8px;
-  background: #181818;
+  border: 1px solid var(--eno-border, rgb(255 255 255 / 7%));
+  border-radius: var(--eno-radius-xl, 16px);
+  background: var(--eno-content, #16161c);
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
+  transition:
+    background-color 0.2s var(--eno-ease),
+    transform 0.2s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)),
+    border-color 0.2s var(--eno-ease),
+    box-shadow 0.2s var(--eno-ease);
 }
 
 .singer-card:hover {
-  background: #282828;
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  border-color: rgb(255 255 255 / 14%);
+  background: var(--eno-content-hover, #26262f);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 45%), 0 0 24px rgb(30 215 96 / 10%);
+}
+
+.singer-card:hover .singer-avatar {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 50%), 0 0 0 2px rgb(30 215 96 / 40%), 0 0 22px rgb(30 215 96 / 22%);
+  transform: scale(1.03);
 }
 
 .singer-card:active {
-  transform: translateY(0) scale(0.99);
+  transform: translateY(0) scale(0.98);
 }
 
 .avatar-wrap {
@@ -87,6 +99,7 @@ function handleSingerDetail(singerMid) {
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+  transition: transform 0.22s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)), box-shadow 0.22s var(--eno-ease);
 }
 
 .del-btn {

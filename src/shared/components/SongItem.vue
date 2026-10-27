@@ -156,26 +156,30 @@ function handleSingerDetail(singerMid) {
 <style scoped>
 .song-item {
   display: grid;
-  grid-template-columns: 16px 40px minmax(0, 1fr) auto;
+  grid-template-columns: 44px 44px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  height: 56px;
+  height: 60px;
   padding: 0 16px;
-  border-radius: 4px;
-  color: #b3b3b3;
+  border: 1px solid transparent;
+  border-radius: var(--eno-radius-lg);
+  color: var(--eno-text-2);
   cursor: pointer;
-  transition: background-color 0.12s var(--eno-ease), color 0.12s var(--eno-ease);
-}
-
-.song-item--mini {
-  height: 48px;
-  grid-template-columns: 0 40px minmax(0, 1fr) auto;
-  padding: 0 8px;
+  transition:
+    transform 0.18s var(--eno-ease-pop),
+    background-color 0.18s var(--eno-ease),
+    color 0.18s var(--eno-ease),
+    border-color 0.18s var(--eno-ease),
+    box-shadow 0.18s var(--eno-ease);
 }
 
 .song-item:hover {
-  background: rgb(255 255 255 / 10%);
-  color: #fff;
+  z-index: 1;
+  transform: translateY(-2px);
+  border-color: rgb(255 255 255 / 8%);
+  background: var(--eno-fill-1);
+  color: var(--eno-text-1);
+  box-shadow: var(--eno-shadow-sm);
 }
 
 .song-item:hover .action-icon,
@@ -183,29 +187,61 @@ function handleSingerDetail(singerMid) {
   opacity: 1;
 }
 
+/* 选中/播放中：只用一层极浅的绿色渐变底 + 绿色歌名,排名列换成跳动条 */
+.song-item--playing {
+  background: linear-gradient(90deg, rgb(30 215 96 / 12%), rgb(30 215 96 / 3%) 55%, transparent);
+}
+
+.song-item--playing:hover {
+  background: linear-gradient(90deg, rgb(30 215 96 / 18%), rgb(30 215 96 / 5%) 55%, transparent);
+}
+
+.song-item--mini {
+  height: 52px;
+  grid-template-columns: 0 40px minmax(0, 1fr) auto;
+  padding: 0 8px;
+}
+
 .song-index {
   display: flex;
-  width: 16px;
-  justify-content: center;
-  font-size: 16px;
+  width: 44px;
+  justify-content: flex-start;
+  font-family: var(--app-font-display);
+  font-size: 22px;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
 
 .index-num {
-  opacity: 0.9;
+  opacity: 0.55;
+  transition: opacity 0.18s var(--eno-ease), color 0.18s var(--eno-ease), text-shadow 0.18s var(--eno-ease);
+}
+
+.song-item--playing .index-num {
+  opacity: 1;
 }
 
 .playing-bars {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: #1ed760;
+  filter: drop-shadow(0 0 6px rgb(30 215 96 / 50%));
 }
 
 .song-cover {
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(255 255 255 / 6%);
+  border-radius: var(--eno-radius-md);
   object-fit: cover;
+  transition: transform 0.18s var(--eno-ease-pop), box-shadow 0.18s var(--eno-ease);
+}
+
+.song-item:hover .song-cover {
+  transform: scale(1.05);
+  box-shadow: var(--eno-shadow-sm);
 }
 
 .song-meta {
@@ -216,8 +252,10 @@ function handleSingerDetail(singerMid) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 16px;
-  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--eno-text-1);
   line-height: 1.3;
 }
 

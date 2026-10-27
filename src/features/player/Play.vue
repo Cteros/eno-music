@@ -175,7 +175,7 @@ onUnmounted(() => {
           :title="ui.showVideo ? '关闭视频' : '打开视频'"
           @click.stop="toggleVideo"
         >
-          <img class="eno-cover" :src="store.play.cover">
+          <img class="eno-cover" :class="{ 'eno-cover--playing': isPlaying }" :src="store.play.cover">
           <div class="eno-cover-mask" :class="{ 'eno-cover-mask--on': ui.showVideo }">
             <i :class="ui.showVideo ? 'i-mingcute:close-line text-lg' : 'i-mingcute:fullscreen-2-line text-lg'" />
           </div>
@@ -386,7 +386,9 @@ onUnmounted(() => {
   z-index: 20;
   display: flex;
   height: 80px;
-  background: #000;
+  border-top: 1px solid var(--eno-border);
+  background: rgb(14 14 18 / 92%);
+  backdrop-filter: blur(18px);
 }
 
 .eno-player-shell {
@@ -412,6 +414,25 @@ onUnmounted(() => {
   height: 56px;
   border-radius: 4px;
   object-fit: cover;
+  transition: transform 0.3s var(--eno-ease);
+}
+
+/* 播放中封面轻微呼吸 */
+.eno-cover--playing {
+  animation: eno-cover-breathe 3.2s var(--eno-ease) infinite;
+}
+
+@keyframes eno-cover-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgb(30 215 96 / 0%);
+  }
+
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 18px 2px rgb(30 215 96 / 18%);
+  }
 }
 
 .eno-cover-mask {
@@ -638,37 +659,35 @@ onUnmounted(() => {
 
 button.eno-play-btn {
   display: inline-flex;
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   align-items: center;
   justify-content: center;
   border: 0;
   border-radius: 50%;
   color: #000;
-  background: #fff;
-  background-color: #fff;
+  background: var(--eno-primary);
   cursor: pointer;
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+  transition: transform 0.18s var(--eno-ease-pop), background-color 0.18s var(--eno-ease), box-shadow 0.18s var(--eno-ease);
 }
 
 button.eno-play-btn:hover {
   transform: scale(1.08);
-  background: #fff;
-  background-color: #fff;
+  background: var(--eno-primary-hover);
+  box-shadow: var(--eno-shadow-glow);
   color: #000;
 }
 
 button.eno-play-btn:active {
-  transform: scale(0.94);
+  transform: scale(0.92);
 }
 
 button.eno-play-btn .eno-play-icon {
   display: block;
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
   color: #000;
-  background-color: #000;
 }
 
 .eno-progress {
@@ -699,7 +718,8 @@ button.eno-play-btn .eno-play-icon {
   width: 100%;
   height: 4px;
   border-radius: 999px;
-  background: #4d4d4d;
+  background: var(--eno-fill-3);
+  box-shadow: inset 0 0 12px rgb(0 0 0 / 45%);
 }
 
 .eno-progress-fill {
@@ -707,11 +727,12 @@ button.eno-play-btn .eno-play-icon {
   left: 0;
   height: 4px;
   border-radius: 999px;
-  background: #fff;
+  background: var(--eno-primary);
+  box-shadow: 0 0 10px var(--eno-primary-glow);
 }
 
 .eno-progress-track:hover .eno-progress-fill {
-  background: #1ed760;
+  background: var(--eno-primary-hover);
 }
 
 .eno-progress-range {

@@ -3,10 +3,21 @@ import {
   extractWords,
   mergeAuxTrack,
   needsWordSpace,
+  normalizeSubtitleUrl,
   parseLyricBody,
   splitLyricTokens,
   synthesizeWords,
 } from '~/features/player/fetchLyrics'
+
+describe('normalizeSubtitleUrl', () => {
+  it('handles protocol-relative and http urls', () => {
+    expect(normalizeSubtitleUrl('//aisubtitle.hdslb.com/a.json')).toBe('https://aisubtitle.hdslb.com/a.json')
+    expect(normalizeSubtitleUrl('http://a.b/x.json')).toBe('https://a.b/x.json')
+    expect(normalizeSubtitleUrl('https://a.b/x.json')).toBe('https://a.b/x.json')
+    expect(normalizeSubtitleUrl('')).toBe('')
+    expect(normalizeSubtitleUrl(undefined)).toBe('')
+  })
+})
 
 describe('splitLyricTokens', () => {
   it('splits CJK per character and latin per word', () => {

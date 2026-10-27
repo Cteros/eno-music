@@ -225,35 +225,23 @@ html {
 
 .page-host {
   height: 100%;
+  transition: opacity 0.18s var(--eno-ease), transform 0.18s var(--eno-ease);
 }
 
 .page-host--hidden {
   display: none;
 }
 
+/* 每次从 display:none 恢复时播放轻量入场 */
+@starting-style {
+  .page-host {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
 .page-host > * {
   height: 100%;
-}
-
-*::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  cursor: pointer;
-  border: 3px solid transparent;
-  border-radius: 8px;
-  background-clip: padding-box;
-  background-color: rgb(255 255 255 / 30%);
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(255 255 255 / 50%);
 }
 
 img {

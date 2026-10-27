@@ -211,37 +211,42 @@ async function startCreate() {
   width: 100%;
   align-items: center;
   gap: 16px;
-  height: 40px;
+  height: 42px;
   padding: 0 12px;
-  border: 0;
-  border-radius: 4px;
-  color: #b3b3b3;
+  border: 1px solid transparent;
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-2);
   background: transparent;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   text-align: left;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease-pop);
 }
 
 .nav-item:hover,
 .foot-item:hover,
 .library-toggle:hover,
 .lib-item:hover {
-  color: #fff;
-  background: rgb(255 255 255 / 8%);
+  transform: translateX(2px);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
 }
 
 .nav-item:active,
 .foot-item:active,
 .lib-item:active {
-  background: #232323;
+  background: var(--eno-fill-2);
 }
 
 .nav-item--active,
 .foot-item--active,
 .lib-item--active {
-  color: #fff;
+  border-color: rgb(30 215 96 / 30%);
+  color: var(--eno-primary);
+  background: var(--eno-primary-light);
+  box-shadow: 0 0 16px rgb(30 215 96 / 12%);
 }
 
 .nav-icon {

@@ -27,8 +27,8 @@ const props = defineProps({
 
 const doc = ref<LyricDoc>(emptyLyricDoc())
 const loading = ref(false)
-const failed = ref(false)
 const scroller = ref<HTMLElement | null>(null)
+const reloadTick = ref(0)
 const showCrowd = useLocalStorage('showDanmaku', true)
 const showTrans = useLocalStorage('showLyricTrans', true)
 const showRomaji = useLocalStorage('showLyricRomaji', true)
@@ -78,15 +78,18 @@ function spaceBefore(line: LyricLine, index: number) {
 
 let fetchToken = 0
 
+function retry() {
+  reloadTick.value++
+}
+
 watch(
-  [() => props.bvid, () => props.cid],
+  [() => props.bvid, () => props.cid, reloadTick],
   async ([bvid, cid]) => {
     // 令牌防串歌：每次请求全程绑定同一 token，
     // 尤其是异步补 cid 之后再发请求前必须复查，
     // 否则会出现 bvid 是新歌、cid 是旧歌的混合参数（歌词就串视频了）
     const token = ++fetchToken
     doc.value = emptyLyricDoc()
-    failed.value = false
     if (!bvid) {
       loading.value = false
       return
@@ -100,6 +103,7 @@ watch(
           return
         cidValue = info?.data?.cid
       }
+      // fetchLyrics 内部已兜底重试，失败也不会抛
       const result = await fetchLyrics({ bvid, cid: cidValue })
       if (token !== fetchToken)
         return
@@ -108,8 +112,7 @@ watch(
     catch {
       if (token !== fetchToken)
         return
-      failed.value = true
-      doc.value = emptyLyricDoc()
+      doc.value = { ...emptyLyricDoc(), error: '歌词获取失败' }
     }
     finally {
       if (token === fetchToken)
@@ -165,8 +168,11 @@ watch(activeIndex, (index) => {
       <div v-if="loading" class="lyrics-hint">
         正在读取字幕…
       </div>
-      <div v-else-if="failed" class="lyrics-hint">
-        字幕加载失败
+      <div v-else-if="doc.error" class="lyrics-hint lyrics-hint--error">
+        <span>字幕加载失败</span>
+        <button type="button" class="lyric-retry" @click="retry">
+          重试
+        </button>
       </div>
       <div v-else-if="!lines.length" class="lyrics-hint">
         {{ crowd.length && showCrowd ? '没有字幕，下面是弹幕' : '这首没有可用字幕' }}
@@ -265,6 +271,8 @@ watch(activeIndex, (index) => {
   flex: 1;
   overflow: auto;
   padding: 28px 24px 16px;
+  /* 上下渐隐,滚出区边缘不做硬切 */
+  mask-image: linear-gradient(180deg, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
 }
 
 .lyrics-line {
@@ -350,6 +358,33 @@ watch(activeIndex, (index) => {
   justify-content: center;
   color: #b3b3b3;
   font-size: 14px;
+}
+
+.lyrics-hint--error {
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lyric-retry {
+  height: 30px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--eno-primary);
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s var(--eno-ease-pop), background-color 0.16s var(--eno-ease);
+}
+
+.lyric-retry:hover {
+  transform: scale(1.05);
+  background: var(--eno-primary-hover);
+}
+
+.lyric-retry:active {
+  transform: scale(0.95);
 }
 
 /* —— 全屏视频分栏模式：右列歌词 —— */

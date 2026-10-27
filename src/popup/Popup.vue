@@ -367,7 +367,7 @@ onUnmounted(() => {
   width: 320px;
   overflow: visible;
   padding: 0;
-  background: var(--eno-cover-dim, #121212);
+  background: var(--sp-base, #0e0e12);
   color: #fff;
 }
 
@@ -493,12 +493,23 @@ onUnmounted(() => {
   height: 4px;
   overflow: visible;
   border-radius: 999px;
-  background: #282828;
+  background: rgb(255 255 255 / 12%);
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--eno-primary, #1ed760);
+  box-shadow: 0 0 10px rgb(30 215 96 / 38%);
 }
 
 .progress-fill--live {
   width: 100%;
   background: #e91429;
+  box-shadow: 0 0 10px rgb(233 20 41 / 35%);
 }
 
 .live-badge {
@@ -570,17 +581,19 @@ input[type='range'] {
 }
 
 .play {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
-  background: #fff;
+  background: var(--eno-primary, #1ed760);
   color: #000;
   font-size: 22px;
-  transition: transform 0.16s var(--eno-ease);
+  transition: transform 0.18s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)), background-color 0.18s var(--eno-ease), box-shadow 0.18s var(--eno-ease);
 }
 
 .play:hover {
   transform: scale(1.08);
+  background: var(--eno-primary-hover, #3be477);
+  box-shadow: 0 8px 28px rgb(30 215 96 / 22%);
 }
 
 .play:active {

@@ -136,24 +136,6 @@ function getFollowings({ mid, pn = 1, ps = 50 }: { mid: number, pn?: number, ps?
   })
 }
 
-function getPlayerV2({ bvid, cid }: { bvid: string, cid: string | number }) {
-  const params = new URLSearchParams()
-  params.set('bvid', bvid)
-  params.set('cid', String(cid))
-  return efetch(`https://api.bilibili.com/x/player/v2?${params.toString()}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      Referer: 'https://www.bilibili.com/',
-    },
-  })
-}
-
-function fetchRemoteJson(url: string) {
-  const href = url.startsWith('http') ? url : `https:${url}`
-  return efetch(href, { method: 'GET', credentials: 'include' })
-}
-
 async function searchVideos(params: Record<string, any> = {}) {
   const web_keys = await getWbiKeys()
   const query = encWbi({
@@ -188,4 +170,4 @@ async function searchVideos(params: Record<string, any> = {}) {
   return json
 }
 
-export { addToBiliFavorite, createBiliFavoriteFolder, fetchRemoteJson, getBiliCsrf, getCollectedFavorites, getFavorites, getFollowings, getPlayerV2, getSeasonInfo, getUserArc, getUserInfo, searchVideos }
+export { addToBiliFavorite, createBiliFavoriteFolder, getBiliCsrf, getCollectedFavorites, getFavorites, getFollowings, getSeasonInfo, getUserArc, getUserInfo, searchVideos }

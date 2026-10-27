@@ -324,26 +324,51 @@ function searchFromHistory(query: string) {
 }
 
 .result-title {
-  margin: 8px 16px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 14px 16px 14px;
+  color: var(--eno-text-1, #fff);
+  font-family: var(--app-font-display, inherit);
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+.result-title::before {
+  width: 6px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--eno-primary, #1ed760);
+  box-shadow: 0 0 12px rgb(30 215 96 / 38%);
+  content: '';
+  transform: skewX(-8deg);
 }
 
 .empty-panel {
-  padding: 48px 32px;
-  color: #b3b3b3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 72px 32px;
+  color: var(--eno-text-4, #6f6f7a);
+  text-align: center;
 }
 
 .empty-panel h3 {
-  margin: 0 0 8px;
-  font-size: 24px;
-  font-weight: 700;
-  color: #fff;
+  margin: 0;
+  color: var(--eno-text-2, #a8a8b3);
+  font-family: var(--app-font-display, inherit);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .empty-panel p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
+  max-width: 320px;
+  line-height: 1.6;
 }
 
 .search-filters {
@@ -356,26 +381,30 @@ function searchFromHistory(query: string) {
 
 .filter-chip,
 .history-chip {
-  border: 0;
+  border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 999px;
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
-  background: #282828;
+  color: var(--eno-text-2, #a8a8b3);
+  background: rgb(255 255 255 / 5%);
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)), color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), box-shadow 0.16s var(--eno-ease);
 }
 
-.filter-chip--on,
+.filter-chip--on {
+  border-color: rgb(30 215 96 / 45%);
+  color: var(--eno-primary, #1ed760);
+  background: rgb(30 215 96 / 16%);
+  box-shadow: 0 0 16px rgb(30 215 96 / 14%);
+}
+
 .history-chip:hover,
 .filter-chip:hover {
-  background: #3e3e3e;
-}
-
-.filter-chip:hover,
-.history-chip:hover {
-  transform: scale(1.04);
+  transform: translateY(-1px);
+  border-color: rgb(255 255 255 / 16%);
+  background: rgb(255 255 255 / 10%);
+  color: var(--eno-text-1, #fff);
 }
 
 .filter-chip:active,
@@ -386,11 +415,11 @@ function searchFromHistory(query: string) {
 .author-filter {
   height: 32px;
   min-width: 140px;
-  border: 0;
+  border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 999px;
   padding: 0 12px;
   color: #fff;
-  background: #282828;
+  background: rgb(255 255 255 / 5%);
 }
 
 .history-block {

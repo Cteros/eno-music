@@ -1,4 +1,5 @@
-import { fetchRemoteJson, getPlayerV2, useApiClient } from '~/api'
+import { encWbi, getWbiKeys } from '~/api/wbi'
+import { sendExtMessage } from '~/shared/chromeApi'
 import { stripHtml } from '~/shared/playerBridge'
 
 export interface LyricWord {
@@ -20,6 +21,8 @@ export interface LyricDoc {
   lines: LyricLine[]
   hasTranslation: boolean
   hasRomaji: boolean
+  /** 有值表示获取失败（此时 lines 为空），UI 可展示原因并提供重试 */
+  error?: string
 }
 
 export function emptyLyricDoc(): LyricDoc {
@@ -171,32 +174,115 @@ export function mergeAuxTrack(lines: LyricLine[], aux: RawLine[], field: 'transl
   return merged
 }
 
+const FETCH_TIMEOUT = 8000
+const TOTAL_BUDGET = 12000
+
+function withTimeout<T>(pending: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    pending,
+    new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error(`${label}超时`)), ms)
+    }),
+  ])
+}
+
+/**
+ * 统一走 background 文本通道：页面上下文设不了 Referer，
+ * 而 webext-fetch 的 efetch 对非 JSON 响应无 catch 会永久挂起。
+ */
+async function fetchText(url: string): Promise<string> {
+  const result = await withTimeout(
+    sendExtMessage({ target: 'background', type: 'ENO_FETCH_TEXT', url }),
+    FETCH_TIMEOUT,
+    '字幕请求',
+  )
+  if (!result?.ok)
+    throw new Error(result?.error || '字幕请求失败')
+  return String(result?.data?.text || '')
+}
+
+async function fetchJsonSafe(url: string): Promise<any> {
+  const text = await fetchText(url)
+  const trimmed = text.trim()
+  if (!trimmed || trimmed.startsWith('<'))
+    throw new Error('字幕接口返回了网页而不是数据')
+  return JSON.parse(trimmed)
+}
+
+export function normalizeSubtitleUrl(raw?: string): string {
+  const value = String(raw || '').trim()
+  if (!value)
+    return ''
+  if (value.startsWith('//'))
+    return `https:${value}`
+  if (value.startsWith('http://'))
+    return `https://${value.slice('http://'.length)}`
+  return value
+}
+
+/** 字幕列表：x/player/wbi/v2（官方客户端同款，带 WBI 签名），失败退回无签名 */
+async function fetchSubtitleList(song: { bvid?: string, cid?: string | number, aid?: string | number }): Promise<any[]> {
+  // 注意 encWbi 会往 params 里塞 wts，兜底 URL 必须用干净副本
+  const base: Record<string, string> = { cid: String(song.cid) }
+  if (song.bvid)
+    base.bvid = String(song.bvid)
+  if (song.aid != null && song.aid !== '')
+    base.aid = String(song.aid)
+
+  const urls: string[] = []
+  try {
+    const keys = await withTimeout(getWbiKeys(), FETCH_TIMEOUT, 'WBI 签名')
+    urls.push(`https://api.bilibili.com/x/player/wbi/v2?${encWbi({ ...base }, keys.img_key, keys.sub_key)}`)
+  }
+  catch {
+    // 签名服务不可用时仍可试无签名接口
+  }
+  urls.push(`https://api.bilibili.com/x/player/wbi/v2?${new URLSearchParams({ ...base })}`)
+  urls.push(`https://api.bilibili.com/x/player/v2?${new URLSearchParams({ ...base })}`)
+
+  let lastError: unknown
+  for (const url of urls) {
+    try {
+      const json = await fetchJsonSafe(url)
+      if (json?.code && json.code !== 0) {
+        console.warn('[lyrics] player api code', json.code, json.message || '')
+        continue
+      }
+      const subtitles = json?.data?.subtitle?.subtitles
+      if (Array.isArray(subtitles))
+        return subtitles
+    }
+    catch (error) {
+      lastError = error
+    }
+  }
+  if (lastError)
+    throw lastError instanceof Error ? lastError : new Error(String(lastError))
+  return []
+}
+
 async function fetchSubtitleBody(subtitle: any): Promise<any[]> {
-  const url = subtitle?.subtitle_url
+  const url = normalizeSubtitleUrl(subtitle?.subtitle_url)
   if (!url)
     return []
-  const json = await fetchRemoteJson(url) as any
+  const json = await fetchJsonSafe(url)
   return Array.isArray(json?.body) ? json.body : []
 }
 
-export async function fetchLyrics(song: { bvid?: string, cid?: string | number } | null): Promise<LyricDoc> {
+async function loadLyrics(song: { bvid?: string, cid?: string | number, aid?: string | number }): Promise<LyricDoc> {
   const bvid = song?.bvid
   if (!bvid)
     return emptyLyricDoc()
 
   let cid = song.cid
   if (!cid) {
-    const api = useApiClient()
-    const info = await api.blbl.getVideoInfo({ bvid })
+    const info = await fetchJsonSafe(`https://api.bilibili.com/x/web-interface/view?bvid=${encodeURIComponent(bvid)}`)
     cid = info?.data?.cid
   }
   if (!cid)
     return emptyLyricDoc()
 
-  const player = await getPlayerV2({ bvid, cid }) as any
-  const subtitles: any[] = Array.isArray(player?.data?.subtitle?.subtitles)
-    ? player.data.subtitle.subtitles
-    : []
+  const subtitles = (await fetchSubtitleList({ ...song, cid })).filter(item => normalizeSubtitleUrl(item?.subtitle_url))
   const main = pickMainLan(subtitles)
   const mainBody = await fetchSubtitleBody(main)
   const lines: LyricLine[] = parseLyricBody(mainBody)
@@ -210,14 +296,47 @@ export async function fetchLyrics(song: { bvid?: string, cid?: string | number }
   const translationTrack = rest.find(item => !sameLang(item) && !/romaji|^ro/i.test(String(item?.lan || '')))
   const romajiTrack = pickByLan(rest, [/romaji/, /^ro$/, /ai-ro/])
 
+  // 翻译/罗马音轨失败不影响主歌词
   let hasTranslation = false
   let hasRomaji = false
   if (translationTrack) {
-    hasTranslation = mergeAuxTrack(lines, parseLyricBody(await fetchSubtitleBody(translationTrack)), 'translation') > 0
+    try {
+      hasTranslation = mergeAuxTrack(lines, parseLyricBody(await fetchSubtitleBody(translationTrack)), 'translation') > 0
+    }
+    catch {
+      hasTranslation = false
+    }
   }
   if (romajiTrack) {
-    hasRomaji = mergeAuxTrack(lines, parseLyricBody(await fetchSubtitleBody(romajiTrack)), 'romaji') > 0
+    try {
+      hasRomaji = mergeAuxTrack(lines, parseLyricBody(await fetchSubtitleBody(romajiTrack)), 'romaji') > 0
+    }
+    catch {
+      hasRomaji = false
+    }
   }
 
   return { lines, hasTranslation, hasRomaji }
+}
+
+/**
+ * 永不抛错：失败时返回 error 字段供 UI 展示并允许重试。
+ * 总预算兜底 + 一次整链重试，避免偶发网络抖动直接判死。
+ */
+export async function fetchLyrics(song: { bvid?: string, cid?: string | number, aid?: string | number } | null): Promise<LyricDoc> {
+  if (!song?.bvid)
+    return emptyLyricDoc()
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      return await withTimeout(loadLyrics(song), TOTAL_BUDGET, '歌词')
+    }
+    catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.warn(`[lyrics] attempt ${attempt + 1} failed`, message)
+      if (attempt === 1)
+        return { ...emptyLyricDoc(), error: message }
+    }
+  }
+  return emptyLyricDoc()
 }

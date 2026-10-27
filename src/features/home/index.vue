@@ -172,9 +172,15 @@ const nowPlaying = computed(() => {
       />
     </div>
 
-    <div v-else class="home-loading">
-      <div class="i-mingcute:loading-line animate-spin text-4xl mx-auto mb-4" />
-      <div>加载中...</div>
+    <div v-else class="home-skeleton">
+      <div v-for="n in 6" :key="n" class="skeleton-row">
+        <div class="eno-skeleton skeleton-rank" />
+        <div class="eno-skeleton skeleton-cover" />
+        <div class="skeleton-lines">
+          <div class="eno-skeleton skeleton-title" />
+          <div class="eno-skeleton skeleton-sub" />
+        </div>
+      </div>
     </div>
 
     <div class="continue-head artist-head">
@@ -375,17 +381,70 @@ const nowPlaying = computed(() => {
   text-align: center;
 }
 
-.home-loading {
-  padding: 80px 32px;
-  text-align: center;
-  color: #b3b3b3;
+.home-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 32px 24px;
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 52px 48px 1fr;
+  align-items: center;
+  gap: 14px;
+  height: 60px;
+  padding: 0 16px;
+}
+
+.skeleton-rank {
+  width: 36px;
+  height: 26px;
+}
+
+.skeleton-cover {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--eno-radius-md);
+}
+
+.skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-title {
+  width: min(42%, 280px);
+  height: 15px;
+}
+
+.skeleton-sub {
+  width: min(24%, 160px);
+  height: 11px;
 }
 
 .section-title {
-  margin: 24px 32px 16px;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 28px 32px 16px;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.section-title::before {
+  width: 7px;
+  height: 22px;
+  border-radius: 3px;
+  background: var(--eno-primary);
+  box-shadow: 0 0 14px var(--eno-primary-glow);
+  content: '';
+  transform: skewX(-8deg);
 }
 
 .artist-head {

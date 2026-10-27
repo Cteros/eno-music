@@ -87,20 +87,23 @@ function goTo(id, index) {
 .rank-chip {
   flex-shrink: 0;
   height: 28px;
-  border: 0;
+  border: 1px solid rgb(255 255 255 / 8%);
   border-radius: 999px;
   padding: 0 12px;
-  color: #fff;
-  background: rgb(255 255 255 / 10%);
-  font-size: 13px;
-  font-weight: 600;
+  color: var(--eno-text-2);
+  background: rgb(255 255 255 / 6%);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease), color 0.16s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease-pop), color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), box-shadow 0.16s var(--eno-ease);
 }
 
 .rank-chip:hover:not(.rank-chip--active) {
-  transform: scale(1.04);
-  background: rgb(255 255 255 / 16%);
+  transform: translateY(-1px);
+  border-color: rgb(255 255 255 / 16%);
+  background: rgb(255 255 255 / 10%);
+  color: var(--eno-text-1);
 }
 
 .rank-chip:active {
@@ -108,7 +111,9 @@ function goTo(id, index) {
 }
 
 .rank-chip--active {
-  color: #000;
-  background: #1ed760;
+  border-color: rgb(30 215 96 / 50%);
+  color: var(--eno-primary);
+  background: rgb(30 215 96 / 16%);
+  box-shadow: 0 0 16px rgb(30 215 96 / 18%);
 }
 </style>

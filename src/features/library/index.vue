@@ -518,19 +518,25 @@ watch(userInfo, () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border: 0;
-  border-radius: 8px;
+  border: 1px solid var(--eno-border, rgb(255 255 255 / 7%));
+  border-radius: var(--eno-radius-xl, 16px);
   padding: 12px;
   text-align: left;
   color: #fff;
-  background: #181818;
+  background: var(--eno-content, #16161c);
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
+  transition:
+    background-color 0.2s var(--eno-ease),
+    transform 0.2s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)),
+    border-color 0.2s var(--eno-ease),
+    box-shadow 0.2s var(--eno-ease);
 }
 
 .playlist-tile:hover {
-  background: #282828;
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  border-color: rgb(255 255 255 / 14%);
+  background: var(--eno-content-hover, #26262f);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 45%), 0 0 24px rgb(30 215 96 / 10%);
 }
 
 .playlist-tile:active {
