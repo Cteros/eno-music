@@ -56,6 +56,7 @@ export type PlayerMessageType
     | 'ENO_PLAYER_STATE'
     | 'ENO_VIZ'
     | 'ENO_RESOLVE_URL'
+    | 'ENO_FETCH_TEXT'
     | 'ENO_STORAGE_GET'
     | 'ENO_STORAGE_SET'
 
@@ -128,6 +129,7 @@ export interface PlayerEnvelope {
   keys?: string | string[] | Record<string, unknown> | null
   items?: Record<string, unknown>
   viz?: VizBands
+  url?: string
 }
 
 export interface PlayerMessageResult {

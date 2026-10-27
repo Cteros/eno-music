@@ -20,6 +20,7 @@ const props = defineProps({
     type: Number,
     default: 1,
   },
+  lyricsOpen: Boolean,
 })
 
 const videoDom = ref<HTMLVideoElement | null>(null)
@@ -28,11 +29,13 @@ let lastTarget = 0
 let playGen = 0
 let activeUrl = ''
 let refreshLeft = 2
+let refreshToken = 0
 
 watch(
   () => props.videoUrl,
   (url) => {
     refreshLeft = 2
+    refreshToken++
     activeUrl = url || ''
   },
   { immediate: true },
@@ -201,6 +204,7 @@ async function refreshVideoUrl() {
   if (!props.song || refreshLeft <= 0)
     return false
   refreshLeft -= 1
+  const token = ++refreshToken
   try {
     const result = await sendPlayerMessage({
       type: 'ENO_RESOLVE_URL',
@@ -211,6 +215,9 @@ async function refreshVideoUrl() {
         dash: undefined,
       },
     })
+    // 切歌后旧响应不能回填，否则新视频会顶着旧视频的地址
+    if (token !== refreshToken)
+      return false
     const next = result?.song?.video
     if (!result?.ok || !next)
       return false
@@ -273,7 +280,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <VideoStage :cover="cover">
+  <VideoStage :cover="cover" :split="lyricsOpen">
     <video
       ref="videoDom"
       class="video-el"

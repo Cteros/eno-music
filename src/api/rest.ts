@@ -142,6 +142,7 @@ function getPlayerV2({ bvid, cid }: { bvid: string, cid: string | number }) {
   params.set('cid', String(cid))
   return efetch(`https://api.bilibili.com/x/player/v2?${params.toString()}`, {
     method: 'GET',
+    credentials: 'include',
     headers: {
       Referer: 'https://www.bilibili.com/',
     },
@@ -150,7 +151,7 @@ function getPlayerV2({ bvid, cid }: { bvid: string, cid: string | number }) {
 
 function fetchRemoteJson(url: string) {
   const href = url.startsWith('http') ? url : `https:${url}`
-  return efetch(href, { method: 'GET' })
+  return efetch(href, { method: 'GET', credentials: 'include' })
 }
 
 async function searchVideos(params: Record<string, any> = {}) {

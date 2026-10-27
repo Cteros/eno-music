@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import type { DanmakuHit } from './fetchDanmaku'
 import { Drawer, LoopSwitch, MessageAPI } from '@cloudfly/eno-ui'
 import { useLocalStorage } from '@vueuse/core'
+import { useApiClient } from '~/api'
 import SongItem from '~/shared/components/SongItem.vue'
 import { sendPlayerMessage, songKey } from '~/shared/playerBridge'
 import { useEqStore, useLibraryStore, useUiStore } from '~/stores'
+import DanmakuOverlay from './DanmakuOverlay.vue'
+import { loadDanmakuCached } from './fetchDanmaku'
 import useControl from './keys'
 import LiveVideo from './LiveVideo.vue'
 import Lyrics from './Lyrics.vue'
@@ -45,7 +49,41 @@ const {
 
 const showList = ref(false)
 const showLyrics = useLocalStorage('showLyrics', false)
+const showDanmakuFloat = useLocalStorage('showDanmakuFloat', true)
+const danmakuHits = ref<DanmakuHit[]>([])
 const isLive = computed(() => store.play?.eno_song_type === 'live')
+
+// 多源写法：store.play 每次引擎发布都会被新对象覆盖，
+// 单 getter 返回数组会让 watch 每 250ms 误触发、把弹幕清空
+let danmakuToken = 0
+
+watch(
+  [() => store.play?.bvid, () => store.play?.cid],
+  async ([bvid, cid]) => {
+    const token = ++danmakuToken
+    danmakuHits.value = []
+    if (!bvid || isLive.value)
+      return
+    let cidValue = cid
+    if (!cidValue) {
+      try {
+        const info = await useApiClient().blbl.getVideoInfo({ bvid })
+        // 补 cid 后复查令牌，避免用旧歌的 cid 去拉新歌的弹幕
+        if (token !== danmakuToken)
+          return
+        cidValue = info?.data?.cid
+      }
+      catch {
+        return
+      }
+    }
+    const hits = await loadDanmakuCached(cidValue)
+    if (token !== danmakuToken)
+      return
+    danmakuHits.value = hits
+  },
+  { immediate: true },
+)
 
 useControl({
   play: () => playControl(),
@@ -254,11 +292,29 @@ onUnmounted(() => {
         />
         <div
           v-if="!isLive"
-          class="i-mingcute:music-2-fill eno-ctrl"
-          :class="{ 'eno-ctrl--on': showLyrics }"
-          title="歌词"
-          @click.stop="showLyrics = !showLyrics"
-        />
+          class="eno-toggle-group"
+          role="group"
+          aria-label="歌词与弹幕"
+        >
+          <button
+            type="button"
+            class="eno-toggle"
+            :class="{ 'eno-toggle--on': showLyrics }"
+            title="歌词"
+            @click.stop="showLyrics = !showLyrics"
+          >
+            词
+          </button>
+          <button
+            type="button"
+            class="eno-toggle"
+            :class="{ 'eno-toggle--on': showDanmakuFloat }"
+            title="弹幕"
+            @click.stop="showDanmakuFloat = !showDanmakuFloat"
+          >
+            弹
+          </button>
+        </div>
         <div class="i-tabler:playlist eno-ctrl" @click="toggleList" />
         <div
           v-if="fullScreenStatus"
@@ -287,11 +343,20 @@ onUnmounted(() => {
         </Drawer>
       </div>
     </div>
+    <!-- 歌词开启时：全屏视频左侧、歌词右侧分栏 -->
     <Lyrics
       v-if="showLyrics && !isLive"
+      :layout="ui.showVideo ? 'split' : 'overlay'"
       :bvid="store.play.bvid"
       :cid="store.play.cid"
       :current="progress.current"
+      :crowd="danmakuHits"
+    />
+    <DanmakuOverlay
+      :hits="danmakuHits"
+      :current="progress.current"
+      :split="showLyrics && ui.showVideo"
+      :enabled="showDanmakuFloat && ui.showVideo && !isLive"
     />
     <LiveVideo
       v-if="ui.showVideo && isLive"
@@ -307,6 +372,7 @@ onUnmounted(() => {
       :cover="store.play.cover"
       :audio-time="progress.current"
       :audio-rate="rate"
+      :lyrics-open="showLyrics"
     />
   </section>
 </template>
@@ -477,6 +543,41 @@ onUnmounted(() => {
 }
 
 .eno-ctrl--on {
+  color: #1ed760;
+}
+
+/* 右下角「词 / 弹」分段开关 */
+.eno-toggle-group {
+  display: inline-flex;
+  height: 26px;
+  padding: 2px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 5%);
+  overflow: hidden;
+}
+
+.eno-toggle {
+  min-width: 30px;
+  height: 100%;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #8a8a8a;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.14s var(--eno-ease), background-color 0.14s var(--eno-ease);
+}
+
+.eno-toggle:hover {
+  color: #fff;
+}
+
+.eno-toggle--on {
+  background: rgb(30 215 96 / 16%);
   color: #1ed760;
 }
 

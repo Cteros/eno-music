@@ -103,6 +103,17 @@ async function handleBackgroundMessage(envelope: PlayerEnvelope) {
     return { ok: true, song }
   }
 
+  // 弹幕等纯文本资源：页面上下文设不了 Referer，统一由后台代发
+  if (envelope.type === 'ENO_FETCH_TEXT') {
+    const response = await fetch(String(envelope.url || ''), {
+      credentials: 'include',
+      headers: {
+        Referer: 'https://www.bilibili.com/',
+      },
+    })
+    return { ok: response.ok, data: { text: await response.text() } }
+  }
+
   if (envelope.type === 'ENO_PLAYER_PLAY' && envelope.song && !envelope.song.url)
     envelope.song = await resolvePlayUrl(envelope.song)
 

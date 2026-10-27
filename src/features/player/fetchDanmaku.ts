@@ -1,3 +1,5 @@
+import { sendExtMessage } from '~/shared/chromeApi'
+
 export interface DanmakuHit {
   time: number
   text: string
@@ -69,16 +71,14 @@ export function danmakuDensity(items: DanmakuHit[], current: number) {
 }
 
 async function readXml(url: string) {
-  const response = await fetch(url, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      Referer: 'https://www.bilibili.com/',
-    },
+  const result = await sendExtMessage({
+    target: 'background',
+    type: 'ENO_FETCH_TEXT',
+    url,
   })
-  if (!response.ok)
-    throw new Error(`弹幕 ${response.status}`)
-  return response.text()
+  if (!result?.ok)
+    throw new Error(`弹幕 ${result?.error || '获取失败'}`)
+  return String(result?.data?.text || '')
 }
 
 export async function fetchDanmaku(cid?: string | number | null): Promise<DanmakuHit[]> {
@@ -101,4 +101,19 @@ export async function fetchDanmaku(cid?: string | number | null): Promise<Danmak
   catch {
     return []
   }
+}
+
+const danmakuCache = new Map<string, Promise<DanmakuHit[]>>()
+
+/** 按 cid 缓存，歌词面板与上屏浮层共用一次请求 */
+export function loadDanmakuCached(cid?: string | number | null): Promise<DanmakuHit[]> {
+  if (cid == null || cid === '')
+    return Promise.resolve([])
+  const key = String(cid)
+  let pending = danmakuCache.get(key)
+  if (!pending) {
+    pending = fetchDanmaku(cid).catch(() => [] as DanmakuHit[])
+    danmakuCache.set(key, pending)
+  }
+  return pending
 }

@@ -5,6 +5,7 @@ import { useUiStore } from '~/stores'
 defineProps({
   cover: String,
   badge: String,
+  split: Boolean,
 })
 
 const ui = useUiStore()
@@ -29,7 +30,7 @@ onBeforeUnmount(() => {
 
 <template>
   <Teleport to="body">
-    <div v-show="ui.showVideo" class="video-stage">
+    <div v-show="ui.showVideo" class="video-stage" :class="{ 'video-stage--split': split }">
       <button
         class="video-close"
         type="button"
@@ -66,6 +67,18 @@ onBeforeUnmount(() => {
   justify-content: center;
   overflow: hidden;
   background: #000;
+  transition: padding-right 0.28s var(--eno-ease);
+}
+
+/* 歌词分栏：视频居中于左列，右列留给歌词 */
+.video-stage--split {
+  padding-right: 42%;
+}
+
+/* 分栏时右上角被歌词列占据，关闭按钮移到视频列左上 */
+.video-stage--split .video-close {
+  right: auto;
+  left: 16px;
 }
 
 .video-aura {
