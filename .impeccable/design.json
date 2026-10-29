@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-29T00:34:39+08:00",
+  "title": "Design System: ENO-M · 铅字印刷与朱印",
+  "sourceOfTruth": {
+    "tokens": "src/styles/variables.css",
+    "componentLanguage": "src/styles/eno.css",
+    "baseLayer": "src/styles/main.css",
+    "fonts": "src/assets/fonts/eno-serif.css (ENO Serif = Noto Serif SC 900, OFL 1.1, 101 woff2 shards)"
+  },
+  "tokens": {
+    "colors": {
+      "ink": { "value": "#16151a", "varName": "--lp-ink", "usage": "主区墨底；固定不随封面漂移" },
+      "ink-deep": { "value": "#100f13", "varName": "--lp-ink-deep", "usage": "html 底、popup 底、深墨层" },
+      "ink-2": { "value": "#1d1b22", "varName": "--lp-ink-2", "usage": "抬升面：卡片、播放条、Dialog" },
+      "ink-3": { "value": "#262330", "varName": "--lp-ink-3", "usage": "高抬升面：hover 抬升、Popover/Toast" },
+      "paper": { "value": "#f0ebdd", "varName": "--lp-paper", "usage": "一级文字；墨底 15.25:1" },
+      "paper-2": { "value": "#c9c2b1", "varName": "--lp-paper-2", "usage": "二级文字；墨底 10.24:1" },
+      "paper-3": { "value": "#9c9482", "varName": "--lp-paper-3", "usage": "三级文字（占位/提示/空态）；墨底 6.03:1" },
+      "paper-4": { "value": "#7c7466", "varName": "--lp-paper-4", "usage": "仅大字与非文本（30px 排名、marker、手柄）；墨底 3.93:1" },
+      "seal": { "value": "#b5342a", "varName": "--lp-seal", "usage": "朱红落印色：主按钮、进度填充、::selection 底" },
+      "seal-bright": { "value": "#d9564a", "varName": "--lp-seal-bright", "usage": "墨底强调：印章字边、error、focus outline、caret；墨底 4.65:1" },
+      "seal-deep": { "value": "#8f271e", "varName": "--lp-seal-deep", "usage": "主操作 hover/active 按压底" },
+      "seal-on-fill": { "value": "#ef8477", "usage": "朱红浅底上的文字（激活 chip、在听曲名）；14% 浅底上 6.12:1（eno.css / SongItem.vue 字面值）" },
+      "seal-tint": { "value": "rgb(181 52 42 / 14%)", "varName": "--eno-primary-light", "usage": "激活 chip、危险 hover 底" },
+      "seal-tint-active": { "value": "rgb(181 52 42 / 16%)", "usage": "侧栏当前项、eno-ui 激活 tab 底（Sider.vue / eno.css 字面值）" },
+      "indigo": { "value": "#3a4a6b", "varName": "--lp-indigo", "usage": "靛蓝色板身份深色；不做小字" },
+      "indigo-light": { "value": "#7d93bd", "varName": "--lp-indigo-light", "usage": "链接、info 状态；墨底 5.86:1" },
+      "border-hairline": { "value": "rgb(240 235 221 / 12%)", "varName": "--eno-border", "usage": "细栏线：分隔、卡片边、输入框边、小图框" },
+      "rule-double": { "value": "rgb(240 235 221 / 38%)", "usage": "3px double 栏头线与播放条顶线（eno.css / Play.vue 字面值）" },
+      "fill-1": { "value": "rgb(240 235 221 / 5%)", "varName": "--eno-fill-1", "usage": "hover 浮墨" },
+      "fill-2": { "value": "rgb(240 235 221 / 9%)", "varName": "--eno-fill-2", "usage": "激活底、次级按钮底" },
+      "fill-3": { "value": "rgb(240 235 221 / 14%)", "varName": "--eno-fill-3", "usage": "进度轨、更强底" },
+      "fill-4": { "value": "rgb(240 235 221 / 20%)", "varName": "--eno-fill-4", "usage": "最强纸浮阶" },
+      "fill-dark-1": { "value": "rgb(12 10 8 / 18%)", "varName": "--eno-fill-dark-1", "usage": "墨沉阶保留值（当前无消费点）" },
+      "fill-dark-2": { "value": "rgb(12 10 8 / 26%)", "varName": "--eno-fill-dark-2", "usage": "墨沉阶保留值（当前无消费点）" },
+      "fill-dark-3": { "value": "rgb(12 10 8 / 34%)", "varName": "--eno-fill-dark-3", "usage": "墨沉阶保留值（当前无消费点）" },
+      "fill-dark-4": { "value": "rgb(12 10 8 / 44%)", "varName": "--eno-fill-dark-4", "usage": "墨沉阶保留值（当前无消费点）" },
+      "status-green": { "value": "#22c55e", "usage": "success 语义（eno-ui 语义色，保留承载意义）" },
+      "status-amber": { "value": "#f59e0b", "usage": "warning 语义（eno-ui 语义色，保留承载意义）" }
+    },
+    "typography": {
+      "display": {
+        "fontFamily": "'ENO Serif', 'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif",
+        "fontSize": "clamp(38px, 4.4vw, 54px)",
+        "fontWeight": 900,
+        "lineHeight": 1.12,
+        "letterSpacing": "0.04em",
+        "usage": "首页大字标题（home/index.vue）"
+      },
+      "vertical-masthead": {
+        "fontFamily": "'ENO Serif', 'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif",
+        "fontSize": "13px",
+        "fontWeight": 900,
+        "letterSpacing": "0.42em",
+        "usage": "书脊式竖排刊头条（writing-mode: vertical-rl; text-orientation: mixed）"
+      },
+      "headline": {
+        "fontFamily": "'ENO Serif', 'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif",
+        "fontSize": "21px",
+        "fontWeight": 900,
+        "lineHeight": 1.25,
+        "letterSpacing": "0.06em",
+        "usage": "双线栏头；「曲目表」栏头用 0.28em 宽字距（home/index.vue .col-title）"
+      },
+      "title": {
+        "fontFamily": "'ENO Serif', 'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif",
+        "fontSize": "17px",
+        "fontWeight": 900,
+        "lineHeight": 1.35,
+        "letterSpacing": "0.02em",
+        "usage": "曲目行曲名、空态标题"
+      },
+      "rank": {
+        "fontFamily": "'ENO Serif', 'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif",
+        "fontSize": "30px",
+        "fontWeight": 900,
+        "lineHeight": 1,
+        "letterSpacing": "0",
+        "fontFeature": "tabular-nums",
+        "usage": "榜单排名铅字数字（.eno-rank）"
+      },
+      "body": {
+        "fontFamily": "'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif",
+        "fontSize": "14px",
+        "lineHeight": 1.6,
+        "usage": "全局正文（body 基线）"
+      },
+      "meta": {
+        "fontFamily": "'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif",
+        "fontSize": "12px",
+        "fontWeight": 500,
+        "letterSpacing": "0.12em",
+        "usage": "栏头右则小字（期数/首数）、行内小字条"
+      },
+      "label": {
+        "fontFamily": "'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif",
+        "fontSize": "12px",
+        "fontWeight": 600,
+        "letterSpacing": "0.04em",
+        "usage": "标签片、ghost 按钮（13px 600 0.04em 变体）"
+      },
+      "data": {
+        "fontFamily": "'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace",
+        "fontSize": "12px",
+        "fontFeature": "tabular-nums",
+        "usage": "时长 m:ss、时间码（右齐）"
+      },
+      "seal-glyph": {
+        "fontFamily": "'ENO Serif', 'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif",
+        "fontSize": "13px",
+        "fontWeight": 900,
+        "lineHeight": 1,
+        "letterSpacing": "0.12em",
+        "usage": "印章字（sm 变体 10px；配 text-indent 0.12em）"
+      }
+    },
+    "radius": {
+      "sm": { "value": "2px", "varName": "--eno-radius-sm", "usage": "行、chip、小图框、印章方章、滚动条 thumb" },
+      "md": { "value": "3px", "varName": "--eno-radius-md", "usage": "按钮、输入框、Toast" },
+      "lg": { "value": "4px", "varName": "--eno-radius-lg", "usage": "Dialog" },
+      "xl": { "value": "6px", "varName": "--eno-radius-xl", "usage": "卡片（上限；圆角永不超过 6px）" },
+      "round": { "value": "50%", "usage": "印章圆章、播放圆盘（圆是印章特权形）" }
+    },
+    "spacing": {
+      "row-gap": { "value": "14px", "usage": "行内条目间距（SongItem、侧栏项）" },
+      "inline-row": { "value": "12px", "usage": "行 padding、chip padding" },
+      "section-gap": { "value": "16px", "usage": "栏头 margin-bottom（其下另有 padding-bottom 8px）" },
+      "page-top": { "value": "26px", "usage": "主区内页上边距" },
+      "page-inline": { "value": "48px", "usage": "主区内页左右边距" },
+      "page-bottom": { "value": "32px", "usage": "主区内页下边距" },
+      "dock-inline": { "value": "32px", "usage": "播放条左右边距" },
+      "empty-block": { "value": "56px", "usage": "空态上下留白（水平 24px）" }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 2px rgb(12 10 8 / 40%)", "varName": "--eno-shadow-sm", "purpose": "小件轻抬（带偏移与柔化）" },
+      { "name": "shadow-md", "value": "0 6px 18px rgb(12 10 8 / 48%)", "varName": "--eno-shadow-md", "purpose": "卡片/瓦片 hover 抬升" },
+      { "name": "shadow-lg", "value": "0 16px 40px rgb(12 10 8 / 55%)", "varName": "--eno-shadow-lg", "purpose": "浮层（Toast）" },
+      { "name": "shadow-glow", "value": "0 6px 18px rgb(181 52 42 / 28%)", "varName": "--eno-shadow-glow", "purpose": "朱晕：只用于播放圆盘 hover（印泥未干）" },
+      { "name": "glow-ring", "value": "0 0 0 1px rgb(240 235 221 / 18%), 0 6px 18px rgb(12 10 8 / 45%)", "varName": "--eno-glow-ring", "purpose": "声明保留值（当前构建无消费点）" }
+    ],
+    "motion": [
+      { "name": "eno-ease", "value": "cubic-bezier(0.22, 0.61, 0.24, 1)", "varName": "--eno-ease", "purpose": "标准缓动：一切状态过渡（0.16s 交互 / 0.18–0.22s 抬升件 / 0.4s 封面交叉淡入）" },
+      { "name": "eno-ease-pop", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "varName": "--eno-ease-pop", "purpose": "钤印缓动：只用于印章落下与圆钮按压" },
+      { "name": "eno-stamp", "value": "0.34s cubic-bezier(0.16, 1, 0.3, 1) both", "keyframes": "0% opacity 0 / scale(1.5) rotate(-10deg) → 70% opacity 1 → 100% opacity 1 / scale(1) rotate(-4deg)", "purpose": "「在听」钤印落下——全系统唯一署名动效" },
+      { "name": "eno-skeleton-shimmer", "value": "1.4s ease infinite", "keyframes": "background-position 100% 50% → 0 50%", "purpose": "骨架屏微光" },
+      { "name": "page-transition", "value": "0.18s var(--eno-ease)", "keyframes": "enter: opacity 0 + translateY(10px) → 1/0；leave → opacity 0 + translateY(-6px)", "purpose": "视图切换" }
+    ],
+    "reducedMotion": {
+      "media": "prefers-reduced-motion: reduce",
+      "rule": "button, .eno-ctrl, .icon-btn, .action-icon, .play-all, .playlist-tile, .continue-card, .singer-card, .eno-seal → transition: color 0.01ms, background-color 0.01ms !important; transform: none !important; animation: none !important；封面交叉淡入 transition: none。印章以静态终态（rotate(-4deg)）呈现。"
+    },
+    "statusColors": {
+      "error": { "mapsTo": "seal-bright", "value": "#d9564a", "usage": "错误图标/声明、destructive 边框 rgb(217 86 74 / 50%)" },
+      "info": { "mapsTo": "indigo-light", "value": "#7d93bd", "usage": "info 图标、链接" },
+      "success": { "mapsTo": "status-green", "value": "#22c55e", "usage": "成功语义（保留语义绿，只承载意义）" },
+      "warning": { "mapsTo": "status-amber", "value": "#f59e0b", "usage": "警告语义（保留语义琥珀，只承载意义）" }
+    },
+    "browserSurfaces": {
+      "selection": { "color": "#f0ebdd", "background": "#b5342a", "usage": "::selection 纸字朱底" },
+      "caret": { "value": "#d9564a", "usage": "input/textarea caret-color" },
+      "focusVisible": { "value": "outline: 2px solid #d9564a; outline-offset: 2px", "usage": "全元素 :focus-visible" },
+      "scrollbar": { "value": "scrollbar-width: thin; scrollbar-color: rgb(240 235 221 / 22%) transparent; thumb 10px 宽 / 3px 透明边 / 2px 圆角 / hover rgb(240 235 221 / 36%)", "usage": "细纸色滚动条，透明轨" },
+      "link": { "color": "#7d93bd", "hover": "#f0ebdd", "decoration": "underline offset 3px, thickness 1px", "usage": "正文链接" },
+      "code": { "value": "等宽 85%、fill-1 底、细栏线边、2px 圆角", "usage": "行内代码" },
+      "tabularFigures": { "value": ".num, .tabular, time → font-variant-numeric: tabular-nums", "usage": "数据类数字一律等宽对齐" }
+    },
+    "layout": {
+      "sidebarWidth": "220px",
+      "sidebarWidthCollapsed": "72px",
+      "dockHeight": "104px",
+      "dockBorderTop": "3px double rgb(240 235 221 / 38%)",
+      "mainHeight": "calc(100% - 104px)",
+      "trackRowHeight": "64px",
+      "popupWidth": "320px",
+      "playerGrid": "minmax(240px, 1fr) minmax(360px, 1.6fr) minmax(240px, 1fr) · padding 0 32px · gap 24px",
+      "responsive": [
+        { "breakpoint": "1100px", "rule": "播放条三栏收缩 0.9/1.4/0.9（padding 0 12px, gap 10px），隐藏音量滑杆" },
+        { "breakpoint": "860px", "rule": "隐藏作者行与迷你操作" }
+      ]
+    }
+  },
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "neutral", "displayName": "墨底", "canonical": "#16151a", "tonalRamp": ["#100f13", "#16151a", "#1d1b22", "#262330"] },
+      "ink-deep": { "role": "neutral", "displayName": "深墨", "canonical": "#100f13" },
+      "ink-2": { "role": "neutral", "displayName": "抬升面", "canonical": "#1d1b22" },
+      "ink-3": { "role": "neutral", "displayName": "高抬升面", "canonical": "#262330" },
+      "paper": { "role": "neutral", "displayName": "纸色", "canonical": "#f0ebdd", "tonalRamp": ["#f0ebdd", "#c9c2b1", "#9c9482", "#7c7466"] },
+      "paper-2": { "role": "neutral", "displayName": "纸色 2", "canonical": "#c9c2b1" },
+      "paper-3": { "role": "neutral", "displayName": "纸色 3", "canonical": "#9c9482" },
+      "paper-4": { "role": "neutral", "displayName": "纸色 4", "canonical": "#7c7466" },
+      "seal": { "role": "primary", "displayName": "朱红 Seal", "canonical": "#b5342a", "tonalRamp": ["#8f271e", "#b5342a", "#d9564a", "#ef8477"] },
+      "seal-bright": { "role": "primary", "displayName": "亮朱", "canonical": "#d9564a" },
+      "seal-deep": { "role": "primary", "displayName": "深朱", "canonical": "#8f271e" },
+      "seal-on-fill": { "role": "primary", "displayName": "印泥提亮", "canonical": "#ef8477" },
+      "indigo": { "role": "secondary", "displayName": "靛蓝", "canonical": "#3a4a6b", "tonalRamp": ["#3a4a6b", "#7d93bd"] },
+      "indigo-light": { "role": "secondary", "displayName": "亮靛", "canonical": "#7d93bd" },
+      "status-green": { "role": "status", "displayName": "语义绿", "canonical": "#22c55e" },
+      "status-amber": { "role": "status", "displayName": "语义琥珀", "canonical": "#f59e0b" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display 大字标题", "purpose": "首页 clamp 大字标题；宋体声部只说内容的名字。" },
+      "vertical-masthead": { "displayName": "竖排刊头条", "purpose": "书脊式竖排（vertical-rl）；字距 0.42em。" },
+      "headline": { "displayName": "Headline 栏头", "purpose": "双线栏头；「曲目表」栏头 0.28em 宽字距。" },
+      "title": { "displayName": "Title 行题", "purpose": "曲目行曲名、空态标题。" },
+      "rank": { "displayName": "Rank 铅字数字", "purpose": "30px 榜单排名；tabular-nums。" },
+      "body": { "displayName": "Body 正文", "purpose": "系统黑体声部：操作与说明。" },
+      "meta": { "displayName": "Meta 小字条", "purpose": "栏头右则小字（眉题信息唯一合法位置）。" },
+      "label": { "displayName": "Label 标签", "purpose": "标签片与按钮。" },
+      "data": { "displayName": "Data 数据", "purpose": "等宽 + tabular-nums；时长 m:ss 右齐。" },
+      "seal-glyph": { "displayName": "印章字", "purpose": "「印」「在听」「待听」「已听」。" }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 2px rgb(12 10 8 / 40%)", "purpose": "小件轻抬" },
+      { "name": "shadow-md", "value": "0 6px 18px rgb(12 10 8 / 48%)", "purpose": "hover 抬升" },
+      { "name": "shadow-lg", "value": "0 16px 40px rgb(12 10 8 / 55%)", "purpose": "浮层" },
+      { "name": "shadow-glow", "value": "0 6px 18px rgb(181 52 42 / 28%)", "purpose": "朱晕：只用于播放圆盘 hover" },
+      { "name": "glow-ring", "value": "0 0 0 1px rgb(240 235 221 / 18%), 0 6px 18px rgb(12 10 8 / 45%)", "purpose": "声明保留值（无消费点）" }
+    ],
+    "motion": [
+      { "name": "eno-ease", "value": "cubic-bezier(0.22, 0.61, 0.24, 1)", "purpose": "标准缓动" },
+      { "name": "eno-ease-pop", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "钤印缓动（印章落下与圆钮按压专用）" },
+      { "name": "eno-stamp", "value": "0.34s cubic-bezier(0.16, 1, 0.3, 1) both", "purpose": "唯一署名动效「钤印落下」" },
+      { "name": "eno-skeleton-shimmer", "value": "1.4s ease infinite", "purpose": "骨架屏微光" },
+      { "name": "page-transition", "value": "0.18s cubic-bezier(0.22, 0.61, 0.24, 1)", "purpose": "视图切换" }
+    ],
+    "breakpoints": [
+      { "name": "player-shrink", "value": "1100px" },
+      { "name": "player-compact", "value": "860px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "双线栏头 Section Header",
+      "kind": "custom",
+      "refersTo": "section-header",
+      "description": "宋体 21px 900 栏头 + 3px 双线；眉题信息在右则小字，标题之上无 kicker。",
+      "html": "<div class=\"ds-section\"><h2 class=\"ds-section__title\">曲目表</h2><span class=\"ds-section__sub\">第 228 期 · 20 首</span></div>",
+      "css": ".ds-section { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 3px double rgb(240 235 221 / 38%); } .ds-section__title { margin: 0; color: var(--lp-paper); font-family: var(--app-font-display); font-size: 21px; font-weight: 900; letter-spacing: 0.06em; line-height: 1.25; } .ds-section__sub { margin-left: auto; color: var(--lp-paper-3); font-family: var(--app-font-sans); font-size: 12px; font-weight: 500; letter-spacing: 0.12em; }"
+    },
+    {
+      "name": "曲目行 Track Row",
+      "kind": "custom",
+      "refersTo": "track-row",
+      "description": "内页式行表：编号 / 曲名宋体 17px / 小字条 / 时长等宽 m:ss 右齐；hover 浮墨、激活 fill-2、在听行尾落印。",
+      "html": "<div class=\"ds-row ds-row--active\"><span class=\"ds-row__rank\">03</span><div class=\"ds-row__body\"><div class=\"ds-row__title\">群青</div><div class=\"ds-row__meta\">YOASOBI · 音乐榜</div></div><span class=\"ds-row__dur\">4:08</span><span class=\"ds-seal ds-seal--round ds-seal--sm\">在听</span></div>",
+      "css": ".ds-row { display: flex; align-items: center; gap: 14px; height: 64px; padding: 0 12px; border-radius: var(--eno-radius-sm); color: var(--lp-paper-2); transition: background-color 0.18s var(--eno-ease); } .ds-row:hover { background: var(--eno-fill-1); } .ds-row--active { background: var(--eno-fill-2); } .ds-row__rank { min-width: 28px; color: var(--lp-paper-4); font-family: var(--app-font-display); font-size: 21px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; } .ds-row--active .ds-row__rank { color: var(--lp-paper); } .ds-row__body { min-width: 0; flex: 1; } .ds-row__title { overflow: hidden; color: var(--lp-paper); font-family: var(--app-font-display); font-size: 17px; font-weight: 900; letter-spacing: 0.02em; line-height: 1.35; white-space: nowrap; text-overflow: ellipsis; } .ds-row--active .ds-row__title { color: var(--lp-seal-bright); } .ds-row__meta { color: var(--lp-paper-3); font-size: 12px; line-height: 1.5; } .ds-row__dur { margin-left: auto; color: var(--lp-paper-3); font-family: var(--app-font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "朱印 Seal",
+      "kind": "custom",
+      "refersTo": "seal-round",
+      "description": "签名组件：圆印=状态钤记（在听/待听/已听），方印=品牌落款「印」；带 eno-stamp 钤印落下动效。",
+      "html": "<span class=\"ds-seal ds-seal--round\">在听</span> <span class=\"ds-seal\">印</span>",
+      "css": ".ds-seal { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 34px; height: 34px; border: 2px solid var(--lp-seal-bright); border-radius: var(--eno-radius-sm); color: var(--lp-seal-bright); font-family: var(--app-font-serif); font-size: 13px; font-weight: 900; letter-spacing: 0.12em; line-height: 1; text-indent: 0.12em; transform: rotate(-4deg); box-shadow: inset 0 0 0 2px var(--lp-ink), inset 0 0 0 3px rgb(217 86 74 / 55%); user-select: none; animation: ds-eno-stamp 0.34s cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-seal--round { border-radius: 50%; } .ds-seal--sm { width: 26px; height: 26px; font-size: 10px; border-width: 1.5px; box-shadow: inset 0 0 0 1.5px var(--lp-ink), inset 0 0 0 2.5px rgb(217 86 74 / 55%); } @keyframes ds-eno-stamp { 0% { opacity: 0; transform: scale(1.5) rotate(-10deg); } 70% { opacity: 1; } 100% { opacity: 1; transform: scale(1) rotate(-4deg); } } @media (prefers-reduced-motion: reduce) { .ds-seal { animation: none; } }"
+    },
+    {
+      "name": "播放圆盘 Play Disc",
+      "kind": "button",
+      "refersTo": "button-disc",
+      "description": "主操作：52px 朱红正圆；hover 深朱 + 上抬 + 朱晕（系统唯一发光处）。",
+      "html": "<button class=\"ds-disc\" aria-label=\"播放全部\">▶</button>",
+      "css": ".ds-disc { display: inline-flex; width: 52px; height: 52px; align-items: center; justify-content: center; border: 0; border-radius: 50%; color: var(--lp-paper); background: var(--lp-seal); font-size: 22px; cursor: pointer; transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease); } .ds-disc:hover { transform: translateY(-1px); background: var(--lp-seal-deep); box-shadow: var(--eno-shadow-glow); } .ds-disc:active { transform: translateY(1px); } .ds-disc:focus-visible { outline: 2px solid var(--lp-seal-bright); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost 按钮",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "次级文字按钮：36px 高方角 3px；hover 浮墨，active 轻缩；danger 变体转亮朱。",
+      "html": "<button class=\"ds-ghost\">稍后再听</button> <button class=\"ds-ghost ds-ghost--danger\">删除</button>",
+      "css": ".ds-ghost { height: 36px; padding: 0 14px; border: 0; border-radius: var(--eno-radius-md); color: var(--lp-paper-2); background: transparent; font-family: var(--app-font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease); } .ds-ghost:hover { color: var(--lp-paper); background: var(--eno-fill-1); } .ds-ghost:active { transform: scale(0.97); } .ds-ghost--danger:hover { color: var(--lp-seal-bright); background: var(--eno-primary-light); } .ds-ghost:focus-visible { outline: 2px solid var(--lp-seal-bright); outline-offset: 2px; }"
+    },
+    {
+      "name": "标签片 Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "方角纸片；激活=亮朱边 + 朱红浅底 + 印泥提亮字。",
+      "html": "<span class=\"ds-chip\">全部</span> <span class=\"ds-chip ds-chip--on\">在听</span>",
+      "css": ".ds-chip { display: inline-flex; height: 28px; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid var(--eno-border); border-radius: var(--eno-radius-sm); background: var(--eno-fill-1); color: var(--lp-paper-2); font-family: var(--app-font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease); } .ds-chip:hover { border-color: rgb(240 235 221 / 28%); color: var(--lp-paper); } .ds-chip--on { border-color: var(--lp-seal-bright); background: var(--eno-primary-light); color: #ef8477; }"
+    },
+    {
+      "name": "输入框 Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "细栏线 + 浮墨底 + 方角 3px；focus 亮朱边不发光。",
+      "html": "<input class=\"ds-input\" placeholder=\"搜歌名、UP 主或 BV 号\" />",
+      "css": ".ds-input { box-sizing: border-box; border: 1px solid var(--eno-border); border-radius: var(--eno-radius-md); color: var(--lp-paper); background: var(--eno-fill-1); outline: none; padding: 8px 16px; font-family: var(--app-font-sans); font-size: 14px; caret-color: var(--lp-seal-bright); transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease); } .ds-input::placeholder { color: var(--lp-paper-3); } .ds-input:focus { border-color: var(--lp-seal-bright); background: var(--eno-fill-2); box-shadow: none; } .ds-input:focus-visible { outline: 2px solid var(--lp-seal-bright); outline-offset: 2px; }"
+    },
+    {
+      "name": "空态 Empty State",
+      "kind": "custom",
+      "refersTo": "empty-state",
+      "description": "纵排居中：56px 方角图标框 + 宋体标题 + 13px 提示；错误态配中文问题句 + 恢复动作。",
+      "html": "<div class=\"ds-empty\"><span class=\"ds-empty__icon\">册</span><div class=\"ds-empty__title\">这里还是空的</div><div class=\"ds-empty__hint\">去首页点一首歌，它会出现在这里。</div></div>",
+      "css": ".ds-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 56px 24px; color: var(--lp-paper-3); text-align: center; } .ds-empty__icon { display: inline-flex; width: 56px; height: 56px; align-items: center; justify-content: center; border: 1px solid var(--eno-border); border-radius: var(--eno-radius-md); color: var(--lp-paper-3); font-size: 28px; } .ds-empty__title { color: var(--lp-paper-2); font-family: var(--app-font-display); font-size: 17px; font-weight: 900; letter-spacing: 0.04em; } .ds-empty__hint { max-width: 320px; font-family: var(--app-font-sans); font-size: 13px; line-height: 1.7; }"
+    },
+    {
+      "name": "骨架屏 Skeleton",
+      "kind": "custom",
+      "refersTo": "skeleton",
+      "description": "纸浮阶微光骨架；reduced-motion 下静止。",
+      "html": "<div class=\"ds-skeleton\" style=\"width:38%;height:16px\"></div><div class=\"ds-skeleton\" style=\"width:22%;height:11px\"></div>",
+      "css": ".ds-skeleton { overflow: hidden; border-radius: var(--eno-radius-sm); background: linear-gradient(90deg, var(--eno-fill-1) 25%, var(--eno-fill-2) 37%, var(--eno-fill-1) 63%); background-size: 400% 100%; animation: ds-skeleton-shimmer 1.4s ease infinite; } @keyframes ds-skeleton-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } } @media (prefers-reduced-motion: reduce) { .ds-skeleton { animation: none; } }"
+    },
+    {
+      "name": "Toast 浮层",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "eno-ui MessageAPI 重皮：细栏线边 + 方角 3px + 抬升面底 + 阴影·大；图标按语义着色。",
+      "html": "<div class=\"ds-toast\"><span class=\"ds-toast__icon ds-toast__icon--info\">i</span><span class=\"ds-toast__text\">已添加到稍后再听</span></div>",
+      "css": ".ds-toast { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border: 1px solid var(--eno-border); border-radius: var(--eno-radius-md); background: rgb(38 35 48 / 96%); box-shadow: 0 16px 40px rgb(12 10 8 / 55%); } .ds-toast__text { color: var(--lp-paper); font-family: var(--app-font-sans); font-size: 14px; font-weight: 500; letter-spacing: 0.02em; } .ds-toast__icon { font-size: 20px; } .ds-toast__icon--info { color: var(--lp-indigo-light); } .ds-toast__icon--error { color: var(--lp-seal-bright); } .ds-toast__icon--success { color: #22c55e; } .ds-toast__icon--warning { color: #f59e0b; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "铅字印刷与朱印",
+    "overview": "整个应用是一页铅字书：墨底是纸张的负片，纸色文字是排上去的铅字，正在播放的曲目在行尾盖一枚圆形「在听」朱印。这是 Operate 模式（工具型界面）——密度高、动作快、无表演性装饰；但每一个界面元素都来自同一套印刷语汇：细栏线分栏、双线栏头立目、宋体大字说内容、黑体小字说操作、时长以等宽 m:ss 右齐。拒绝品类默认的「封面网格 + 卡片流 + 发光圆角」。\n\n世界的核心动作是钤印。听歌像在书页上盖章：榜单即曲目表，点一行即播，当前行尾落下圆印「在听」，播放条封面右下角盖同一枚章呼应。形制有语义——方印是品牌落款（「印」），圆印是状态钤记（「在听」「待听」「已听」）。朱红因此是落印色而非填充色：它只出现在印章、强调文字、进度与主操作上，屏幕上的大面积永远是墨与纸。",
+    "keyCharacteristics": [
+      "墨底固定（#16151a）：主区不随封面漂移；封面只在播放舞台做氛围 wash。",
+      "双声部排版：自托管 Noto Serif SC 900（'ENO Serif'）说「内容的名字」，系统黑体栈说「操作与说明」，等宽栈 + tabular-nums 承载所有数字列。",
+      "印刷组件语言：1px 细栏线（rgb(240 235 221 / 12%)）、3px 双线栏头（rgb(240 235 221 / 38%)）、2/3/4/6px 方角、内页式行表（编号 / 曲名大字 / 小字条 / 时长右齐）。",
+      "唯一署名动效：eno-stamp「在听」钤印落下（0.34s，cubic-bezier(0.16, 1, 0.3, 1)）；其余动效全部是 0.16–0.22s 的状态过渡。",
+      "浏览器表面也属于设计：::selection 纸字朱底、caret 朱红、细纸色滚动条、:focus-visible 朱红 outline。",
+      "中文问题句 + 恢复动作的错误策略：error.message 不上屏（src/shared/zhError.ts）。"
+    ],
+    "rules": [
+      { "name": "The Rare Seal Rule（朱印稀有律）", "body": "朱红是落印色，不是装饰色：同一屏上朱红元素应可数（印章、主操作、进度、强调各一）；出现第二块大面积朱红即是缺陷。", "section": "colors" },
+      { "name": "The One-Base Rule（单墨底律）", "body": "主区永远是墨底 #16151a；封面取色（CoverStage wash）只允许做播放舞台的氛围层，禁止把导航、卡片、播放条染成封面色。", "section": "colors" },
+      { "name": "The Meaning-Carrying Green Rule（语义绿律）", "body": "绿与琥珀只承载 success / warning 语义（#22c55e / #f59e0b），永不用于装饰、品牌或强调；error 走朱红、info 走靛蓝。", "section": "colors" },
+      { "name": "The Two Voices Rule（双声部律）", "body": "宋体只说「内容的名字」（标题、曲名、栏头、印章、排名），黑体只说「操作与说明」（按钮、导航、提示、meta）。任何新界面先分声部再排版；一个界面里宋体字出现的地方应当是它的「题目」。", "section": "typography" },
+      { "name": "The Tabular Rule（等宽数字律）", "body": "一切数字列——时长、时间码、排名、期数——用等宽栈 + tabular-nums；时长格式为 m:ss（分不补零、秒补零）右齐。缺数据时留空槽，不以横杠或估算值填塞。", "section": "typography" },
+      { "name": "The Column Rule（栏线律）", "body": "分区靠线不靠色块：分隔用 1px 细栏线，立目用 3px 双线；禁止用粗色边框、渐变或阴影条分区。栏头右则小字（12px 0.12em）是眉题信息的唯一合法位置。", "section": "layout" },
+      { "name": "The Flat Page Rule（平页律）", "body": "静止的面是平的：阴影只作为状态响应（hover 抬升、浮层离页）出现，恢复静止即收回；把阴影当常驻装饰即违背铅字印刷的平纸质感。", "section": "elevation" },
+      { "name": "The Square Corner Rule（方角律）", "body": "圆角只取 2/3/4/6px 四档；圆角超过 6px 或使用胶囊形，除非它是印章或播放圆盘。", "section": "shapes" },
+      { "name": "The Two Seal Shapes Rule（两形制律）", "body": "方印＝品牌落款「印」（侧栏品牌行）；圆印＝状态钤记（「在听」「待听」「已听」），必须行尾与封面同章同形。分享卡纸面例外：用圆印形制 + 纸色变体落「印」。", "section": "shapes" },
+      { "name": "The One Signature Motion Rule（唯一署名动效律）", "body": "0.34s 的钤印落下是系统里唯一允许「表演」的动效；其余动效只做 0.16–0.22s 的状态反馈或 0.18s 的视图切换。新界面不得引入第二个表演性动效。", "section": "components" }
+    ],
+    "dos": [
+      "Do 用 3px 双线（rgb(240 235 221 / 38%)）立栏头、用 1px 细栏线（rgb(240 235 221 / 12%)）做其余一切分隔。",
+      "Do 把期数/首数等眉题信息放进栏头右则小字（12px 500 0.12em）。",
+      "Do 正文只用纸色 1–3 与亮朱（≥12px 粗体）；纸色 4 只给 ≥24px 大字与图形。",
+      "Do 时长列用等宽 tabular m:ss 右齐；数据不提供 duration（B 站音乐榜）时留空槽，不放占位符。",
+      "Do 错误文案写成中文问题句 + 恢复动作（zhError 统一入口），error.message 不上屏。",
+      "Do 让「在听」圆印在行尾与封面同章同形；品牌落款只用方印「印」。",
+      "Do 扩展 eno-ui 组件时用 body .eu-* 双类选择器覆盖，并以 state-dialog / state-toast 证据复查无库默认色泄漏。",
+      "Do 尊重 prefers-reduced-motion，让钤印以静态章呈现。"
+    ],
+    "donts": [
+      "Don't 在标题之上放 kicker/eyebrow 眉题（craft-floor 禁项；信息移到栏头右则）。",
+      "Don't 用超过 1px 的彩色侧边框（craft-floor 禁项；侧栏当前项恰好 1px 左边）。",
+      "Don't 让封面取色染指主区——墨底固定，wash 只在 CoverStage 舞台层。",
+      "Don't 把朱红当大面积填充或装饰色；不要在非语义处引入绿/琥珀。",
+      "Don't 圆角超过 6px、加胶囊形、给按钮加辉光（朱晕只属于播放圆盘 hover）。",
+      "Don't 引入第二个表演性动效，或把 eno-stamp 复用到非印章组件。",
+      "Don't 用比例数字排时长/排名列，或以横杠、估算值填补缺失时长。",
+      "Don't 在 popup 里复刻书页构图（无竖排刊头、无双线栏头、无行表、hover 不藏信息）。",
+      "Don't 开启玻璃/模糊滤镜（--eno-filter-glass-* 保持 none）。"
+    ]
+  },
+  "tradeoffs": [
+    { "id": 1, "title": "主区固定墨底", "body": "CoverStage 封面取色（accent/wash/dim，取像素均值并压暗：wash = 均值×0.22 + 基准 18×0.78）只做播放舞台氛围层：封面图 grayscale(1) contrast(1.12) brightness(0.55)、透明度 0.2（播放中 0.26），其上叠 70% wash / 30% 深墨色罩；导航、卡片、播放条、行表不变色。" },
+    { "id": 2, "title": "eno-ui 共享库的绿值以覆盖代替改库", "body": "@cloudfly/eno-ui 自带样式文本仍含默认绿（#1db954 等 6 处规则），但所有可达绿色规则被 body .eu-* 双类选择器（特指度 0,2,1+ > 库 0,2,0）压制，运行时零呈现（PROVENANCE.md：state-dialog.png / state-toast.png）。库内文本属遗留漂移，未写成本系统规则；新增 eu-* 表面必须带同款覆盖。" },
+    { "id": 3, "title": "榜单时长空槽", "body": "B 站音乐榜 API 不提供 duration，榜单行时长列留空槽；搜索 / 收藏夹 / 合集等数据提供处显示 m:ss。" },
+    { "id": 4, "title": "错误文案策略", "body": "src/shared/zhError.ts 统一翻译：网络类错误给统一中文说法「网络没通，请稍后重试」，中文业务错误保留原文，其余交调用点中文兜底；error.message 不上屏，声明 + 恢复动作成对出现。" },
+    { "id": 5, "title": "craft-floor 禁项优先于构图骨架", "body": "FIRST VIEWPORT 的 kicker 眉题被删除（信息移入双线栏头右则小字）；>1px 彩色侧边框禁用（当前项恰好 1px）。禁项不因构图需要而复活。" },
+    { "id": 6, "title": "声明但未消费的保留值", "body": "--eno-fill-dark-1..4、--eno-filter-glass-*（恒为 none）、--eno-glow-ring、--eno-primary-glow、--eno-cover-accent 在 variables.css 中声明、当前构建无消费点；按保留位记录，不代表既有视觉惯例。" }
+  ],
+  "provenance": {
+    "screenshots": ".impeccable/review/PROVENANCE.md",
+    "buildDate": "2026-10-29",
+    "note": "出货截图由 scripts/review-shots.mjs 以 Playwright + Chromium 加载生产构建捕获，数据为真实 B 站公开数据；eno-ui 默认绿值被覆盖的实证见 state-dialog.png 与 state-toast.png。"
+  }
+}

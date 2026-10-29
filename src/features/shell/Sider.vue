@@ -58,8 +58,9 @@ async function startCreate() {
   <aside :class="asideClass">
     <div class="sider-nav">
       <button class="brand-row" type="button" @click="open = !open">
-        <div class="i-mingcute:disc-fill brand-icon" />
+        <div class="i-tabler:vinyl brand-icon" />
         <span v-if="open" class="brand-text">ENO-M</span>
+        <span v-if="open" class="brand-seal eno-seal eno-seal--sm">印</span>
       </button>
       <button
         v-for="tab in primaryTabs"
@@ -122,7 +123,7 @@ async function startCreate() {
             alt=""
           >
           <div v-else class="lib-cover lib-cover--empty">
-            <div class="i-mingcute:folder-fill" />
+            <div class="i-tabler:folder" />
           </div>
           <span v-if="open" class="lib-text">
             {{ playlist.name }}
@@ -148,11 +149,13 @@ async function startCreate() {
 <style scoped>
 .sider-shell {
   display: flex;
-  width: 280px;
-  height: calc(100% - 88px);
+  width: 220px;
+  height: calc(100% - 104px);
   flex-shrink: 0;
   flex-direction: column;
-  gap: 8px;
+  gap: 18px;
+  padding: 22px 12px 12px;
+  border-right: 1px solid var(--eno-border);
 }
 
 .sider-shell--collapsed {
@@ -163,44 +166,47 @@ async function startCreate() {
 .sider-library {
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
-  background: #121212;
 }
 
 .sider-nav {
-  padding: 8px 12px 12px;
-  gap: 4px;
+  gap: 2px;
 }
 
 .sider-library {
   min-height: 0;
   flex: 1;
-  padding: 8px 8px 12px;
 }
 
 .brand-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 40px;
-  padding: 0 12px;
+  gap: 10px;
+  height: 48px;
+  margin-bottom: 12px;
+  padding: 0 10px;
   border: 0;
-  border-radius: 4px;
-  color: #fff;
+  color: var(--eno-text-1);
   background: transparent;
   cursor: pointer;
 }
 
 .brand-icon {
-  width: 24px;
-  height: 24px;
-  font-size: 24px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  font-size: 22px;
+  color: var(--eno-text-2);
 }
 
 .brand-text {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--app-font-display);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.brand-seal {
+  margin-left: auto;
 }
 
 .nav-item,
@@ -210,26 +216,27 @@ async function startCreate() {
   display: flex;
   width: 100%;
   align-items: center;
-  gap: 16px;
-  height: 42px;
-  padding: 0 12px;
-  border: 1px solid transparent;
-  border-radius: var(--eno-radius-md);
+  gap: 14px;
+  height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-left: 1px solid transparent;
+  border-radius: var(--eno-radius-sm);
   color: var(--eno-text-2);
   background: transparent;
+  font-family: var(--app-font-sans);
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   text-align: left;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease-pop);
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
 }
 
 .nav-item:hover,
 .foot-item:hover,
 .library-toggle:hover,
 .lib-item:hover {
-  transform: translateX(2px);
   color: var(--eno-text-1);
   background: var(--eno-fill-1);
 }
@@ -243,56 +250,50 @@ async function startCreate() {
 .nav-item--active,
 .foot-item--active,
 .lib-item--active {
-  border-color: rgb(30 215 96 / 30%);
-  color: var(--eno-primary);
-  background: var(--eno-primary-light);
-  box-shadow: 0 0 16px rgb(30 215 96 / 12%);
+  border-left-color: var(--lp-seal-bright);
+  color: var(--lp-paper);
+  background: rgb(181 52 42 / 16%);
+  font-weight: 600;
 }
 
 .nav-icon {
-  width: 24px;
-  height: 24px;
-  font-size: 24px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+  font-size: 22px;
 }
 
 .library-head {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  padding: 4px 0 8px;
+  padding: 4px 0 10px;
+  border-bottom: 1px solid var(--eno-border);
+  margin-bottom: 8px;
 }
 
 .library-toggle {
   flex: 1;
   min-width: 0;
-  color: #b3b3b3;
-  font-size: 16px;
+  height: 32px;
+  color: var(--eno-text-3);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
 }
 
 .library-add {
   display: inline-flex;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #b3b3b3;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-3);
   background: transparent;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.library-add:hover {
-  color: #fff;
-  background: #1a1a1a;
-  transform: scale(1.08);
-}
-
-.library-add:active {
-  transform: scale(0.9);
 }
 
 .sider-scroll {
@@ -300,7 +301,7 @@ async function startCreate() {
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -313,20 +314,16 @@ async function startCreate() {
 }
 
 .lib-item {
-  height: 48px;
+  height: 44px;
   font-size: 14px;
-  font-weight: 600;
-}
-
-.lib-item--active {
-  background: #1a1a1a;
+  font-weight: 500;
 }
 
 .lib-icon {
-  width: 24px;
-  height: 24px;
-  font-size: 20px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+  font-size: 20px;
 }
 
 .lib-text {
@@ -335,7 +332,7 @@ async function startCreate() {
   flex: 1;
   flex-direction: column;
   overflow: hidden;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .lib-text,
@@ -347,18 +344,17 @@ async function startCreate() {
 
 .lib-text small {
   margin-top: 2px;
-  color: #7a7a7a;
+  color: var(--eno-text-3);
   font-size: 12px;
   font-weight: 500;
 }
 
 .lib-label {
-  padding: 12px 12px 6px;
-  color: #7a7a7a;
+  padding: 16px 10px 6px;
+  color: var(--eno-text-3);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.32em;
 }
 
 .lib-playlist {
@@ -366,10 +362,11 @@ async function startCreate() {
 }
 
 .lib-cover {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-  border-radius: 4px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
   object-fit: cover;
 }
 
@@ -377,8 +374,8 @@ async function startCreate() {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #b3b3b3;
-  background: #2a2a2a;
+  color: var(--eno-text-3);
+  background: var(--eno-fill-1);
 }
 
 .sider-foot {
@@ -386,13 +383,14 @@ async function startCreate() {
   flex-shrink: 0;
   flex-direction: column;
   gap: 2px;
-  padding-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--eno-border);
 }
 
 .foot-item {
   height: 36px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .sider-shell--collapsed .nav-item,
@@ -403,5 +401,9 @@ async function startCreate() {
   justify-content: center;
   padding: 0;
   gap: 0;
+}
+
+.sider-shell--collapsed .brand-seal {
+  display: none;
 }
 </style>

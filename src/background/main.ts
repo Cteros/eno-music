@@ -148,7 +148,7 @@ function applyBadge(state?: PlayerPopupState) {
   const playing = Boolean(state?.isPlaying)
   action.setBadgeText({ text: playing ? 'ON' : '' })
   if (playing && action.setBadgeBackgroundColor)
-    action.setBadgeBackgroundColor({ color: '#1ed760' })
+    action.setBadgeBackgroundColor({ color: '#b5342a' })
   if (action.setTitle) {
     const song = state?.title && state.title !== '暂无歌曲' ? state.title : ''
     action.setTitle({

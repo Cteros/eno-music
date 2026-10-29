@@ -48,13 +48,15 @@ function handleAddToExisting() {
 
 <template>
   <Dialog :open="PLStore.openCollection" title="分P数据" @visible-change="vis => PLStore.openCollection = vis">
-    <SongItem v-for="song in PLStore.collectionSongs" :key="song.id" :song="song" size="mini" />
+    <div class="collection-list">
+      <SongItem v-for="song in PLStore.collectionSongs" :key="song.id" :song="song" size="mini" />
+    </div>
     <template #footer>
       <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
         <select
           v-if="PLStore.list.length"
           v-model="targetPlaylistId"
-          class="bg-$eno-fill-4 rounded-2 px-3 py-2 min-w-40"
+          class="eno-input pick-select"
         >
           <option v-for="playlist in PLStore.list" :key="playlist.id" :value="playlist.id">
             {{ playlist.name }}
@@ -63,10 +65,22 @@ function handleAddToExisting() {
         <button v-if="PLStore.list.length" class="btn" @click="handleAddToExisting">
           添加到歌单
         </button>
-        <button class="btn" @click="handleCreateCollection">
-          新建成歌单
+        <button class="btn-primary" @click="handleCreateCollection">
+          新建歌单
         </button>
       </div>
     </template>
   </Dialog>
 </template>
+
+<style scoped>
+.collection-list :deep(.song-item) {
+  border-bottom: 1px solid var(--eno-border);
+}
+
+.pick-select {
+  height: 36px;
+  min-width: 160px;
+  padding: 0 10px;
+}
+</style>

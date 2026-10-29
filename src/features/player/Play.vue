@@ -177,8 +177,13 @@ onUnmounted(() => {
         >
           <img class="eno-cover" :class="{ 'eno-cover--playing': isPlaying }" :src="store.play.cover">
           <div class="eno-cover-mask" :class="{ 'eno-cover-mask--on': ui.showVideo }">
-            <i :class="ui.showVideo ? 'i-mingcute:close-line text-lg' : 'i-mingcute:fullscreen-2-line text-lg'" />
+            <i :class="ui.showVideo ? 'i-tabler:x text-lg' : 'i-tabler:arrows-maximize text-lg'" />
           </div>
+          <span
+            v-if="isPlaying"
+            class="dock-seal eno-seal eno-seal--round eno-seal--stamp"
+            aria-hidden="true"
+          >在听</span>
         </span>
         <div class="eno-meta">
           <div class="eno-title">
@@ -198,8 +203,8 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="eno-mini-actions">
-          <div class="i-mingcute:star-fill w-1em h-1em cursor-pointer" @click.stop="PLstore.startAddSong(store.play)" />
-          <div class="i-mingcute:information-fill w-1em h-1em cursor-pointer" @click.stop="openBlTab" />
+          <div class="i-tabler:star w-1em h-1em cursor-pointer" title="加入歌单" @click.stop="PLstore.startAddSong(store.play)" />
+          <div class="i-tabler:info-circle w-1em h-1em cursor-pointer" title="在 B 站打开" @click.stop="openBlTab" />
           <ShareCard />
         </div>
       </div>
@@ -220,7 +225,7 @@ onUnmounted(() => {
           <div class="i-tabler:player-track-prev-filled eno-ctrl" @click.stop="change('prev')" />
           <button
             type="button"
-            class="eno-play-btn"
+            class="eno-play-disc eno-play-main"
             aria-label="播放/暂停"
             @click.stop="playControl"
           >
@@ -271,8 +276,8 @@ onUnmounted(() => {
       </div>
 
       <div class="eno-right">
-        <div v-if="isCloseVoice" class="i-mingcute:volume-mute-line eno-ctrl" @click.stop="setVoice" />
-        <div v-else class="i-mingcute:volume-line eno-ctrl" @click.stop="setVoice" />
+        <div v-if="isCloseVoice" class="i-tabler:volume-off eno-ctrl" title="取消静音" @click.stop="setVoice" />
+        <div v-else class="i-tabler:volume eno-ctrl" title="静音" @click.stop="setVoice" />
         <input
           v-if="!isCloseVoice"
           id="voice-progress"
@@ -318,13 +323,13 @@ onUnmounted(() => {
         <div class="i-tabler:playlist eno-ctrl" @click="toggleList" />
         <div
           v-if="fullScreenStatus"
-          class="i-mingcute:fullscreen-exit-fill eno-ctrl"
+          class="i-tabler:arrows-minimize eno-ctrl"
           title="退出全屏"
           @click.stop="fullScreenTheBody"
         />
         <div
           v-else
-          class="i-mingcute:fullscreen-fill eno-ctrl"
+          class="i-tabler:arrows-maximize eno-ctrl"
           title="进入全屏"
           @click.stop="fullScreenTheBody"
         />
@@ -377,7 +382,8 @@ onUnmounted(() => {
   </section>
 </template>
 
-<style>
+<style scoped>
+/* —— 播放条：内页书页的页脚（dock 总高 104px，与 App 壳层对齐）—— */
 .eno-player {
   position: fixed;
   right: 0;
@@ -385,10 +391,9 @@ onUnmounted(() => {
   left: 0;
   z-index: 20;
   display: flex;
-  height: 80px;
-  border-top: 1px solid var(--eno-border);
-  background: rgb(14 14 18 / 92%);
-  backdrop-filter: blur(18px);
+  height: 104px;
+  border-top: 3px double rgb(240 235 221 / 38%);
+  background: var(--lp-ink-2);
 }
 
 .eno-player-shell {
@@ -396,53 +401,55 @@ onUnmounted(() => {
   grid-template-columns: minmax(240px, 1fr) minmax(360px, 1.6fr) minmax(240px, 1fr);
   width: 100%;
   height: 100%;
-  padding: 0 16px;
+  padding: 0 32px;
   align-items: center;
-  gap: 16px;
-  color: #fff;
+  gap: 24px;
+  color: var(--eno-text-1);
 }
 
+/* —— 左：封套小图 + 曲名宋体大字 —— */
 .eno-left {
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 12px;
+  gap: 14px;
 }
 
 .eno-cover {
-  width: 56px;
-  height: 56px;
-  border-radius: 4px;
+  display: block;
+  width: 66px;
+  height: 66px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
   object-fit: cover;
-  transition: transform 0.3s var(--eno-ease);
+  transition: border-color 0.18s var(--eno-ease);
 }
 
-/* 播放中封面轻微呼吸 */
 .eno-cover--playing {
-  animation: eno-cover-breathe 3.2s var(--eno-ease) infinite;
+  border-color: rgb(217 86 74 / 45%);
 }
 
-@keyframes eno-cover-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgb(30 215 96 / 0%);
-  }
-
-  50% {
-    transform: scale(1.03);
-    box-shadow: 0 0 18px 2px rgb(30 215 96 / 18%);
-  }
+/* 封面角落的「在听」朱印：与曲目行同一枚章 */
+.dock-seal {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  z-index: 2;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  pointer-events: none;
 }
 
 .eno-cover-mask {
   position: absolute;
   inset: 0;
-  border-radius: 4px;
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgb(0 0 0 / 50%);
+  border-radius: var(--eno-radius-sm);
+  background: rgb(16 15 19 / 66%);
+  color: var(--lp-paper);
 }
 
 .group:hover .eno-cover-mask,
@@ -459,10 +466,18 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.3;
-  color: #fff;
+  overflow: hidden;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.eno-title > span {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -470,28 +485,32 @@ onUnmounted(() => {
 
 .eno-live-badge {
   flex-shrink: 0;
-  padding: 1px 6px;
-  border-radius: 2px;
-  background: #e91429;
+  padding: 2px 7px;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-seal);
+  color: var(--lp-paper);
+  font-family: var(--app-font-sans);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
 }
 
 .eno-live-line {
   flex: 1;
-  height: 4px;
-  border-radius: 99px;
-  background: #e91429;
+  height: 3px;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-seal);
 }
 
 .eno-author {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 2px;
-  font-size: 11px;
-  color: #b3b3b3;
+  margin-top: 5px;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
+  font-size: 12px;
+  letter-spacing: 0.02em;
 }
 
 .eno-author span {
@@ -503,89 +522,262 @@ onUnmounted(() => {
 
 .eno-retry {
   flex-shrink: 0;
-  height: 18px;
+  height: 20px;
   padding: 0 8px;
-  border: 0;
-  border-radius: 999px;
-  background: #1ed760;
-  color: #000;
+  border: 1px solid var(--lp-seal-bright);
+  border-radius: var(--eno-radius-sm);
+  background: transparent;
+  color: var(--lp-seal-bright);
+  font-family: var(--app-font-sans);
   font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), color 0.16s var(--eno-ease);
+}
+
+.eno-retry:hover {
+  background: var(--eno-primary-light);
 }
 
 .eno-mini-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 16px;
-  color: #b3b3b3;
+  gap: 14px;
+  color: var(--eno-text-3);
+  font-size: 17px;
 }
 
 .eno-mini-actions > * {
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .eno-mini-actions > *:hover {
-  color: #fff;
+  color: var(--eno-text-1);
 }
 
+.eno-mini-actions > *:active {
+  transform: scale(0.92);
+}
+
+/* —— 中：走带与朱红细进度线 —— */
 .eno-center {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 6px;
+  gap: 10px;
 }
 
 .eno-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
+  color: var(--eno-text-2);
+}
+
+.eno-controls :deep(.eu-loop-switch) {
+  font-size: 21px;
 }
 
 .eno-ctrl {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  color: #b3b3b3;
+  width: 38px;
+  height: 38px;
+  color: var(--eno-text-2);
+  font-size: 21px;
   cursor: pointer;
-  transition: color 0.12s var(--eno-ease), transform 0.12s var(--eno-ease);
 }
 
-.eno-ctrl:hover {
-  color: #fff;
-  transform: scale(1.12);
+.eno-rate {
+  min-width: 40px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  background: transparent;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
 }
 
-.eno-ctrl:active {
-  transform: scale(0.88);
+.eno-rate:hover {
+  background: var(--eno-fill-1);
+  color: var(--eno-text-1);
+  transform: none;
 }
 
-.eno-ctrl--on {
-  color: #1ed760;
+.eno-rate.eno-rate--on,
+.eno-rate.eno-rate--on:hover {
+  border-color: rgb(217 86 74 / 55%);
+  background: var(--eno-primary-light);
+  color: var(--lp-seal-bright);
 }
 
-/* 右下角「词 / 弹」分段开关 */
+button.eno-play-main {
+  width: 52px;
+  height: 52px;
+}
+
+button.eno-play-main .eno-play-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.eno-progress {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 12px;
+}
+
+.eno-time {
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.eno-progress-track {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 14px;
+  align-items: center;
+}
+
+.eno-progress-track::before {
+  content: '';
+  width: 100%;
+  height: 3px;
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-3);
+}
+
+.eno-progress-fill {
+  position: absolute;
+  left: 0;
+  height: 3px;
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-primary);
+  transition: background-color 0.16s var(--eno-ease);
+}
+
+.eno-progress-track:hover .eno-progress-fill {
+  background: var(--lp-seal-bright);
+}
+
+.eno-progress-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* —— 右：音量、定时、词/弹、队列 —— */
+.eno-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 3px;
+  border: none;
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-3);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4.5px;
+  border: none;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-paper);
+  transition: transform 0.12s var(--eno-ease);
+}
+
+input[type='range']:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+input[type='range']::-moz-range-track {
+  height: 3px;
+  border: none;
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-3);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-paper);
+}
+
+/* 音量条：轨道留空，让引擎注入的朱红/墨色分段渐变透出来 */
+.eno-volume-range {
+  width: 96px;
+  height: 4px;
+}
+
+.eno-volume-range::-webkit-slider-runnable-track {
+  height: 4px;
+  background: transparent;
+}
+
+.eno-volume-range::-webkit-slider-thumb {
+  margin-top: -4px;
+}
+
+.eno-volume-range::-moz-range-track {
+  background: transparent;
+}
+
+/* 右下角「词 / 弹」分段开关：方角纸片 */
 .eno-toggle-group {
   display: inline-flex;
   height: 26px;
   padding: 2px;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 5%);
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-1);
   overflow: hidden;
 }
 
 .eno-toggle {
-  min-width: 30px;
+  min-width: 32px;
   height: 100%;
   padding: 0 8px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 1px;
   background: transparent;
-  color: #8a8a8a;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
@@ -594,217 +786,51 @@ onUnmounted(() => {
 }
 
 .eno-toggle:hover {
-  color: #fff;
+  color: var(--eno-text-1);
 }
 
 .eno-toggle--on {
-  background: rgb(30 215 96 / 16%);
-  color: #1ed760;
+  background: var(--eno-primary-light);
+  color: var(--lp-seal-bright);
 }
 
-.eno-rate {
-  min-width: 36px;
-  height: 22px;
-  padding: 0 6px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: #b3b3b3;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.eno-rate:hover,
-.eno-rate--on {
-  color: #1ed760;
-}
-
-.eno-rate:hover {
-  transform: scale(1.08);
-}
-
-.eno-rate:active {
-  transform: scale(0.9);
+.eno-toggle--on:hover {
+  color: var(--lp-seal-bright);
 }
 
 .queue-ops {
   display: flex;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .queue-btn {
   height: 28px;
   padding: 0 12px;
-  border: 0;
-  border-radius: 999px;
-  background: #282828;
-  color: #fff;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-1);
+  color: var(--eno-text-2);
+  font-family: var(--app-font-sans);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.queue-btn:hover {
-  background: #3e3e3e;
-  transform: scale(1.03);
-}
-
-.queue-btn:active {
-  transform: scale(0.97);
-}
-
-button.eno-play-btn {
-  display: inline-flex;
-  width: 42px;
-  height: 42px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #000;
-  background: var(--eno-primary);
-  cursor: pointer;
-  transition: transform 0.18s var(--eno-ease-pop), background-color 0.18s var(--eno-ease), box-shadow 0.18s var(--eno-ease);
-}
-
-button.eno-play-btn:hover {
-  transform: scale(1.08);
-  background: var(--eno-primary-hover);
-  box-shadow: var(--eno-shadow-glow);
-  color: #000;
-}
-
-button.eno-play-btn:active {
-  transform: scale(0.92);
-}
-
-button.eno-play-btn .eno-play-icon {
-  display: block;
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-  color: #000;
-}
-
-.eno-progress {
-  display: grid;
-  grid-template-columns: 40px 1fr 40px;
-  align-items: center;
-  gap: 8px;
-}
-
-.eno-time {
-  font-size: 11px;
-  font-weight: 400;
-  color: #a7a7a7;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.eno-progress-track {
-  position: relative;
-  width: 100%;
-  height: 12px;
-  display: flex;
-  align-items: center;
-}
-
-.eno-progress-track::before {
-  content: '';
-  width: 100%;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--eno-fill-3);
-  box-shadow: inset 0 0 12px rgb(0 0 0 / 45%);
-}
-
-.eno-progress-fill {
-  position: absolute;
-  left: 0;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--eno-primary);
-  box-shadow: 0 0 10px var(--eno-primary-glow);
-}
-
-.eno-progress-track:hover .eno-progress-fill {
-  background: var(--eno-primary-hover);
-}
-
-.eno-progress-range {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 12px;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.eno-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.eno-volume-range {
-  width: 93px;
-  height: 4px;
-  border-radius: 999px;
-}
-
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 999px;
-  border: none;
-  outline: none;
-  background: #4d4d4d;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #fff;
-  border: none;
-  margin-top: -4px;
-  transition: transform 0.12s var(--eno-ease);
-}
-
-input[type="range"]:hover::-webkit-slider-thumb {
-  transform: scale(1.15);
-}
-
-input[type="range"]::-moz-range-track {
-  background: #4d4d4d;
-  height: 4px;
-  border-radius: 999px;
-  border: none;
-  outline: none;
-}
-
-#voice-progress {
-  background: #4d4d4d;
 }
 
 @media (max-width: 1200px) {
   .eno-player-shell {
     grid-template-columns: minmax(200px, 1fr) minmax(300px, 1.3fr) minmax(180px, 1fr);
-    gap: 8px;
+    gap: 14px;
+  }
+
+  .eno-cover {
+    width: 56px;
+    height: 56px;
+  }
+
+  .eno-title {
+    font-size: 20px;
   }
 
   .eno-volume-range {
@@ -816,12 +842,22 @@ input[type="range"]::-moz-range-track {
   .eno-player-shell {
     grid-template-columns: 1fr;
     height: auto;
-    padding: 10px 12px;
+    padding: 0 12px;
   }
 
   .eno-left,
   .eno-right {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eno-cover,
+  .eno-retry,
+  .eno-rate,
+  .eno-toggle,
+  .eno-mini-actions > * {
+    transition: none;
   }
 }
 </style>

@@ -7,5 +7,7 @@ export default antfu({
     'public',
     'extension/dist',
     'extension/manifest.json',
+    '.playwright-cli',
+    '.impeccable',
   ],
 })

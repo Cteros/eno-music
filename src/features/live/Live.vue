@@ -91,12 +91,9 @@ watch(() => ui.mode, (mode) => {
   <section ref="scroller" class="live-page">
     <header class="live-hero">
       <div class="live-hero-mark">
-        LIVE
+        在播
       </div>
       <div>
-        <div class="kicker">
-          音乐区
-        </div>
         <h1>直播</h1>
         <p v-if="busy && !loaded">
           正在拉取电台列表…
@@ -112,8 +109,8 @@ watch(() => ui.mode, (mode) => {
             v-for="item in MUSIC_LIVE_AREAS"
             :key="item.id"
             type="button"
-            class="ghost"
-            :class="{ 'ghost--on': areaId === item.id }"
+            class="eno-chip"
+            :class="{ 'eno-chip--on': areaId === item.id }"
             @click="switchArea(item.id)"
           >
             {{ item.label }}
@@ -125,13 +122,13 @@ watch(() => ui.mode, (mode) => {
       </div>
     </header>
 
-    <div v-if="loaded && failed && !lives.length" class="empty">
+    <div v-if="loaded && failed && !lives.length" class="eno-empty">
       这一页没拉下来。
       <button type="button" class="ghost" :disabled="busy" @click="load(true)">
         重试
       </button>
     </div>
-    <div v-else-if="loaded && !lives.length" class="empty">
+    <div v-else-if="loaded && !lives.length" class="eno-empty">
       这一区暂时没有直播，过一会儿再刷新。
     </div>
 
@@ -171,106 +168,146 @@ watch(() => ui.mode, (mode) => {
 
 .live-hero {
   display: flex;
-  align-items: flex-end;
-  gap: 24px;
-  padding: 32px;
+  gap: 28px;
+  align-items: center;
+  padding: 32px 32px 20px;
 }
 
+/* 页首朱印方章 */
 .live-hero-mark {
   display: flex;
-  width: 160px;
-  height: 160px;
+  width: 116px;
+  height: 116px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: #e91429;
-  color: #fff;
+  border: 2px solid var(--lp-seal-bright);
+  border-radius: var(--eno-radius-sm);
+  color: var(--lp-seal-bright);
+  background: var(--lp-ink-deep);
+  font-family: var(--app-font-display);
   font-size: 28px;
   font-weight: 900;
-  letter-spacing: 0.12em;
-}
-
-.kicker {
-  font-size: 13px;
-  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  box-shadow:
+    inset 0 0 0 2px var(--lp-ink-deep),
+    inset 0 0 0 3px rgb(217 86 74 / 55%);
+  transform: rotate(-4deg);
+  user-select: none;
 }
 
 h1 {
-  margin: 8px 0 8px;
-  font-size: 48px;
+  margin: 0 0 8px;
+  font-family: var(--app-font-display);
+  font-size: 42px;
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
 }
 
 p {
   margin: 0;
-  color: #b3b3b3;
+  color: var(--eno-text-3);
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
 .live-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
   margin-top: 16px;
 }
 
 .ghost {
-  height: 32px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  background: #282828;
-  font-size: 13px;
-  font-weight: 700;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-2);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
 }
 
-.ghost--on {
-  color: #000;
-  background: #fff;
-}
-
-.ghost:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-
-.empty {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 24px 32px;
-  color: #b3b3b3;
-}
-
 .live-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  padding: 8px 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 24px 40px;
 }
 
+/* 内页行：封面 + 曲名 + 小字条 */
 .live-card {
-  padding: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 14px;
+  padding: 10px 12px;
   border: 0;
+  border-radius: var(--eno-radius-sm);
   background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.18s var(--eno-ease);
 }
 
-.live-card--on .live-name {
-  color: #e91429;
+.live-card:hover {
+  background: var(--eno-fill-1);
+}
+
+.live-card--on {
+  background: var(--eno-fill-2);
+}
+
+.live-card--on:hover {
+  background: var(--eno-fill-3);
+}
+
+/* 在听的行：行尾朱印落下 */
+.live-card--on::after {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  margin-left: 12px;
+  border: 1.5px solid var(--lp-seal-bright);
+  border-radius: 50%;
+  color: var(--lp-seal-bright);
+  background: transparent;
+  content: '在听';
+  font-family: var(--app-font-serif);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  box-shadow:
+    inset 0 0 0 1.5px var(--lp-ink),
+    inset 0 0 0 2.5px rgb(217 86 74 / 55%);
+  animation: eno-stamp 0.34s var(--eno-ease-pop) both;
+  transform: rotate(-4deg);
+  user-select: none;
 }
 
 .live-thumb {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
-  background: #282828;
-  aspect-ratio: 16 / 9;
+  grid-row: 1 / span 2;
+  width: 96px;
+  height: 54px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-ink-2);
 }
 
 .live-thumb img {
@@ -281,30 +318,74 @@ p {
 
 .live-dot {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 1px 6px;
-  border-radius: 2px;
-  background: #e91429;
+  top: 5px;
+  left: 5px;
+  padding: 0 5px;
+  border: 1px solid var(--lp-seal-bright);
+  border-radius: var(--eno-radius-sm);
+  color: var(--lp-seal-bright);
+  background: var(--lp-ink);
+  font-family: var(--app-font-mono);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 16px;
 }
 
 .live-name {
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 700;
   overflow: hidden;
+  grid-row: 1;
+  grid-column: 2;
+  align-self: end;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .live-author {
-  margin-top: 4px;
-  font-size: 13px;
-  color: #b3b3b3;
   overflow: hidden;
+  grid-row: 2;
+  grid-column: 2;
+  align-self: start;
+  color: var(--eno-text-3);
+  font-size: 12px;
+  line-height: 1.5;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .live-hero {
+    gap: 20px;
+    padding: 24px 16px 16px;
+  }
+
+  .live-hero-mark {
+    width: 92px;
+    height: 92px;
+    font-size: 22px;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  .live-grid {
+    padding: 8px 12px 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-card,
+  .live-card--on::after {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
 }
 </style>

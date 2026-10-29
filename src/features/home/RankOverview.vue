@@ -21,9 +21,10 @@ function goTo(id, index) {
     <button
       class="rank-nav"
       type="button"
+      title="上一组"
       @click="goDirection(-1)"
     >
-      <div class="i-mingcute:align-arrow-left-line" />
+      <div class="i-tabler:arrow-left" />
     </button>
     <div id="rank-list" class="rank-list">
       <button
@@ -38,9 +39,10 @@ function goTo(id, index) {
     <button
       class="rank-nav"
       type="button"
+      title="下一组"
       @click="goDirection(1)"
     >
-      <div class="i-mingcute:align-arrow-right-line" />
+      <div class="i-tabler:arrow-right" />
     </button>
   </span>
 </template>
@@ -54,25 +56,15 @@ function goTo(id, index) {
 
 .rank-nav {
   display: inline-flex;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #fff;
-  background: rgb(0 0 0 / 40%);
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-3);
+  background: transparent;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.rank-nav:hover {
-  background: rgb(0 0 0 / 60%);
-  transform: scale(1.08);
-}
-
-.rank-nav:active {
-  transform: scale(0.9);
 }
 
 .rank-list {
@@ -87,33 +79,28 @@ function goTo(id, index) {
 .rank-chip {
   flex-shrink: 0;
   height: 28px;
-  border: 1px solid rgb(255 255 255 / 8%);
-  border-radius: 999px;
   padding: 0 12px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
   color: var(--eno-text-2);
-  background: rgb(255 255 255 / 6%);
+  background: var(--eno-fill-1);
+  font-family: var(--app-font-sans);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease-pop), color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), box-shadow 0.16s var(--eno-ease);
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
 }
 
 .rank-chip:hover:not(.rank-chip--active) {
-  transform: translateY(-1px);
-  border-color: rgb(255 255 255 / 16%);
-  background: rgb(255 255 255 / 10%);
+  border-color: rgb(240 235 221 / 26%);
   color: var(--eno-text-1);
-}
-
-.rank-chip:active {
-  transform: scale(0.96);
+  background: var(--eno-fill-2);
 }
 
 .rank-chip--active {
-  border-color: rgb(30 215 96 / 50%);
-  color: var(--eno-primary);
-  background: rgb(30 215 96 / 16%);
-  box-shadow: 0 0 16px rgb(30 215 96 / 18%);
+  border-color: var(--lp-seal-bright);
+  color: var(--lp-seal-bright);
+  background: var(--eno-primary-light);
 }
 </style>

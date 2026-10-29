@@ -76,7 +76,7 @@ async function captureCard() {
       pixelRatio: 2,
       skipAutoScale: true,
       style: {
-        borderRadius: '0.75rem', // 与 CSS 中的圆角保持一致
+        borderRadius: '4px', // 与 CSS 中的圆角保持一致
         overflow: 'hidden',
       },
       filter: (node) => {
@@ -140,88 +140,90 @@ async function copyToClipboard() {
 <template>
   <span class="w-1rem h-1rem">
     <!-- 打开卡片的按钮 -->
-    <div class="i-mingcute:card-pay-line w-1rem h-1rem cursor-pointer block" @click.stop="showShareCard" />
+    <div class="i-tabler:share w-1rem h-1rem cursor-pointer block" title="分享卡片" @click.stop="showShareCard" />
     <Dialog :open="dialogVis" title="分享卡片" @visible-change="dialogVis = $event">
       <div v-if="videoInfo" class="share-card-container">
         <!-- 分享卡片主体 -->
         <div ref="cardRef" class="share-card">
-          <div class="relative w-full">
+          <div class="share-cover">
             <!-- 视频封面 -->
             <img
               :src="videoInfo.pic"
-              class="w-full h-[280px] object-cover"
+              class="share-cover-img"
               alt="视频封面"
               crossorigin="anonymous"
             >
             <!-- 右下角二维码 -->
-            <div class="absolute bottom-4 right-4 bg-white p-2 rounded-lg shadow-lg qr-wrapper">
+            <div class="qr-wrapper">
               <img
                 v-if="qrCodeUrl"
                 :src="qrCodeUrl"
-                class="w-20 h-20"
+                class="share-qr-img"
                 alt="视频二维码"
               >
-              <div class="text-xs text-center mt-1 text-gray-600">
+              <div class="share-qr-cap">
                 扫码观看视频
               </div>
             </div>
           </div>
 
           <!-- 视频信息 -->
-          <div class="p-6 space-y-4 bg-white">
-            <h3 class="text-lg font-bold text-black line-clamp-2">
+          <div class="share-info">
+            <h3 class="share-title">
               {{ videoInfo.title }}
             </h3>
 
-            <div class="flex items-center gap-3 text-gray-600">
+            <div class="share-owner">
               <img
                 :src="videoInfo.owner.face"
-                class="w-10 h-10 rounded-full"
+                class="share-avatar"
                 crossorigin="anonymous"
               >
-              <span class="font-medium">{{ videoInfo.owner.name }}</span>
+              <span class="share-owner-name">{{ videoInfo.owner.name }}</span>
             </div>
 
-            <div class="flex gap-6 text-sm text-gray-500">
-              <span class="flex items-center gap-1.5">
-                <div class="i-mingcute:play-fill w-4 h-4" />
+            <div class="share-stats">
+              <span class="share-stat">
+                <div class="i-tabler:player-play w-4 h-4" />
                 {{ formatNumber(videoInfo.stat.view) }}
               </span>
-              <span class="flex items-center gap-1.5">
-                <div class="i-mingcute:thumb-up-fill w-4 h-4" />
+              <span class="share-stat">
+                <div class="i-tabler:thumb-up w-4 h-4" />
                 {{ formatNumber(videoInfo.stat.like) }}
               </span>
-              <span class="flex items-center gap-1.5">
-                <div class="i-mingcute:comment-fill w-4 h-4" />
+              <span class="share-stat">
+                <div class="i-tabler:message-circle w-4 h-4" />
                 {{ formatNumber(videoInfo.stat.reply) }}
               </span>
               <!-- 由eno-m生成 -->
-              <span class="flex items-center gap-1.5">
-                <div class="i-mingcute:share-forward-fill w-4 h-4" />
+              <span class="share-stamp">
+                <span class="share-seal eno-seal eno-seal--sm eno-seal--round eno-seal--paper">印</span>
                 由 eno-m 生成
               </span>
             </div>
 
-            <div class="text-sm text-gray-600 line-clamp-3">
+            <div class="share-desc">
               {{ videoInfo.desc }}
             </div>
           </div>
         </div>
 
         <!-- 操作按钮 -->
-        <div class="flex justify-center gap-4 mt-4">
+        <div class="share-actions">
           <button
-            class="flex items-center gap-2 px-4 py-2 bg-$eno-primary text-black rounded-full hover:bg-$eno-primary-hover transition-colors font-700"
+            type="button"
+            class="share-btn share-btn--primary"
             @click="copyToClipboard"
           >
-            <div class="i-mingcute:copy-2-fill w-4 h-4" />
+            <div class="i-tabler:copy w-4 h-4" />
             复制到剪贴板
           </button>
           <button
-            class="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-full hover:scale-104 transition-transform font-700"
+            type="button"
+            class="share-btn"
             @click="saveAsImage"
           >
-            <div class="i-mingcute:download-2-fill w-4 h-4" />
+            <div class="i-tabler:download w-4 h-4" />
             保存图片
           </button>
         </div>
@@ -235,16 +237,18 @@ async function copyToClipboard() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
+  padding: 20px;
 }
 
+/* —— 分享卡：纸页印张，导出即成品 —— */
 .share-card {
   width: 100%;
   max-width: 520px;
-  background: white;
-  border-radius: 0.75rem; /* 12px */
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid rgb(22 21 26 / 16%);
+  border-radius: var(--eno-radius-lg);
+  background: var(--lp-paper);
+  box-shadow: var(--eno-shadow-md);
 }
 
 /* 确保内部图片不会溢出圆角 */
@@ -253,23 +257,167 @@ async function copyToClipboard() {
   max-width: 100%;
 }
 
+.share-cover {
+  position: relative;
+  width: 100%;
+}
+
+.share-cover-img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+
 .qr-wrapper {
-  backdrop-filter: blur(8px);
-  background-color: rgba(255, 255, 255, 0.95);
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  padding: 8px;
+  border-radius: var(--eno-radius-lg);
+  background: #fff;
+  box-shadow: var(--eno-shadow-sm);
 }
 
-button {
-  font-size: 0.875rem;
-  font-weight: 500;
+.share-qr-img {
+  width: 80px;
+  height: 80px;
 }
 
-button:active {
+.share-qr-cap {
+  margin-top: 4px;
+  color: rgb(22 21 26 / 62%);
+  font-family: var(--app-font-sans);
+  font-size: 12px;
+  text-align: center;
+}
+
+.share-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+}
+
+.share-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--lp-ink);
+  font-family: var(--app-font-display);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+.share-owner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.share-avatar {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgb(22 21 26 / 16%);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.share-owner-name {
+  color: var(--lp-ink);
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.share-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  color: rgb(22 21 26 / 74%);
+  font-family: var(--app-font-sans);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.share-stat,
+.share-stamp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.share-seal {
+  flex-shrink: 0;
+}
+
+.share-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: rgb(22 21 26 / 68%);
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.share-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.share-btn {
+  display: inline-flex;
+  height: 38px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-2);
+  color: var(--eno-text-1);
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
+}
+
+.share-btn:hover {
+  background: var(--eno-fill-3);
+  transform: translateY(-1px);
+}
+
+.share-btn:active {
   transform: translateY(1px);
 }
 
+.share-btn--primary {
+  border-color: transparent;
+  background: var(--lp-seal);
+  color: var(--lp-paper);
+}
+
+.share-btn--primary:hover {
+  background: var(--lp-seal-deep);
+}
+
 /* 确保图标在截图时正确显示 */
-.share-card-container [class*='i-mingcute'] {
+.share-card-container [class*='i-tabler'] {
   display: inline-block;
   vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share-btn {
+    transition: none;
+    transform: none;
+  }
 }
 </style>

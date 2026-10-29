@@ -2,6 +2,7 @@
 import { Dialog, MessageAPI } from '@cloudfly/eno-ui'
 import { getFollowings } from '~/api'
 import SingerItem from '~/features/singer/SingerItem.vue'
+import { zhError } from '~/shared/zhError'
 import { defaultSingers, useSingerStore } from '~/stores'
 
 function getMidFromUrl(url) {
@@ -62,7 +63,7 @@ async function importFollowings() {
   catch (error) {
     MessageAPI.show({
       type: 'error',
-      message: error instanceof Error ? error.message : '导入关注失败',
+      message: zhError(error, '导入关注失败'),
     })
   }
   finally {
@@ -74,28 +75,41 @@ async function importFollowings() {
 <template>
   <section class="singer-list-page">
     <div class="page-head">
-      <h1>关注的音乐人</h1>
+      <h1 class="page-title">
+        关注的音乐人
+      </h1>
       <div class="head-ops">
-        <button type="button" class="add-btn ghost" :disabled="importing" @click.stop="importFollowings">
+        <button type="button" class="btn" :disabled="importing" @click.stop="importFollowings">
           {{ importing ? '导入中…' : '导入 B 站关注' }}
         </button>
-        <button type="button" class="add-btn" @click.stop="dialogVis = true">
-          <div class="i-mdi:user-add" />
+        <button type="button" class="btn-primary" @click.stop="dialogVis = true">
+          <div class="i-tabler:user-plus" />
           添加歌手
         </button>
       </div>
     </div>
-    <div class="artist-grid">
+    <div v-if="PLstore.singers.length" class="singer-list">
       <SingerItem v-for="serid in PLstore.singers" :key="serid" :singer-mid="serid" can-del />
+    </div>
+    <div v-else class="eno-empty">
+      <div class="eno-empty__icon">
+        <div class="i-tabler:user-star" />
+      </div>
+      <div class="eno-empty__title">
+        还没有音乐人
+      </div>
+      <div class="eno-empty__hint">
+        点「添加歌手」，或「导入 B 站关注」
+      </div>
     </div>
     <Dialog :open="dialogVis" title="添加自定义歌手" @visible-change="dialogVis = $event">
       <div class="flex flex-col gap-3 w-full h-full justify-between">
         <input
           v-model="singerMid"
           placeholder="请输入歌手 mid 或 UP 主页链接"
-          class="add-input"
+          class="eno-input add-input"
         >
-        <button class="add-submit" type="button" @click="addSinger">
+        <button class="btn-primary add-submit" type="button" @click="addSinger">
           添加
         </button>
       </div>
@@ -112,69 +126,45 @@ async function importFollowings() {
 
 .page-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-h1 {
+.page-title {
   margin: 0;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.add-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 16px;
-  font-weight: 700;
-  color: #000;
-  background: #fff;
-  cursor: pointer;
+  font-family: var(--app-font-display);
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .head-ops {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
-.add-btn.ghost {
-  color: #fff;
-  background: #282828;
-}
-
-.add-btn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-.artist-grid {
+.singer-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: column;
 }
 
 .add-input {
+  width: 100%;
   height: 40px;
-  border: 0;
-  border-radius: 4px;
   padding: 0 12px;
-  color: #fff;
-  background: #3e3e3e;
 }
 
 .add-submit {
-  height: 40px;
-  border: 0;
-  border-radius: 999px;
-  font-weight: 700;
-  color: #000;
-  background: #1ed760;
-  cursor: pointer;
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .singer-list-page {
+    padding: 20px 16px 32px;
+  }
 }
 </style>

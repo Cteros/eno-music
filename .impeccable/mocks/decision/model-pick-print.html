@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>铅字印刷与朱印 · ENO-M 首屏</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1440px; height:900px; overflow:hidden; }
+  body {
+    background:#16151a; color:#f0ebdd;
+    font-family:"Songti SC","PingFang SC",serif;
+    display:flex; flex-direction:column;
+  }
+  .app { flex:1; display:flex; min-height:0; }
+  /* —— 左侧导航（标准外壳）—— */
+  .rail { width:220px; border-right:1px solid rgba(240,235,221,.16); padding:28px 20px; display:flex; flex-direction:column; gap:22px; font-family:"PingFang SC",sans-serif; }
+  .brand { font-size:26px; font-weight:800; letter-spacing:.18em; display:flex; align-items:center; }
+  .seal { width:38px; height:38px; border:3px solid #b5342a; color:#b5342a; font-size:16px; display:flex; align-items:center; justify-content:center; margin-left:12px; transform:rotate(-4deg); }
+  .nav-item { font-size:20px; color:rgba(240,235,221,.6); padding:8px 10px; }
+  .nav-item.on { color:#f0ebdd; border-left:3px solid #b5342a; background:rgba(181,52,42,.14); }
+  .nav-cap { font-size:15px; letter-spacing:.32em; color:rgba(240,235,221,.38); margin-top:12px; }
+  /* —— 主区：书刊内页 —— */
+  .page { flex:1; padding:38px 56px 20px; overflow:hidden; }
+  .kicker { font-size:15px; letter-spacing:.52em; color:#b5342a; margin-bottom:12px; font-family:"PingFang SC",sans-serif; }
+  .headline { font-size:54px; font-weight:900; letter-spacing:.04em; line-height:1.15; }
+  .headline .v { writing-mode:vertical-rl; font-size:22px; letter-spacing:.5em; color:rgba(240,235,221,.5); margin-left:28px; vertical-align:middle; }
+  .sub { font-size:18px; color:rgba(240,235,221,.55); margin-top:12px; font-family:"PingFang SC",sans-serif; }
+  .col-head { display:flex; align-items:baseline; margin:32px 0 4px; border-bottom:3px double #f0ebdd; padding-bottom:10px; }
+  .col-head .t { font-size:23px; letter-spacing:.34em; font-weight:800; }
+  .col-head .pg { margin-left:auto; font-size:15px; letter-spacing:.3em; color:rgba(240,235,221,.5); }
+  .row { display:flex; align-items:center; height:72px; border-bottom:1px solid rgba(240,235,221,.14); }
+  .row .idx { width:78px; font-size:19px; color:rgba(240,235,221,.45); font-variant-numeric:tabular-nums; }
+  .row .name { font-size:30px; font-weight:800; letter-spacing:.05em; }
+  .row .by { width:220px; margin-left:34px; height:11px; background:rgba(240,235,221,.16); }
+  .row .dur { margin-left:auto; width:58px; height:11px; background:rgba(240,235,221,.16); }
+  .row.now .name { color:#f0ebdd; }
+  .row.now .seal-row { width:42px; height:42px; border:3px solid #b5342a; color:#b5342a; font-size:15px; display:flex; align-items:center; justify-content:center; margin-left:26px; transform:rotate(-4deg); }
+  /* —— 底部播放条（标准外壳）—— */
+  .player { height:104px; border-top:3px double #f0ebdd; display:flex; align-items:center; padding:0 40px; gap:26px; background:#1c1a21; position:relative; }
+  .cover { width:66px; height:66px; background:#3a4a6b; }
+  .meta .name { font-size:25px; font-weight:800; letter-spacing:.05em; }
+  .meta .by { margin-top:8px; width:170px; height:11px; background:rgba(240,235,221,.18); }
+  .transport { margin-left:auto; display:flex; align-items:center; gap:22px; }
+  .tbtn { width:22px; height:22px; background:rgba(240,235,221,.55); }
+  .tbtn.play { width:52px; height:52px; border-radius:50%; background:#b5342a; }
+  .progress { position:absolute; left:0; top:0; width:100%; height:3px; background:rgba(240,235,221,.14); }
+  .progress i { display:block; width:38%; height:100%; background:#b5342a; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">ENO-M<div class="seal">印</div></div>
+      <div class="nav-item on">首页</div>
+      <div class="nav-item">搜索</div>
+      <div class="nav-item">直播</div>
+      <div class="nav-item">关注人更新</div>
+      <div class="nav-cap">M Y&nbsp;&nbsp;L I B R A R Y</div>
+      <div class="nav-item">媒体库</div>
+      <div class="nav-item">稍后播放</div>
+      <div class="nav-item">最近播放</div>
+      <div class="nav-item">关注的音乐人</div>
+    </aside>
+    <main class="page">
+      <div class="kicker">BILIBILI 音乐榜 · 第 44 周</div>
+      <div class="headline">本周曲目<span class="v">第四十四期</span></div>
+      <div class="sub">曲名大字左齐 · 细栏线曲目表 · 正在播放盖朱印</div>
+      <div class="col-head"><div class="t">曲 目 表</div><div class="pg">第 一 页</div></div>
+      <div class="row now"><div class="idx">其一</div><div class="name">群青</div><div class="seal-row">在听</div><div class="dur"></div></div>
+      <div class="row"><div class="idx">其二</div><div class="name">曇天</div><div class="by"></div><div class="dur"></div></div>
+      <div class="row"><div class="idx">其三</div><div class="name">Lemon</div><div class="by"></div><div class="dur"></div></div>
+      <div class="row"><div class="idx">其四</div><div class="name">打上花火</div><div class="by"></div><div class="dur"></div></div>
+      <div class="row"><div class="idx">其五</div><div class="name">夜に駆ける</div><div class="by"></div><div class="dur"></div></div>
+      <div class="row"><div class="idx">其六</div><div class="name">残酷な天使のテーゼ</div><div class="by"></div><div class="dur"></div></div>
+    </main>
+  </div>
+  <div class="player">
+    <div class="progress"><i></i></div>
+    <div class="cover"></div>
+    <div class="meta"><div class="name">群青</div><div class="by"></div></div>
+    <div class="transport">
+      <div class="tbtn"></div><div class="tbtn play"></div><div class="tbtn"></div>
+    </div>
+  </div>
+</body>
+</html>

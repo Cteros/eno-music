@@ -13,6 +13,7 @@ import {
 } from '~/shared/playerBridge'
 import { collectAudioUrls } from '~/shared/resolvePlayUrl'
 import { wait } from '~/shared/retry'
+import { zhError } from '~/shared/zhError'
 import { OffscreenEq } from './eq'
 import { OffscreenLive } from './live'
 import { LiveStreamMirror } from './mirror'
@@ -593,7 +594,7 @@ export class OffscreenAudioEngine {
       return this.getState()
     }
     catch (error) {
-      this.lastError = error instanceof Error ? error.message : String(error)
+      this.lastError = zhError(error, '播放出错，请稍后重试')
       this.isPlaying = false
       this.live.stop()
       await this.publish()
@@ -726,7 +727,7 @@ export class OffscreenAudioEngine {
       throw new Error(this.lastError || '没有可用音轨，可能需要登录')
     }
     catch (error) {
-      this.lastError = error instanceof Error ? error.message : String(error)
+      this.lastError = zhError(error, '播放出错，请稍后重试')
       this.isPlaying = false
       await this.publish()
       throw error
@@ -836,7 +837,7 @@ export class OffscreenAudioEngine {
       await this.publish()
     }
     catch (error) {
-      this.lastError = error instanceof Error ? error.message : String(error)
+      this.lastError = zhError(error, '播放出错，请稍后重试')
       this.isPlaying = false
       await this.publish()
     }

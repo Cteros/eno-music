@@ -67,12 +67,9 @@ watch(() => ui.mode, (mode) => {
   <section class="updates-page">
     <header class="updates-hero">
       <div class="updates-mark">
-        NEW
+        新稿
       </div>
       <div>
-        <div class="kicker">
-          关注的音乐人
-        </div>
         <h1>关注人更新</h1>
         <p v-if="busy && !loaded">
           正在拉取最近投稿…
@@ -121,7 +118,7 @@ watch(() => ui.mode, (mode) => {
           </div>
         </div>
       </button>
-      <div v-if="loaded && !count && !busy" class="empty">
+      <div v-if="loaded && !count && !busy" class="eno-empty">
         {{ singers.singers.length ? '关注的人最近没有新投稿。' : '去关注几个音乐人，这里会列出他们的新稿。' }}
       </div>
     </div>
@@ -137,120 +134,164 @@ watch(() => ui.mode, (mode) => {
 
 .updates-hero {
   display: flex;
-  align-items: flex-end;
-  gap: 24px;
-  padding: 32px;
+  gap: 28px;
+  align-items: center;
+  padding: 32px 32px 20px;
 }
 
+/* 页首朱印方章 */
 .updates-mark {
   display: flex;
-  width: 160px;
-  height: 160px;
+  width: 116px;
+  height: 116px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: #1ed760;
-  color: #000;
+  border: 2px solid var(--lp-seal-bright);
+  border-radius: var(--eno-radius-sm);
+  color: var(--lp-seal-bright);
+  background: var(--lp-ink-deep);
+  font-family: var(--app-font-display);
   font-size: 28px;
   font-weight: 900;
-  letter-spacing: 0.12em;
-}
-
-.kicker {
-  font-size: 13px;
-  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  box-shadow:
+    inset 0 0 0 2px var(--lp-ink-deep),
+    inset 0 0 0 3px rgb(217 86 74 / 55%);
+  transform: rotate(-4deg);
+  user-select: none;
 }
 
 h1 {
-  margin: 8px 0 8px;
-  font-size: 48px;
+  margin: 0 0 8px;
+  font-family: var(--app-font-display);
+  font-size: 42px;
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
 }
 
 p {
   margin: 0;
-  color: #b3b3b3;
+  color: var(--eno-text-3);
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
 .updates-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
   margin-top: 16px;
 }
 
 .ghost {
-  height: 32px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  background: #282828;
-  font-size: 13px;
-  font-weight: 700;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-2);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
 }
 
 .ghost--on {
-  color: #000;
-  background: #1ed760;
+  border-color: transparent;
+  color: var(--lp-paper);
+  background: var(--eno-primary);
 }
 
-.ghost:disabled {
-  opacity: 0.6;
-  cursor: default;
+.ghost--on:hover {
+  color: var(--lp-paper);
+  background: var(--eno-primary-hover);
 }
 
 .updates-list {
   display: flex;
   flex-direction: column;
-  padding: 0 16px 40px;
+  gap: 2px;
+  padding: 8px 24px 40px;
 }
 
+/* 内页行：来稿时间 + 封面 + 曲名 */
 .update-row {
   display: grid;
-  width: 100%;
-  grid-template-columns: 88px 48px minmax(0, 1fr);
+  grid-template-columns: 72px 44px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   height: 64px;
-  padding: 0 16px;
+  padding: 0 12px;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--eno-radius-sm);
   background: transparent;
-  color: #b3b3b3;
+  color: var(--eno-text-2);
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.18s var(--eno-ease);
 }
 
 .update-row:hover {
-  background: rgb(255 255 255 / 10%);
-  color: #fff;
+  background: var(--eno-fill-1);
+  color: var(--eno-text-1);
 }
 
-.update-row--on,
-.update-row--on .title {
-  color: #1ed760;
+.update-row--on {
+  background: var(--eno-fill-2);
+  color: var(--eno-text-1);
+}
+
+.update-row--on:hover {
+  background: var(--eno-fill-3);
+}
+
+/* 在听的行：行尾朱印落下 */
+.update-row--on::after {
+  grid-column: 4;
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--lp-seal-bright);
+  border-radius: 50%;
+  color: var(--lp-seal-bright);
+  background: transparent;
+  content: '在听';
+  font-family: var(--app-font-serif);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-indent: 0.08em;
+  box-shadow:
+    inset 0 0 0 1.5px var(--lp-ink),
+    inset 0 0 0 2.5px rgb(217 86 74 / 55%);
+  animation: eno-stamp 0.34s var(--eno-ease-pop) both;
+  transform: rotate(-4deg);
+  user-select: none;
 }
 
 .ago {
-  color: #7a7a7a;
+  color: var(--eno-text-3);
   font-size: 12px;
-  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .cover {
-  width: 48px;
-  height: 48px;
-  border-radius: 4px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
   object-fit: cover;
 }
 
 .cover--empty {
-  background: #282828;
+  background: var(--lp-ink-2);
 }
 
 .meta {
@@ -265,23 +306,59 @@ p {
 }
 
 .title {
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+
+.title :deep(em) {
+  color: var(--lp-seal-bright);
+  font-style: normal;
 }
 
 .author {
-  margin-top: 4px;
-  font-size: 13px;
+  margin-top: 2px;
+  color: var(--eno-text-3);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .author-link:hover {
-  color: #fff;
+  color: var(--eno-text-1);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.empty {
-  padding: 24px 16px;
-  color: #b3b3b3;
+@media (max-width: 860px) {
+  .updates-hero {
+    gap: 20px;
+    padding: 24px 16px 16px;
+  }
+
+  .updates-mark {
+    width: 92px;
+    height: 92px;
+    font-size: 22px;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  .updates-list {
+    padding: 8px 12px 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-row,
+  .update-row--on::after {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
 }
 </style>

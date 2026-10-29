@@ -96,7 +96,7 @@ const isLoggedIn = computed(() => Boolean((userInfo.value as any)?.mid || (userI
             :title="ui.canBack ? '返回' : '没有上一页'"
             @click="ui.back()"
           >
-            <div class="i-mingcute:arrow-left-line" />
+            <div class="i-tabler:arrow-left" />
           </button>
           <span class="sp-chrome-title">{{ ui.pageTitle }}</span>
         </div>
@@ -124,16 +124,14 @@ const isLoggedIn = computed(() => Boolean((userInfo.value as any)?.mid || (userI
   width: 100%;
   height: 100%;
   overflow: hidden;
-  gap: 8px;
-  padding: 8px 8px 0;
-  background: #000;
-  color: #fff;
+  background: var(--lp-ink-deep);
+  color: var(--eno-text-1);
   overscroll-behavior: none;
   touch-action: none;
 }
 
 html {
-  background: #000;
+  background: var(--lp-ink-deep);
 }
 
 .sp-main {
@@ -142,10 +140,9 @@ html {
   min-width: 0;
   flex: 1;
   flex-direction: column;
-  height: calc(100% - 88px);
+  height: calc(100% - 104px);
   overflow: hidden;
-  border-radius: 8px;
-  background: var(--eno-cover-dim, #121212);
+  background: var(--lp-ink);
 }
 
 .sp-pages {
@@ -161,10 +158,11 @@ html {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   height: 56px;
-  padding: 0 16px;
-  background: rgb(0 0 0 / 28%);
+  padding: 0 24px;
+  border-bottom: 1px solid var(--eno-border);
+  background: transparent;
 }
 
 .sp-back {
@@ -173,16 +171,16 @@ html {
   height: 32px;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #fff;
-  background: rgb(0 0 0 / 55%);
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-2);
+  background: transparent;
   cursor: pointer;
 }
 
 .sp-back:hover:not(:disabled) {
-  background: rgb(0 0 0 / 75%);
-  transform: scale(1.06);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-2);
 }
 
 .sp-back:disabled {
@@ -194,8 +192,10 @@ html {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 15px;
-  font-weight: 700;
+  font-family: var(--app-font-display);
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 .sp-stage {
@@ -211,16 +211,23 @@ html {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 16px;
-  background: rgb(18 18 18 / 72%);
-  color: #b3b3b3;
+  padding: 9px 24px;
+  border-bottom: 1px solid var(--eno-border);
+  background: var(--eno-fill-1);
+  color: var(--eno-text-3);
   font-size: 12px;
+  letter-spacing: 0.04em;
 }
 
 .login-banner a {
-  color: #1ed760;
-  text-decoration: none;
-  font-weight: 700;
+  color: var(--lp-indigo-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+}
+
+.login-banner a:hover {
+  color: var(--lp-paper);
 }
 
 .page-host {

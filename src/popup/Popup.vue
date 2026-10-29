@@ -50,7 +50,7 @@ const progressStyle = computed(() => ({
 const volumeStyle = computed(() => {
   const percent = `${Math.round(Math.max(0, Math.min(1, state.value.volume)) * 100)}%`
   return {
-    background: `linear-gradient(to right, #1ed760 0 ${percent}, #4d4d4d ${percent} 100%)`,
+    background: `linear-gradient(to right, var(--lp-seal) 0 ${percent}, var(--eno-fill-3) ${percent} 100%)`,
   }
 })
 
@@ -226,7 +226,7 @@ onUnmounted(() => {
     <div class="popup-body">
       <header class="popup-head">
         <div class="brand">
-          <div class="i-mingcute:disc-fill brand-icon" />
+          <div class="i-tabler:disc brand-icon" />
           <span>ENO-M</span>
         </div>
         <button type="button" class="open-btn" @click="openFullPlayer">
@@ -282,7 +282,7 @@ onUnmounted(() => {
         <button type="button" class="ctrl" aria-label="上一首" :disabled="busy" @click="sendCmd('prev')">
           <div class="i-tabler:player-track-prev-filled" />
         </button>
-        <button type="button" class="play" aria-label="播放/暂停" :disabled="busy" @click="sendCmd('toggle')">
+        <button type="button" class="play eno-play-disc" aria-label="播放/暂停" :disabled="busy" @click="sendCmd('toggle')">
           <div v-if="state.isPlaying" class="i-tabler:player-pause-filled" />
           <div v-else class="i-tabler:player-play-filled" />
         </button>
@@ -298,8 +298,8 @@ onUnmounted(() => {
           :title="state.volume > 0 ? '静音' : '取消静音'"
           @click="toggleMute"
         >
-          <span v-if="state.volume > 0" class="i-mingcute:volume-line" />
-          <span v-else class="i-mingcute:volume-mute-line" />
+          <span v-if="state.volume > 0" class="i-tabler:volume-2" />
+          <span v-else class="i-tabler:volume-off" />
         </button>
         <input
           type="range"
@@ -361,70 +361,83 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* 工具栏遥控面：墨底细线，任务密度优先 */
+:global(html),
+:global(body),
+:global(#app) {
+  min-height: 0;
+  width: 320px;
+}
+
 .popup {
   position: relative;
   box-sizing: border-box;
   width: 320px;
   overflow: visible;
   padding: 0;
-  background: var(--sp-base, #0e0e12);
-  color: #fff;
+  color: var(--eno-text-1);
+  background: var(--lp-ink-deep);
+  font-family: var(--app-font-sans);
 }
 
 .popup-body {
   position: relative;
   z-index: 1;
-  padding: 12px;
+  padding: 12px 14px 14px;
 }
 
 .popup-head {
   display: flex;
+  gap: 10px;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--eno-border);
 }
 
 .brand {
   display: flex;
+  gap: 7px;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
+  font-family: var(--app-font-display);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
 }
 
 .brand-icon {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
-  color: #1ed760;
+  width: 15px;
+  height: 15px;
+  color: var(--lp-seal-bright);
+  font-size: 15px;
 }
 
 .open-btn {
+  display: inline-flex;
   height: 26px;
+  align-items: center;
   padding: 0 10px;
-  border: 0;
-  border-radius: 999px;
-  background: #1ed760;
-  color: #000;
-  font-size: 12px;
-  font-weight: 700;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-2);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .open-btn:hover {
-  background: #3be477;
-  transform: scale(1.05);
-}
-
-.open-btn:active {
-  transform: scale(0.95);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-2);
+  transform: none;
 }
 
 .now {
   display: flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
   margin-bottom: 12px;
 }
 
@@ -432,30 +445,21 @@ onUnmounted(() => {
   width: 56px;
   height: 56px;
   flex-shrink: 0;
-  border-radius: 6px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
   object-fit: cover;
-  background: #282828;
+  background: var(--lp-ink-2);
 }
 
+/* 播放中：封面同章呼应 */
 .cover--playing {
-  animation: cover-pulse 2.8s ease-in-out infinite;
-}
-
-@keyframes cover-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 var(--eno-cover-accent, #1ed760);
-  }
-
-  50% {
-    box-shadow: 0 0 12px 1px var(--eno-cover-accent, #1ed760);
-  }
+  border: 2px solid var(--lp-seal-bright);
 }
 
 .cover--empty {
   display: grid;
   place-items: center;
-  color: #7c7c7c;
+  color: var(--eno-text-3);
   font-size: 22px;
 }
 
@@ -471,16 +475,34 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
+/* 宋体曲名 */
 .title {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
   font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.live-badge {
+  flex-shrink: 0;
+  margin-right: 6px;
+  padding: 0 5px;
+  border: 1px solid var(--lp-seal-bright);
+  border-radius: var(--eno-radius-sm);
+  color: var(--lp-seal-bright);
+  font-family: var(--app-font-mono);
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 16px;
 }
 
 .author {
-  color: #b3b3b3;
+  color: var(--eno-text-3);
   font-size: 12px;
 }
 
@@ -490,50 +512,39 @@ onUnmounted(() => {
 
 .progress-track {
   position: relative;
-  height: 4px;
+  height: 3px;
   overflow: visible;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 12%);
+  border-radius: 2px;
+  background: var(--eno-fill-3);
 }
 
 .progress-fill {
   position: absolute;
   top: 0;
   left: 0;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--eno-primary, #1ed760);
-  box-shadow: 0 0 10px rgb(30 215 96 / 38%);
+  height: 3px;
+  border-radius: 2px;
+  background: var(--lp-seal);
 }
 
 .progress-fill--live {
   width: 100%;
-  background: #e91429;
-  box-shadow: 0 0 10px rgb(233 20 41 / 35%);
-}
-
-.live-badge {
-  margin-right: 6px;
-  padding: 1px 5px;
-  border-radius: 2px;
-  background: #e91429;
-  font-size: 10px;
-  font-weight: 800;
+  background: var(--lp-seal-bright);
 }
 
 .progress-range {
   position: absolute;
-  inset: -4px 0;
+  inset: -5px 0;
   width: 100%;
-  height: 12px;
+  height: 13px;
   margin: 0;
   opacity: 0;
   cursor: pointer;
 }
 
 input[type='range'] {
-  -webkit-appearance: none;
   appearance: none;
+  -webkit-appearance: none;
   background: transparent;
   cursor: pointer;
 }
@@ -541,111 +552,59 @@ input[type='range'] {
 .time {
   display: flex;
   justify-content: space-between;
-  margin-top: 4px;
-  color: #7c7c7c;
+  margin-top: 5px;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-mono);
   font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
 .controls {
   display: flex;
+  gap: 20px;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-}
-
-.ctrl,
-.play {
-  display: grid;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+  margin-top: 2px;
 }
 
 .ctrl {
+  display: grid;
   width: 32px;
   height: 32px;
-  font-size: 22px;
-  color: #b3b3b3;
-}
-
-.ctrl:hover {
-  color: #fff;
-  transform: scale(1.12);
-}
-
-.ctrl:active {
-  transform: scale(0.88);
+  place-items: center;
+  border: 0;
+  color: var(--eno-text-2);
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 .play {
+  display: grid;
   width: 44px;
   height: 44px;
-  border-radius: 999px;
-  background: var(--eno-primary, #1ed760);
-  color: #000;
+  place-items: center;
   font-size: 22px;
-  transition: transform 0.18s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)), background-color 0.18s var(--eno-ease), box-shadow 0.18s var(--eno-ease);
-}
-
-.play:hover {
-  transform: scale(1.08);
-  background: var(--eno-primary-hover, #3be477);
-  box-shadow: 0 8px 28px rgb(30 215 96 / 22%);
-}
-
-.play:active {
-  transform: scale(0.94);
-}
-
-.ctrl:disabled,
-.play:disabled,
-.rate:disabled,
-.loop:disabled {
-  cursor: default;
-  opacity: 0.45;
-}
-
-.extras {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 10px;
 }
 
 .volume {
   display: flex;
-  align-items: center;
   gap: 8px;
-  margin-top: 10px;
+  align-items: center;
+  margin-top: 12px;
 }
 
 .mute {
   display: grid;
-  place-items: center;
   width: 22px;
   height: 22px;
+  place-items: center;
   padding: 0;
   border: 0;
+  color: var(--eno-text-2);
   background: transparent;
-  color: #b3b3b3;
   font-size: 16px;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.mute:hover {
-  color: #fff;
-  transform: scale(1.1);
-}
-
-.mute:active {
-  transform: scale(0.9);
 }
 
 .volume-range {
@@ -656,18 +615,43 @@ input[type='range'] {
 
 .volume-range::-webkit-slider-runnable-track {
   height: 4px;
-  border-radius: 999px;
+  border-radius: 2px;
   background: transparent;
 }
 
 .volume-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
   width: 10px;
   height: 10px;
   margin-top: -3px;
   border: 0;
-  border-radius: 50%;
-  background: #fff;
+  border-radius: 2px;
+  background: var(--lp-paper);
+  -webkit-appearance: none;
+}
+
+.extras {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--eno-border);
+}
+
+.loop {
+  display: grid;
+  width: 28px;
+  height: 22px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  color: var(--eno-text-2);
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .rate {
@@ -675,88 +659,44 @@ input[type='range'] {
   height: 22px;
   padding: 0 8px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-2);
   background: transparent;
-  color: #b3b3b3;
-  font-size: 12px;
-  font-weight: 700;
+  font-family: var(--app-font-mono);
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
-.rate:hover,
-.rate--on {
-  color: #1ed760;
-}
-
-.rate:hover {
-  transform: scale(1.08);
-}
-
-.rate:active {
-  transform: scale(0.9);
-}
-
-.loop {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 22px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #b3b3b3;
-  font-size: 16px;
-  cursor: pointer;
-  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.loop:hover,
-.loop--on {
-  color: #1ed760;
-}
-
-.loop:hover {
-  transform: scale(1.1);
-}
-
-.loop:active {
-  transform: scale(0.9);
+.loop--on,
+.loop--on:hover,
+.rate--on,
+.rate--on:hover {
+  color: var(--lp-seal-bright);
 }
 
 .hint {
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   margin: 10px 0 0;
-  color: #b3b3b3;
+  color: var(--eno-text-3);
   font-size: 11px;
   text-align: center;
 }
 
 .retry {
+  display: inline-flex;
   height: 20px;
+  align-items: center;
   padding: 0 8px;
   border: 0;
-  border-radius: 999px;
-  background: #1ed760;
-  color: #000;
+  border-radius: var(--eno-radius-sm);
+  color: var(--lp-paper);
+  background: var(--eno-primary);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
-}
-
-.retry:hover {
-  transform: scale(1.05);
-}
-
-.retry:active {
-  transform: scale(0.94);
-}
-
-.retry:disabled {
-  opacity: 0.45;
 }
 </style>

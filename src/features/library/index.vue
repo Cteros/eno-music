@@ -169,23 +169,24 @@ watch(userInfo, () => {
           class="detail-cover"
           :src="playlistCover(focused)"
           alt=""
+          title="换用歌曲封面"
           @click="useSongCover(focused)"
         >
         <div
           v-else
           class="detail-cover detail-cover--empty"
+          title="换用歌曲封面"
           @click="useSongCover(focused)"
         >
-          <div class="i-mingcute:folder-fill" />
+          <div class="i-tabler:folder-filled" />
         </div>
-        <div>
-          <div class="kicker">
-            播放列表
-          </div>
-          <h1 v-html="focused.name" />
-          <p>{{ focused.songs.length }} 首</p>
+        <div class="detail-head">
+          <h1 class="detail-title" v-html="focused.name" />
+          <p class="detail-count">
+            {{ focused.songs.length }} 首
+          </p>
           <div class="detail-actions">
-            <button class="play-all" type="button" title="播放" @click.stop="handleReplacePlaylist(focused)">
+            <button class="play-all" type="button" title="播放全部" @click.stop="handleReplacePlaylist(focused)">
               <div class="i-tabler:player-play-filled" />
             </button>
             <button class="ghost" type="button" title="打乱顺序" @click.stop="handleShuffle(focused)">
@@ -203,6 +204,10 @@ watch(userInfo, () => {
           </div>
         </div>
       </header>
+
+      <h2 class="eno-section-title detail-list-title">
+        曲目表
+      </h2>
       <div class="detail-list">
         <div
           v-for="(song, index) in renderSong(focused)"
@@ -220,8 +225,16 @@ watch(userInfo, () => {
             @delete-song="delSong(focused, song)"
           />
         </div>
-        <div v-if="!focused.songs.length" class="empty-hint">
-          暂无歌曲，可以前往搜索页面添加
+        <div v-if="!focused.songs.length" class="eno-empty">
+          <div class="eno-empty__icon">
+            <div class="i-tabler:music" />
+          </div>
+          <div class="eno-empty__title">
+            还没有歌曲
+          </div>
+          <div class="eno-empty__hint">
+            去搜索页找歌，用「添加到」收进来
+          </div>
         </div>
       </div>
     </div>
@@ -233,27 +246,29 @@ watch(userInfo, () => {
         </h2>
         <div class="media-actions">
           <ImpFav compact />
-          <button class="media-action-btn" @click="createDialogVis = true">
-            <div class="i-tabler:playlist-add w-1em h-1em" />
+          <button class="btn-primary" type="button" @click="createDialogVis = true">
+            <div class="i-tabler:playlist-add" />
             新建播放列表
           </button>
         </div>
       </div>
-      <h3 class="section-label">
-        ENO 收藏夹{{ noPlaylist ? '（暂无歌单）' : '' }}
+
+      <h3 class="eno-section-title">
+        ENO 收藏夹
+        <span class="eno-section-sub">{{ noPlaylist ? '暂无歌单' : `${list.length} 个歌单` }}</span>
       </h3>
-      <div v-if="!noPlaylist" class="playlist-grid">
+      <div v-if="!noPlaylist" class="playlist-list">
         <button
           v-for="(playlist, playlistIndex) in list"
           :key="playlist.id"
           type="button"
-          class="playlist-tile"
+          class="playlist-row eno-row"
           @click="ui.openPlaylist(playlist.id)"
           @dragover.prevent
           @drop.prevent="onPlaylistDrop(playlistIndex)"
         >
           <div
-            class="drag-grip i-mingcute:dots-2-line"
+            class="drag-grip i-tabler:grip-vertical"
             draggable="true"
             title="拖动排序"
             @click.stop
@@ -261,32 +276,45 @@ watch(userInfo, () => {
           />
           <img
             v-if="playlistCover(playlist)"
-            class="tile-cover"
+            class="row-cover"
             :src="playlistCover(playlist)"
             alt=""
           >
-          <div v-else class="tile-cover tile-cover--empty">
-            <div class="i-mingcute:folder-fill" />
+          <div v-else class="row-cover row-cover--empty">
+            <div class="i-tabler:folder" />
           </div>
-          <div class="tile-meta">
-            <div class="tile-name" v-html="playlist.name" />
-            <div class="tile-count">
-              {{ playlist.songs.length }} 首
-            </div>
+          <div class="row-name" v-html="playlist.name" />
+          <div class="row-count">
+            {{ playlist.songs.length }} 首
           </div>
         </button>
       </div>
-      <h3 class="section-label">
+      <div v-else class="eno-empty">
+        <div class="eno-empty__icon">
+          <div class="i-tabler:playlist" />
+        </div>
+        <div class="eno-empty__title">
+          还没有歌单
+        </div>
+        <div class="eno-empty__hint">
+          点右上「新建播放列表」开一本
+        </div>
+      </div>
+
+      <h3 class="eno-section-title">
         Bilibili 收藏夹
+        <span v-if="userInfo?.mid" class="eno-section-sub">{{ normalizedFavs.length }} 个</span>
       </h3>
-      <div v-if="!userInfo?.mid" class="empty-hint">
+      <div v-if="!userInfo?.mid" class="lib-hint">
         登录 B 站后可同步收藏夹。
       </div>
       <BLFav v-for="fav in normalizedFavs" :key="fav.id" :fav="fav" />
-      <h3 class="section-label">
+
+      <h3 class="eno-section-title">
         Bilibili 合集和列表
+        <span v-if="userInfo?.mid" class="eno-section-sub">{{ normalizedCollectedFavs.length }} 个</span>
       </h3>
-      <div v-if="!userInfo?.mid && !normalizedCollectedFavs.length" class="empty-hint">
+      <div v-if="!userInfo?.mid && !normalizedCollectedFavs.length" class="lib-hint">
         登录后显示你收藏的合集。
       </div>
       <BLFav v-for="fav in normalizedCollectedFavs" :key="fav.id" :fav="fav" tag="collected" />
@@ -297,17 +325,17 @@ watch(userInfo, () => {
         <input
           v-model="playlistName"
           type="text"
-          class="create-input"
-          placeholder="请输入播放列表名称"
+          class="eno-input create-input"
+          placeholder="歌单名称"
           @keyup.enter="createPlaylist"
         >
       </div>
       <template #footer>
         <div class="opt flex flex-row-reverse text-sm gap-3">
-          <button class="sp-btn-green" type="button" @click.stop="createPlaylist">
+          <button class="btn-primary" type="button" @click.stop="createPlaylist">
             新建
           </button>
-          <button class="sp-btn-ghost" type="button" @click.stop="createDialogVis = false">
+          <button class="btn" type="button" @click.stop="createDialogVis = false">
             取消
           </button>
         </div>
@@ -319,16 +347,16 @@ watch(userInfo, () => {
         v-if="renameTarget"
         v-model="renameTarget.name"
         type="text"
-        class="create-input"
-        placeholder="新的名称"
+        class="eno-input create-input"
+        placeholder="新名称"
         @keyup.enter="confirmRename"
       >
       <template #footer>
         <div class="opt flex flex-row-reverse text-sm gap-3">
-          <button class="sp-btn-green" type="button" @click.stop="confirmRename">
+          <button class="btn-primary" type="button" @click.stop="confirmRename">
             保存
           </button>
-          <button class="sp-btn-ghost" type="button" @click.stop="renameDialogVis = false">
+          <button class="btn" type="button" @click.stop="renameDialogVis = false">
             取消
           </button>
         </div>
@@ -342,295 +370,269 @@ watch(userInfo, () => {
   height: 100%;
 }
 
-.library-page {
-  height: 100%;
-  overflow: auto;
-  padding: 8px 32px 40px;
-}
-
+/* —— 歌单详情 · 内页曲目表 —— */
 .detail-page {
   height: 100%;
   overflow: auto;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 14%, transparent) 0%, transparent 46%);
+  padding: 28px 32px 40px;
 }
 
 .detail-hero {
   display: flex;
   align-items: flex-end;
-  gap: 24px;
-  padding: 16px 32px 32px;
+  gap: 28px;
 }
 
 .detail-cover {
-  width: 192px;
-  height: 192px;
+  width: 176px;
+  height: 176px;
   flex-shrink: 0;
-  border-radius: 4px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-lg);
   object-fit: cover;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+  box-shadow: var(--eno-shadow-md);
   cursor: pointer;
+  transition: border-color 0.16s var(--eno-ease);
+}
+
+.detail-cover:hover {
+  border-color: rgb(240 235 221 / 30%);
 }
 
 .detail-cover--empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 72px;
-  color: #b3b3b3;
-  background: #2a2a2a;
+  color: var(--eno-text-3);
+  background: var(--eno-cover-dim);
+  font-size: 56px;
 }
 
-.kicker {
-  font-size: 13px;
-  font-weight: 700;
+.detail-head {
+  min-width: 0;
+  padding-bottom: 4px;
 }
 
-.detail-hero h1 {
-  margin: 8px 0 12px;
-  font-size: clamp(36px, 5vw, 64px);
+.detail-title {
+  margin: 0 0 10px;
+  overflow-wrap: anywhere;
+  font-family: var(--app-font-display);
+  font-size: clamp(30px, 4.2vw, 52px);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  letter-spacing: 0.03em;
+  line-height: 1.15;
 }
 
-.detail-hero p {
+.detail-count {
   margin: 0;
-  color: #b3b3b3;
+  color: var(--eno-text-3);
+  font-size: 13px;
+  letter-spacing: 0.08em;
 }
 
 .detail-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 18px;
 }
 
 .play-all {
   display: inline-flex;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border: 0;
   border-radius: 50%;
-  color: #000;
-  background: #1ed760;
-  font-size: 24px;
+  color: var(--lp-paper);
+  background: var(--eno-primary);
+  font-size: 22px;
   cursor: pointer;
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.06);
-  background: #3be477;
+  background: var(--eno-primary-hover);
+  transform: translateY(-1px);
 }
 
 .play-all:active {
-  transform: scale(0.94);
-  background: #1abc54;
+  transform: translateY(1px);
 }
 
 .ghost {
+  height: 36px;
+  padding: 0 14px;
   border: 0;
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-2);
   background: transparent;
-  color: #b3b3b3;
-  font-weight: 700;
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
 }
 
 .ghost:hover {
-  color: #fff;
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
 }
 
 .ghost:active {
-  transform: scale(0.96);
-}
-
-.ghost--danger:hover {
-  color: #f87171;
-}
-
-.detail-list {
-  padding: 8px 16px 40px;
-}
-
-.media-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.media-title {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.media-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.media-action-btn,
-:deep(.media-action-btn) {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 16px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #000;
-  background: #fff;
-  cursor: pointer;
-  transition: transform 0.16s var(--eno-ease);
-}
-
-.media-action-btn:hover,
-:deep(.media-action-btn):hover {
-  transform: scale(1.04);
-}
-
-.media-action-btn:active,
-:deep(.media-action-btn):active {
   transform: scale(0.97);
 }
 
-.section-label {
-  margin: 24px 0 12px;
-  font-size: 24px;
-  font-weight: 700;
+.ghost--danger:hover {
+  color: var(--lp-seal-bright);
+  background: var(--eno-primary-light);
 }
 
-.playlist-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-  gap: 16px;
-}
-
-.playlist-tile {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border: 1px solid var(--eno-border, rgb(255 255 255 / 7%));
-  border-radius: var(--eno-radius-xl, 16px);
-  padding: 12px;
-  text-align: left;
-  color: #fff;
-  background: var(--eno-content, #16161c);
-  cursor: pointer;
-  transition:
-    background-color 0.2s var(--eno-ease),
-    transform 0.2s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)),
-    border-color 0.2s var(--eno-ease),
-    box-shadow 0.2s var(--eno-ease);
-}
-
-.playlist-tile:hover {
-  transform: translateY(-4px);
-  border-color: rgb(255 255 255 / 14%);
-  background: var(--eno-content-hover, #26262f);
-  box-shadow: 0 10px 28px rgb(0 0 0 / 45%), 0 0 24px rgb(30 215 96 / 10%);
-}
-
-.playlist-tile:active {
-  transform: translateY(0) scale(0.99);
-}
-
-.drag-grip {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1;
-  color: #7a7a7a;
-  cursor: grab;
-}
-
-.drag-grip:active {
-  cursor: grabbing;
-}
-
-.tile-cover {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-.tile-cover--empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  color: #b3b3b3;
-  background: #2a2a2a;
-}
-
-.tile-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.tile-count {
-  margin-top: 4px;
-  color: #b3b3b3;
-  font-size: 13px;
+.detail-list-title {
+  margin: 24px 0 6px;
 }
 
 .song-row {
   cursor: grab;
 }
 
-.empty-hint {
-  padding: 16px;
-  color: #b3b3b3;
+.song-row:active {
+  cursor: grabbing;
+}
+
+.song-row :deep(.song-item) {
+  border-bottom: 1px solid var(--eno-border);
+}
+
+/* —— 媒体库目录 —— */
+.library-page {
+  height: 100%;
+  overflow: auto;
+  padding: 24px 32px 40px;
+}
+
+.media-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.media-title {
+  margin: 0;
+  font-family: var(--app-font-display);
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.media-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.library-page .eno-section-title {
+  margin: 28px 0 12px;
+}
+
+.playlist-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.playlist-row {
+  display: grid;
+  grid-template-columns: 28px 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--eno-border);
+  color: var(--eno-text-2);
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.playlist-row:hover {
+  background: var(--eno-fill-1);
+}
+
+.drag-grip {
+  display: inline-flex;
+  color: var(--eno-text-4);
+  cursor: grab;
+  transition: color 0.16s var(--eno-ease);
+}
+
+.drag-grip:active {
+  cursor: grabbing;
+}
+
+.playlist-row:hover .drag-grip {
+  color: var(--eno-text-2);
+}
+
+.row-cover {
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
+  object-fit: cover;
+}
+
+.row-cover--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--eno-text-3);
+  background: var(--eno-cover-dim);
+  font-size: 22px;
+}
+
+.row-name {
+  overflow: hidden;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-count {
+  color: var(--eno-text-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.lib-hint {
+  padding: 14px 12px;
+  color: var(--eno-text-3);
+  font-size: 13px;
 }
 
 .create-input {
   width: 100%;
   height: 40px;
-  border: 0;
-  border-radius: 4px;
   padding: 0 12px;
-  color: #fff;
-  background: #3e3e3e;
-}
-
-.sp-btn-green {
-  height: 32px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 16px;
-  font-weight: 700;
-  color: #000;
-  background: #1ed760;
-  cursor: pointer;
-}
-
-.sp-btn-ghost {
-  height: 32px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 16px;
-  color: #fff;
-  background: transparent;
-  cursor: pointer;
 }
 
 @media (max-width: 860px) {
-  .library-page,
-  .detail-hero {
-    padding-left: 16px;
+  .detail-page,
+  .library-page {
     padding-right: 16px;
+    padding-left: 16px;
   }
 
   .detail-hero {
@@ -639,8 +641,15 @@ watch(userInfo, () => {
   }
 
   .detail-cover {
-    width: 148px;
-    height: 148px;
+    width: 132px;
+    height: 132px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-cover,
+  .drag-grip {
+    transition: none;
   }
 }
 </style>

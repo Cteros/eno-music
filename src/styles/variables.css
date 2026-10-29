@@ -1,47 +1,126 @@
 :root {
   color-scheme: dark;
 
-  /* —— 街机脉冲 Arcade Pulse —— */
-  --sp-black: #0a0a0d;
-  --sp-base: #0e0e12;
-  --sp-elevated: #16161c;
-  --sp-highlight: #1c1c24;
-  --sp-press: #26262f;
-  --sp-text: #ffffff;
-  --sp-sub: #a8a8b3;
-  --sp-muted: #6f6f7a;
-  --sp-green: #1ed760;
-  --sp-green-hover: #3be477;
-  --sp-green-press: #1abc54;
+  /* —— 铅字印刷与朱印 · Letterpress & Seal —— */
+  --lp-ink: #16151a;
+  --lp-ink-deep: #100f13;
+  --lp-ink-2: #1d1b22;
+  --lp-ink-3: #262330;
+  --lp-paper: #f0ebdd;
+  --lp-paper-2: #c9c2b1;
+  --lp-paper-3: #9c9482;
+  --lp-paper-4: #7c7466;
+  --lp-seal: #b5342a;
+  --lp-seal-bright: #d9564a;
+  --lp-seal-deep: #8f271e;
+  --lp-indigo: #3a4a6b;
+  --lp-indigo-light: #7d93bd;
 
-  --radius: 0.5rem;
-  --background: var(--sp-black);
-  --foreground: var(--sp-text);
-  --card: var(--sp-elevated);
-  --card-foreground: var(--sp-text);
-  --popover: #1c1c24;
-  --popover-foreground: var(--sp-text);
-  --primary: var(--sp-green);
-  --primary-foreground: #000000;
-  --secondary: var(--sp-highlight);
-  --secondary-foreground: var(--sp-text);
-  --muted: var(--sp-highlight);
-  --muted-foreground: var(--sp-sub);
-  --accent: var(--sp-press);
-  --accent-foreground: var(--sp-text);
-  --destructive: #f43f5e;
-  --border: rgb(255 255 255 / 7%);
-  --input: #1a1a21;
-  --ring: var(--sp-green);
-  --sidebar: var(--sp-base);
-  --sidebar-foreground: var(--sp-text);
-  --sidebar-primary: var(--sp-green);
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: var(--sp-highlight);
-  --sidebar-accent-foreground: var(--sp-text);
+  /* 排版：宋体大标 + 黑体小字（衬线展示字体自托管，见 assets/fonts） */
+  --app-font-sans:
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'Noto Sans CJK SC',
+    system-ui,
+    sans-serif;
+  --app-font-serif:
+    'ENO Serif',
+    'Songti SC',
+    'STSong',
+    'SimSun',
+    'Noto Serif CJK SC',
+    serif;
+  --app-font-display: var(--app-font-serif);
+  --app-font-mono:
+    'SF Mono',
+    ui-monospace,
+    'JetBrains Mono',
+    Menlo,
+    monospace;
+
+  /* 圆角：铅字印刷的克制方角 */
+  --eno-radius-sm: 2px;
+  --eno-radius-md: 3px;
+  --eno-radius-lg: 4px;
+  --eno-radius-xl: 6px;
+
+  /* 阴影：一律带偏移与柔化 */
+  --eno-shadow-sm: 0 1px 2px rgb(12 10 8 / 40%);
+  --eno-shadow-md: 0 6px 18px rgb(12 10 8 / 48%);
+  --eno-shadow-lg: 0 16px 40px rgb(12 10 8 / 55%);
+  --eno-shadow-glow: 0 6px 18px rgb(181 52 42 / 28%);
+  --eno-glow-ring: 0 0 0 1px rgb(240 235 221 / 18%), 0 6px 18px rgb(12 10 8 / 45%);
+
+  --eno-ease: cubic-bezier(0.22, 0.61, 0.24, 1);
+  --eno-ease-pop: cubic-bezier(0.16, 1, 0.3, 1);
+  --eno-bass: 0;
+
+  /* —— 应用 token —— */
+  --eno-bg: var(--lp-ink);
+  --eno-text-1: var(--lp-paper);
+  --eno-text-2: var(--lp-paper-2);
+  --eno-text-3: var(--lp-paper-3);
+  --eno-text-4: var(--lp-paper-4);
+  --eno-content: var(--lp-ink-2);
+  --eno-content-hover: var(--lp-ink-3);
+  --eno-elevated: var(--lp-ink-3);
+  --eno-primary: var(--lp-seal);
+  --eno-primary-hover: var(--lp-seal-deep);
+  --eno-primary-light: rgb(181 52 42 / 14%);
+  --eno-primary-glow: rgb(217 86 74 / 30%);
+  --eno-border: rgb(240 235 221 / 12%);
+  --eno-fill-dark-1: rgb(12 10 8 / 18%);
+  --eno-fill-dark-2: rgb(12 10 8 / 26%);
+  --eno-fill-dark-3: rgb(12 10 8 / 34%);
+  --eno-fill-dark-4: rgb(12 10 8 / 44%);
+  --eno-fill-1: rgb(240 235 221 / 5%);
+  --eno-fill-2: rgb(240 235 221 / 9%);
+  --eno-fill-3: rgb(240 235 221 / 14%);
+  --eno-fill-4: rgb(240 235 221 / 20%);
+  --eno-filter-glass-1: none;
+  --eno-filter-glass-2: none;
+  --eno-filter-glass-light-1: none;
+  --eno-filter-glass-light-2: none;
+  --eno-cover-dim: var(--lp-ink-2);
+  --eno-cover-accent: var(--lp-seal);
+
+  /* —— eno-ui 共享库主题变量（接管其旧世界回退） —— */
+  --eu-focus-ring: rgb(217 86 74 / 40%);
+  --eu-loading-color: var(--lp-seal-bright);
+  --eu-slider-track: rgb(240 235 221 / 14%);
+  --eu-slider-fill: var(--lp-seal);
+  --eu-slider-thumb: var(--lp-paper);
+  --eu-slider-focus: var(--lp-seal-bright);
+
+  /* —— 兼容别名（模板遗留 shadcn 命名）—— */
+  --radius: 4px;
+  --background: var(--lp-ink);
+  --foreground: var(--lp-paper);
+  --card: var(--lp-ink-2);
+  --card-foreground: var(--lp-paper);
+  --popover: var(--lp-ink-3);
+  --popover-foreground: var(--lp-paper);
+  --primary: var(--lp-seal);
+  --primary-foreground: var(--lp-paper);
+  --secondary: var(--lp-ink-3);
+  --secondary-foreground: var(--lp-paper);
+  --muted: var(--lp-ink-3);
+  --muted-foreground: var(--lp-paper-3);
+  --accent: var(--lp-ink-3);
+  --accent-foreground: var(--lp-paper);
+  --destructive: var(--lp-seal-bright);
+  --border: rgb(240 235 221 / 12%);
+  --input: var(--lp-ink-2);
+  --ring: var(--lp-seal-bright);
+  --sidebar: var(--lp-ink-deep);
+  --sidebar-foreground: var(--lp-paper);
+  --sidebar-primary: var(--lp-seal);
+  --sidebar-primary-foreground: var(--lp-paper);
+  --sidebar-accent: var(--lp-ink-3);
+  --sidebar-accent-foreground: var(--lp-paper);
   --sidebar-border: transparent;
-  --sidebar-ring: var(--sp-green);
-
+  --sidebar-ring: var(--lp-seal-bright);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -60,10 +139,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -72,76 +151,14 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-
-  --eno-radius-sm: 6px;
-  --eno-radius-md: 10px;
-  --eno-radius-lg: 12px;
-  --eno-radius-xl: 16px;
-
-  --eno-shadow-sm: 0 2px 8px rgb(0 0 0 / 35%);
-  --eno-shadow-md: 0 10px 28px rgb(0 0 0 / 45%);
-  --eno-shadow-lg: 0 18px 48px rgb(0 0 0 / 55%);
-  --eno-shadow-glow: 0 8px 28px rgb(30 215 96 / 22%), 0 2px 8px rgb(0 0 0 / 40%);
-  --eno-glow-ring: 0 0 0 1px rgb(30 215 96 / 35%), 0 8px 28px rgb(30 215 96 / 18%);
-
-  --eno-ease: cubic-bezier(0.3, 0, 0, 1);
-  --eno-ease-pop: cubic-bezier(0.34, 1.4, 0.64, 1);
-  --eno-bass: 0;
-
-  --app-font-sans:
-    'Helvetica Neue',
-    Helvetica,
-    Arial,
-    'PingFang SC',
-    'Hiragino Sans GB',
-    'Noto Sans CJK SC',
-    system-ui,
-    sans-serif;
-  --app-font-display:
-    'Helvetica Neue',
-    'Arial Black',
-    'PingFang SC',
-    'Hiragino Sans GB',
-    system-ui,
-    sans-serif;
-  --app-font-mono:
-    'SF Mono',
-    ui-monospace,
-    monospace;
-
-  --eno-bg: var(--sp-black);
-  --eno-text-1: var(--sp-text);
-  --eno-text-2: var(--sp-sub);
-  --eno-text-3: var(--sp-sub);
-  --eno-text-4: var(--sp-muted);
-  --eno-content: var(--sp-elevated);
-  --eno-content-hover: var(--sp-press);
-  --eno-elevated: var(--sp-elevated);
-  --eno-primary: var(--sp-green);
-  --eno-primary-hover: var(--sp-green-hover);
-  --eno-primary-light: rgb(30 215 96 / 16%);
-  --eno-primary-glow: rgb(30 215 96 / 38%);
-  --eno-border: rgb(255 255 255 / 7%);
-  --eno-fill-dark-1: rgb(0 0 0 / 16%);
-  --eno-fill-dark-2: rgb(0 0 0 / 24%);
-  --eno-fill-dark-3: rgb(0 0 0 / 32%);
-  --eno-fill-dark-4: rgb(0 0 0 / 42%);
-  --eno-fill-1: rgb(255 255 255 / 5%);
-  --eno-fill-2: rgb(255 255 255 / 9%);
-  --eno-fill-3: rgb(255 255 255 / 14%);
-  --eno-fill-4: rgb(255 255 255 / 20%);
-  --eno-filter-glass-1: none;
-  --eno-filter-glass-2: none;
-  --eno-filter-glass-light-1: none;
-  --eno-filter-glass-light-2: none;
 }
 
 .dark {
-  --background: var(--sp-black);
-  --foreground: var(--sp-text);
-  --card: var(--sp-elevated);
-  --primary: var(--sp-green);
-  --muted-foreground: var(--sp-sub);
-  --border: #282828;
-  --sidebar: var(--sp-base);
+  --background: var(--lp-ink);
+  --foreground: var(--lp-paper);
+  --card: var(--lp-ink-2);
+  --primary: var(--lp-seal);
+  --muted-foreground: var(--lp-paper-3);
+  --border: rgb(240 235 221 / 12%);
+  --sidebar: var(--lp-ink-deep);
 }

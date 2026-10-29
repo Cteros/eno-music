@@ -222,11 +222,12 @@ watch(activeIndex, (index) => {
 </template>
 
 <style scoped>
+/* —— 歌词：书页上的歌词本，宋体正文 + 朱红当前字 —— */
 .lyrics-panel {
   position: fixed;
   left: 16px;
   right: 16px;
-  bottom: 96px;
+  bottom: 116px;
   z-index: 30;
   display: flex;
   flex-direction: column;
@@ -234,36 +235,43 @@ watch(activeIndex, (index) => {
   height: min(42vh, 320px);
   margin: 0 auto;
   overflow: hidden;
-  border-radius: 12px;
-  background: rgb(18 18 18 / 90%);
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-lg);
+  background: rgb(22 21 26 / 94%);
+  box-shadow: var(--eno-shadow-lg);
 }
 
 .lyrics-bar {
   display: flex;
   justify-content: flex-end;
-  gap: 2px;
-  padding: 8px 10px 0;
+  gap: 6px;
+  padding: 10px 12px 0;
 }
 
 .lyric-toggle {
-  height: 22px;
+  height: 24px;
   padding: 0 10px;
-  border: 0;
-  border-radius: 999px;
+  border: 1px solid transparent;
+  border-radius: var(--eno-radius-sm);
   background: transparent;
-  color: #7a7a7a;
-  font-size: 11px;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
+  transition: color 0.14s var(--eno-ease), background-color 0.14s var(--eno-ease), border-color 0.14s var(--eno-ease);
 }
 
-.lyric-toggle:hover,
-.lyric-toggle--on {
-  color: #fff;
+.lyric-toggle:hover {
+  color: var(--eno-text-1);
 }
 
-.lyric-toggle--on {
-  background: rgb(255 255 255 / 8%);
+.lyric-toggle--on,
+.lyric-toggle--on:hover {
+  border-color: rgb(217 86 74 / 55%);
+  background: var(--eno-primary-light);
+  color: var(--lp-seal-bright);
 }
 
 .lyrics-scroll {
@@ -283,47 +291,53 @@ watch(activeIndex, (index) => {
 
 .lyrics-main {
   margin: 0;
-  font-size: 18px;
-  line-height: 1.5;
-  color: #7a7a7a;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.55;
   transition: color 0.22s var(--eno-ease);
 }
 
 .lyrics-line--active {
-  transform: scale(1.06);
+  transform: scale(1.04);
 }
 
 .lyrics-line--active .lyrics-main {
-  font-weight: 700;
+  color: var(--eno-text-1);
+  font-weight: 900;
 }
 
 .lyric-word {
-  color: rgb(255 255 255 / 38%);
-  transition: color 0.12s linear, text-shadow 0.12s linear;
+  color: var(--eno-text-3);
+  transition: color 0.12s linear;
 }
 
 .lyric-word--sung {
-  color: color-mix(in srgb, var(--eno-cover-accent, #1ed760) 55%, #fff);
+  color: var(--eno-text-2);
 }
 
 .lyric-word--now {
-  color: #fff;
-  text-shadow: 0 0 12px color-mix(in srgb, var(--eno-cover-accent, #1ed760) 80%, transparent);
+  color: var(--lp-seal-bright);
+  font-weight: 900;
 }
 
 .lyrics-sub {
-  margin: 4px 0 0;
-  color: #7a7a7a;
+  margin: 5px 0 0;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
   font-size: 13px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .lyrics-line--active .lyrics-sub {
-  color: #b3b3b3;
+  color: var(--eno-text-2);
 }
 
 .lyrics-sub--romaji {
   font-style: italic;
+  letter-spacing: 0.02em;
 }
 
 .crowd {
@@ -335,7 +349,7 @@ watch(activeIndex, (index) => {
   max-height: 56px;
   overflow: hidden;
   padding: 0 16px 12px;
-  opacity: calc(0.42 + var(--crowd, 0) * 0.5);
+  opacity: calc(0.55 + var(--crowd, 0) * 0.35);
 }
 
 .crowd-chip {
@@ -344,9 +358,11 @@ watch(activeIndex, (index) => {
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 3px 8px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 8%);
-  color: #b3b3b3;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-1);
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
   font-size: 11px;
 }
 
@@ -356,7 +372,8 @@ watch(activeIndex, (index) => {
   flex: 1;
   align-items: center;
   justify-content: center;
-  color: #b3b3b3;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
   font-size: 14px;
 }
 
@@ -369,38 +386,40 @@ watch(activeIndex, (index) => {
   height: 30px;
   padding: 0 18px;
   border: 0;
-  border-radius: 999px;
-  background: var(--eno-primary);
-  color: #000;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-seal);
+  color: var(--lp-paper);
+  font-family: var(--app-font-sans);
   font-size: 13px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
   transition: transform 0.16s var(--eno-ease-pop), background-color 0.16s var(--eno-ease);
 }
 
 .lyric-retry:hover {
-  transform: scale(1.05);
-  background: var(--eno-primary-hover);
+  transform: translateY(-1px);
+  background: var(--lp-seal-deep);
 }
 
 .lyric-retry:active {
-  transform: scale(0.95);
+  transform: translateY(1px);
 }
 
 /* —— 全屏视频分栏模式：右列歌词 —— */
 .lyrics-panel--split {
   top: 0;
   right: 0;
-  bottom: 80px;
+  bottom: 104px;
   left: auto;
   width: 42%;
   max-width: none;
   height: auto;
   border: 0;
-  border-left: 1px solid rgb(255 255 255 / 6%);
+  border-left: 1px solid var(--eno-border);
   border-radius: 0;
-  background: linear-gradient(90deg, rgb(10 10 10 / 20%), rgb(10 10 10 / 84%) 24%);
-  backdrop-filter: blur(18px);
+  background: rgb(16 15 19 / 92%);
+  box-shadow: none;
 }
 
 .lyrics-panel--split .lyrics-bar {
@@ -417,7 +436,7 @@ watch(activeIndex, (index) => {
 
 .lyrics-panel--split .lyrics-main {
   font-size: 21px;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .lyrics-panel--split .lyrics-line--active {
@@ -426,7 +445,6 @@ watch(activeIndex, (index) => {
 
 .lyrics-panel--split .lyrics-line--active .lyrics-main {
   font-size: 27px;
-  font-weight: 700;
 }
 
 .lyrics-panel--split .lyrics-sub {
@@ -435,12 +453,27 @@ watch(activeIndex, (index) => {
 }
 
 .lyrics-panel--split .lyrics-hint {
-  color: #9a9a9a;
+  color: var(--eno-text-3);
   font-size: 15px;
 }
 
 .lyrics-panel--split .crowd {
   max-height: 72px;
   padding: 0 20px 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lyrics-line,
+  .lyrics-main,
+  .lyric-word,
+  .lyric-toggle,
+  .lyric-retry {
+    transition: none;
+    transform: none;
+  }
+
+  .lyrics-line--active {
+    transform: none;
+  }
 }
 </style>

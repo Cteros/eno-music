@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Dialog, MessageAPI } from '@cloudfly/eno-ui'
 import { addToBiliFavorite, createBiliFavoriteFolder, getFavorites, useApiClient } from '~/api'
+import { zhError } from '~/shared/zhError'
 import { useLibraryStore } from '~/stores'
 
 interface BiliFolder {
@@ -125,7 +126,7 @@ async function handleAddToBili(folder: BiliFolder) {
   catch (error) {
     MessageAPI.show({
       type: 'error',
-      message: error instanceof Error ? error.message : '收藏失败',
+      message: zhError(error, '收藏失败'),
     })
   }
   finally {
@@ -157,7 +158,7 @@ async function handleCreateBiliFolder() {
   catch (error) {
     MessageAPI.show({
       type: 'error',
-      message: error instanceof Error ? error.message : '新建收藏夹失败',
+      message: zhError(error, '新建收藏夹失败'),
     })
   }
   finally {
@@ -176,12 +177,9 @@ watch(() => PLStore.addSongDialog, (open) => {
 <template>
   <Dialog :open="PLStore.addSongDialog" title="添加到" @visible-change="vis => PLStore.addSongDialog = vis">
     <div class="flex flex-col text-left gap-1">
-      <section
-        class="add-row"
-        @click.stop="PLStore.addSongToListenLater"
-      >
-        <h2 class="w-40 text-lg truncate flex items-center gap-3">
-          <div class="i-mingcute:time-fill w-1em h-1em" cursor-pointer />
+      <section class="add-row eno-row" @click.stop="PLStore.addSongToListenLater">
+        <h2 class="add-row-name">
+          <div class="i-tabler:clock-play add-row-icon" />
           稍后播放
         </h2>
       </section>
@@ -191,12 +189,12 @@ watch(() => PLStore.addSongDialog, (open) => {
       </div>
       <section
         v-for="playlist in PLStore.list" :key="playlist.name"
-        class="add-row"
+        class="add-row eno-row"
         @click.stop="handleAddSong(playlist)"
       >
-        <h2 class="text-lg truncate flex items-center gap-3">
-          <div class="i-mingcute:folder-fill w-1em h-1em flex-shrink-0" cursor-pointer />
-          <span class="truncate" v-html="playlist.name" />
+        <h2 class="add-row-name">
+          <div class="i-tabler:folder add-row-icon" />
+          <span class="add-row-text" v-html="playlist.name" />
         </h2>
       </section>
 
@@ -206,7 +204,7 @@ watch(() => PLStore.addSongDialog, (open) => {
       <div v-if="mid && canFavBili" class="add-create" @click.stop>
         <input
           v-model="newFolderName"
-          class="add-create-input"
+          class="eno-input add-create-input"
           type="text"
           maxlength="20"
           placeholder="新建收藏夹名称"
@@ -214,7 +212,7 @@ watch(() => PLStore.addSongDialog, (open) => {
         >
         <button
           type="button"
-          class="add-create-btn"
+          class="btn-primary add-create-btn"
           :disabled="creatingFolder || !newFolderName.trim()"
           @click="handleCreateBiliFolder"
         >
@@ -237,13 +235,13 @@ watch(() => PLStore.addSongDialog, (open) => {
         <section
           v-for="folder in biliFolders"
           :key="biliMediaId(folder)"
-          class="add-row"
+          class="add-row eno-row"
           :class="{ 'add-row--busy': submittingId === biliMediaId(folder) }"
           @click.stop="handleAddToBili(folder)"
         >
-          <h2 class="text-lg truncate flex items-center gap-3 min-w-0">
-            <div class="i-mingcute:star-line w-1em h-1em flex-shrink-0" />
-            <span class="truncate">{{ folder.title }}</span>
+          <h2 class="add-row-name">
+            <div class="i-tabler:star add-row-icon" />
+            <span class="add-row-text">{{ folder.title }}</span>
           </h2>
           <span class="add-meta">
             {{ folder.fav_state ? '已收藏' : `${folder.media_count || 0} 首` }}
@@ -255,23 +253,40 @@ watch(() => PLStore.addSongDialog, (open) => {
 </template>
 
 <style scoped>
+/* 「添加到」目录行：方角内页行 */
 .add-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--eno-border);
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
 }
 
-.add-row:hover {
-  background: rgb(255 255 255 / 10%);
+.add-row-name {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
 }
 
-.add-row:active {
-  background: rgb(255 255 255 / 14%);
+.add-row-icon {
+  flex-shrink: 0;
+  color: var(--eno-text-3);
+  font-size: 16px;
+}
+
+.add-row-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .add-row--busy {
@@ -280,59 +295,49 @@ watch(() => PLStore.addSongDialog, (open) => {
 }
 
 .add-label {
-  margin: 10px 12px 4px;
-  color: #7a7a7a;
+  margin: 14px 12px 6px;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
 .add-hint {
   padding: 8px 12px;
-  color: #b3b3b3;
+  color: var(--eno-text-3);
   font-size: 13px;
 }
 
 .add-meta {
   flex-shrink: 0;
-  color: #7a7a7a;
+  color: var(--eno-text-3);
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
 }
 
 .add-create {
   display: flex;
   gap: 8px;
-  padding: 4px 12px 8px;
+  padding: 6px 12px 10px;
 }
 
 .add-create-input {
+  height: 36px;
   min-width: 0;
   flex: 1;
-  height: 32px;
   padding: 0 10px;
-  border: 0;
-  border-radius: 4px;
-  background: #282828;
-  color: #fff;
-  font-size: 13px;
 }
 
 .add-create-btn {
   flex-shrink: 0;
-  height: 32px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 4px;
-  background: #1ed760;
-  color: #000;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
 }
 
-.add-create-btn:disabled {
-  cursor: default;
-  opacity: 0.45;
+@media (prefers-reduced-motion: reduce) {
+  .add-row {
+    transition: none;
+  }
 }
 </style>

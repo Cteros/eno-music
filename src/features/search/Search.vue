@@ -6,6 +6,7 @@ import { computed, ref } from 'vue'
 import { useApiClient } from '~/api'
 import AddCollection from '~/features/library/AddCollection.vue'
 import SongItem from '~/shared/components/SongItem.vue'
+import { zhError } from '~/shared/zhError'
 import { useRecentStore } from '~/stores'
 
 const scrollRef = ref(null)
@@ -16,6 +17,7 @@ const recent = useRecentStore()
 const keyword = ref('')
 const result = ref([] as any[])
 const isLoading = ref(false)
+const searchFailed = ref(false)
 const enableScrollGetMore = ref(true)
 const durationFilter = ref<'all' | 'short' | 'medium' | 'long'>('all')
 const authorFilter = ref('')
@@ -97,9 +99,11 @@ async function getMoreData() {
   }
   catch (error) {
     enableScrollGetMore.value = false
+    if (!result.value.length)
+      searchFailed.value = true
     MessageAPI.show({
       type: 'error',
-      message: error instanceof Error ? error.message : '搜索失败，请稍后重试',
+      message: zhError(error, '搜索失败，请稍后重试'),
     })
     return []
   }
@@ -113,6 +117,7 @@ async function handleSearch() {
   const query = keyword.value.trim()
   if (!query)
     return
+  searchFailed.value = false
   recent.recordSearch(query)
   try {
     if (isUrl(keyword.value)) {
@@ -150,9 +155,10 @@ async function handleSearch() {
     }
   }
   catch (error) {
+    searchFailed.value = true
     MessageAPI.show({
       type: 'error',
-      message: error instanceof Error ? error.message : '搜索失败，请稍后重试',
+      message: zhError(error, '搜索失败，请稍后重试'),
     })
   }
 }
@@ -178,7 +184,7 @@ function searchFromHistory(query: string) {
             id="search"
             v-model="keyword"
             type="text"
-            class="search-input"
+            class="search-input eno-input"
             placeholder="想听什么？"
             @keyup.enter="handleSearch"
           >
@@ -190,15 +196,15 @@ function searchFromHistory(query: string) {
           v-for="item in durationOptions"
           :key="item.id"
           type="button"
-          class="filter-chip"
-          :class="{ 'filter-chip--on': durationFilter === item.id }"
+          class="eno-chip"
+          :class="{ 'eno-chip--on': durationFilter === item.id }"
           @click="durationFilter = item.id"
         >
           {{ item.label }}
         </button>
         <input
           v-model="authorFilter"
-          class="author-filter"
+          class="author-filter eno-input"
           type="text"
           placeholder="按 UP 筛选"
         >
@@ -206,7 +212,7 @@ function searchFromHistory(query: string) {
     </header>
 
     <div v-if="displayed.length" ref="scrollRef" class="result-panel">
-      <h2 class="result-title">
+      <h2 class="result-title eno-section-title">
         歌曲
       </h2>
       <SongItem
@@ -218,14 +224,35 @@ function searchFromHistory(query: string) {
       />
     </div>
 
-    <div v-else-if="result.length" class="empty-panel">
-      <h3>没有符合筛选的结果</h3>
-      <p>试试改时长或 UP 名称。</p>
+    <div v-else-if="result.length" class="eno-empty">
+      <h3 class="eno-empty__title">
+        没有符合筛选的结果
+      </h3>
+      <p class="eno-empty__hint">
+        试试改时长或 UP 名称。
+      </p>
     </div>
 
-    <div v-else class="empty-panel">
-      <h3>开始搜索</h3>
-      <p>输入关键词，或直接粘贴 Bilibili 视频链接。</p>
+    <div v-else-if="searchFailed" class="eno-empty">
+      <h3 class="eno-empty__title">
+        搜索失败
+      </h3>
+      <p class="eno-empty__hint">
+        网络没通，歌没搜来。点「重试」再搜一次。
+      </p>
+      <button type="button" class="btn-primary" @click="handleSearch">
+        <div class="i-tabler:rotate-clockwise" />
+        重试
+      </button>
+    </div>
+
+    <div v-else class="eno-empty">
+      <h3 class="eno-empty__title">
+        开始搜索
+      </h3>
+      <p class="eno-empty__hint">
+        输入关键词，或直接粘贴 Bilibili 视频链接。
+      </p>
       <div v-if="recent.searchHistory.length" class="history-block">
         <div class="history-head">
           <span>最近搜索</span>
@@ -238,11 +265,11 @@ function searchFromHistory(query: string) {
             v-for="item in recent.searchHistory"
             :key="item"
             type="button"
-            class="history-chip"
+            class="eno-chip"
             @click="searchFromHistory(item)"
           >
             {{ item }}
-            <span class="history-remove" @click.stop="recent.removeSearch(item)">×</span>
+            <span class="history-remove i-tabler:x" @click.stop="recent.removeSearch(item)" />
           </button>
         </div>
       </div>
@@ -260,24 +287,45 @@ function searchFromHistory(query: string) {
 }
 
 .search-hero {
-  padding: 24px 32px 8px;
+  padding: 28px 32px 14px;
 }
 
 .search-title {
-  margin: 0 0 20px;
+  margin: 0 0 18px;
+  font-family: var(--app-font-display);
   font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
 }
 
 .search-form {
-  max-width: 364px;
+  max-width: 480px;
 }
 
 .search-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+.search-input-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  color: var(--eno-text-3);
+  font-size: 18px;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.search-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 42px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .search-loading {
@@ -287,170 +335,55 @@ function searchFromHistory(query: string) {
   transform: translateY(-50%);
 }
 
-.search-input-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-  color: #000;
+.search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: 640px;
+  margin-top: 14px;
 }
 
-.search-input {
-  width: 100%;
-  height: 48px;
-  border: 0;
-  border-radius: 24px;
-  padding: 0 16px 0 44px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
-  background: #fff;
-}
-
-.search-input::placeholder {
-  color: #757575;
-}
-
-.search-input:focus {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
+.author-filter {
+  height: 28px;
+  min-width: 132px;
+  padding: 0 10px;
+  font-size: 12px;
 }
 
 .result-panel {
   flex: 1;
   overflow: auto;
-  padding: 8px 16px 32px;
+  padding: 8px 24px 32px;
 }
 
 .result-title {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin: 14px 16px 14px;
-  color: var(--eno-text-1, #fff);
-  font-family: var(--app-font-display, inherit);
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: -0.025em;
-}
-
-.result-title::before {
-  width: 6px;
-  height: 20px;
-  border-radius: 3px;
-  background: var(--eno-primary, #1ed760);
-  box-shadow: 0 0 12px rgb(30 215 96 / 38%);
-  content: '';
-  transform: skewX(-8deg);
-}
-
-.empty-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 72px 32px;
-  color: var(--eno-text-4, #6f6f7a);
-  text-align: center;
-}
-
-.empty-panel h3 {
-  margin: 0;
-  color: var(--eno-text-2, #a8a8b3);
-  font-family: var(--app-font-display, inherit);
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
-
-.empty-panel p {
-  margin: 0;
-  font-size: 13px;
-  max-width: 320px;
-  line-height: 1.6;
-}
-
-.search-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-width: 640px;
-  margin-top: 16px;
-}
-
-.filter-chip,
-.history-chip {
-  border: 1px solid rgb(255 255 255 / 8%);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--eno-text-2, #a8a8b3);
-  background: rgb(255 255 255 / 5%);
-  cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)), color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), box-shadow 0.16s var(--eno-ease);
-}
-
-.filter-chip--on {
-  border-color: rgb(30 215 96 / 45%);
-  color: var(--eno-primary, #1ed760);
-  background: rgb(30 215 96 / 16%);
-  box-shadow: 0 0 16px rgb(30 215 96 / 14%);
-}
-
-.history-chip:hover,
-.filter-chip:hover {
-  transform: translateY(-1px);
-  border-color: rgb(255 255 255 / 16%);
-  background: rgb(255 255 255 / 10%);
-  color: var(--eno-text-1, #fff);
-}
-
-.filter-chip:active,
-.history-chip:active {
-  transform: scale(0.96);
-}
-
-.author-filter {
-  height: 32px;
-  min-width: 140px;
-  border: 1px solid rgb(255 255 255 / 8%);
-  border-radius: 999px;
-  padding: 0 12px;
-  color: #fff;
-  background: rgb(255 255 255 / 5%);
+  margin: 18px 0 12px;
 }
 
 .history-block {
-  margin-top: 24px;
+  width: min(440px, 100%);
+  margin-top: 22px;
+  text-align: left;
 }
 
 .history-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #b3b3b3;
+  margin-bottom: 10px;
+  color: var(--eno-text-3);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
 }
 
 .history-clear {
+  padding: 0 2px;
   border: 0;
-  padding: 0;
-  color: #b3b3b3;
+  color: var(--eno-text-3);
   background: transparent;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
-}
-
-.history-clear:hover {
-  color: #fff;
-}
-
-.history-clear:active {
-  transform: scale(0.96);
 }
 
 .history-chips {
@@ -460,17 +393,33 @@ function searchFromHistory(query: string) {
 }
 
 .history-remove {
-  margin-left: 6px;
-  opacity: 0.7;
+  font-size: 11px;
+  opacity: 0.55;
+  transition: color 0.16s var(--eno-ease), opacity 0.16s var(--eno-ease);
+}
+
+.history-remove:hover {
+  color: var(--lp-seal-bright);
+  opacity: 1;
 }
 
 @media (max-width: 860px) {
   .search-hero {
-    padding: 20px 16px 8px;
+    padding: 20px 16px 10px;
   }
 
   .search-form {
     max-width: none;
+  }
+
+  .result-panel {
+    padding: 8px 12px 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-remove {
+    transition: none;
   }
 }
 </style>

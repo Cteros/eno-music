@@ -104,6 +104,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* 封面舞台：封套压印在墨底上——不发光、不模糊、不漂移 */
 .cover-stage {
   position: absolute;
   inset: 0;
@@ -114,20 +115,17 @@ onBeforeUnmount(() => {
 
 .cover-stage-img {
   position: absolute;
-  inset: 0 auto auto 0;
+  inset: 0;
   width: 100%;
-  height: 120%;
-  margin-top: -8%;
+  height: 100%;
   object-fit: cover;
-  filter: blur(64px) saturate(calc(1.08 + var(--eno-bass, 0) * 0.35));
-  transform: scale(1.12);
-  opacity: calc(0.26 + var(--eno-bass, 0) * 0.12);
-  animation: cover-drift 56s ease-in-out infinite alternate;
+  filter: grayscale(1) contrast(1.12) brightness(0.55);
+  opacity: 0.2;
   transition: opacity 0.4s var(--eno-ease);
 }
 
 .cover-stage--playing .cover-stage-img:not(.cover-stage-img--leave) {
-  opacity: calc(0.34 + var(--eno-bass, 0) * 0.16);
+  opacity: 0.26;
 }
 
 .cover-stage-img--leave {
@@ -144,18 +142,13 @@ onBeforeUnmount(() => {
 .cover-stage-wash {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 16%, transparent) 0%, #121212 58%),
-    linear-gradient(180deg, rgb(0 0 0 / 12%) 0%, #121212 100%);
+  background: color-mix(in srgb, var(--eno-cover-wash, var(--lp-ink-2)) 70%, var(--lp-ink-deep));
 }
 
-@keyframes cover-drift {
-  from {
-    transform: scale(1.12) translate3d(-1.5%, 0, 0);
-  }
-
-  to {
-    transform: scale(1.2) translate3d(2%, -1.5%, 0);
+@media (prefers-reduced-motion: reduce) {
+  .cover-stage-img,
+  .cover-stage-img--leave {
+    transition: none;
   }
 }
 </style>

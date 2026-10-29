@@ -5,9 +5,9 @@ export interface CoverPalette {
 }
 
 export const EMPTY_PALETTE: CoverPalette = {
-  accent: '#1ed760',
-  wash: '#121212',
-  dim: '#121212',
+  accent: '#b5342a',
+  wash: '#16151a',
+  dim: '#100f13',
 }
 
 function toRgb(r: number, g: number, b: number) {

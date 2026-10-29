@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>灯箱招牌 · ENO-M 首屏</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1440px; height:900px; overflow:hidden; }
+  body {
+    background:#141821; color:#fff6e6;
+    font-family:"PingFang SC","Helvetica Neue",sans-serif;
+    display:flex; flex-direction:column;
+  }
+  .app { flex:1; display:flex; min-height:0; }
+  /* —— 左侧导航（标准外壳）—— */
+  .rail { width:220px; border-right:1px solid rgba(255,246,230,.14); padding:28px 20px; display:flex; flex-direction:column; gap:22px; }
+  .brand { font-size:27px; font-weight:800; letter-spacing:.06em; color:#fff6e6; }
+  .brand .open { display:inline-block; border:2px solid #2fae67; color:#2fae67; font-size:13px; padding:1px 8px; letter-spacing:.22em; margin-left:8px; }
+  .nav-item { font-size:20px; color:rgba(255,246,230,.6); padding:9px 12px; }
+  .nav-item.on { background:#fff6e6; color:#e2412c; font-weight:800; box-shadow:0 6px 22px rgba(255,246,230,.22); }
+  .nav-cap { font-size:15px; letter-spacing:.32em; color:rgba(255,246,230,.38); margin-top:12px; }
+  /* —— 主区：招牌墙 —— */
+  .page { flex:1; padding:38px 52px 20px; overflow:hidden; }
+  .kicker { font-size:15px; letter-spacing:.5em; color:#f5a623; margin-bottom:10px; }
+  .headline { font-size:50px; font-weight:800; letter-spacing:-.01em; }
+  .headline .lit { background:#fff6e6; color:#e2412c; padding:2px 18px; box-shadow:0 10px 34px rgba(255,246,230,.28); }
+  .sub { font-size:18px; color:rgba(255,246,230,.55); margin-top:14px; }
+  .wall { margin-top:28px; display:flex; flex-direction:column; gap:12px; }
+  .sign { display:flex; align-items:center; height:78px; padding:0 22px; border:1px solid rgba(255,246,230,.16); background:rgba(255,246,230,.04); }
+  .sign .no { width:64px; font-size:18px; letter-spacing:.18em; color:rgba(255,246,230,.45); }
+  .sign .name { font-size:30px; font-weight:800; letter-spacing:.04em; color:rgba(255,246,230,.82); }
+  .sign .fine { margin-left:30px; width:220px; height:11px; background:rgba(255,246,230,.16); }
+  .sign .dur { margin-left:auto; width:58px; height:11px; background:rgba(255,246,230,.16); }
+  .sign.lit { background:#fff6e6; border-color:#fff6e6; box-shadow:0 12px 38px rgba(255,246,230,.3); }
+  .sign.lit .no { color:rgba(226,65,44,.55); }
+  .sign.lit .name { color:#e2412c; }
+  .sign.lit .fine, .sign.lit .dur { background:rgba(226,65,44,.22); }
+  .sign .live { border:2px solid #2fae67; color:#2fae67; font-size:15px; letter-spacing:.24em; padding:3px 12px; margin-left:26px; }
+  /* —— 底部播放条（标准外壳）—— */
+  .player { height:104px; border-top:1px solid rgba(255,246,230,.16); display:flex; align-items:center; padding:0 40px; gap:26px; background:#191e2a; position:relative; }
+  .cover { width:66px; height:66px; background:#e2412c; color:#fff6e6; font-size:30px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .meta .name { font-size:25px; font-weight:800; color:#fff6e6; }
+  .meta .by { margin-top:8px; width:170px; height:11px; background:rgba(255,246,230,.18); }
+  .transport { margin-left:auto; display:flex; align-items:center; gap:22px; }
+  .tbtn { width:22px; height:22px; background:rgba(255,246,230,.55); }
+  .tbtn.play { width:52px; height:52px; border-radius:50%; background:#fff6e6; box-shadow:0 8px 26px rgba(255,246,230,.32); }
+  .progress { position:absolute; left:0; top:0; width:100%; height:3px; background:rgba(255,246,230,.14); }
+  .progress i { display:block; width:38%; height:100%; background:#f5a623; box-shadow:0 0 12px rgba(245,166,35,.6); }
+</style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">ENO-M<span class="open">营业中</span></div>
+      <div class="nav-item on">首页</div>
+      <div class="nav-item">搜索</div>
+      <div class="nav-item">直播</div>
+      <div class="nav-item">关注人更新</div>
+      <div class="nav-cap">M Y&nbsp;&nbsp;L I B R A R Y</div>
+      <div class="nav-item">媒体库</div>
+      <div class="nav-item">稍后播放</div>
+      <div class="nav-item">最近播放</div>
+      <div class="nav-item">关注的音乐人</div>
+    </aside>
+    <main class="page">
+      <div class="kicker">BILIBILI 音乐榜 · 第 44 周</div>
+      <div class="headline">今晚，<span class="lit">整条街</span>都在放的歌</div>
+      <div class="sub">曲目即招牌 · 正在播放的那块亮起来 · 直播挂「营业中」</div>
+      <div class="wall">
+        <div class="sign lit"><div class="no">01</div><div class="name">群青</div><div class="fine"></div><div class="dur"></div></div>
+        <div class="sign"><div class="no">02</div><div class="name">曇天</div><div class="fine"></div><div class="dur"></div></div>
+        <div class="sign"><div class="no">03</div><div class="name">Lemon</div><div class="fine"></div><div class="dur"></div></div>
+        <div class="sign"><div class="no">04</div><div class="name">打上花火</div><div class="live">营业中</div><div class="dur"></div></div>
+        <div class="sign"><div class="no">05</div><div class="name">夜に駆ける</div><div class="fine"></div><div class="dur"></div></div>
+        <div class="sign"><div class="no">06</div><div class="name">残酷な天使のテーゼ</div><div class="fine"></div><div class="dur"></div></div>
+      </div>
+    </main>
+  </div>
+  <div class="player">
+    <div class="progress"><i></i></div>
+    <div class="cover">群</div>
+    <div class="meta"><div class="name">群青</div><div class="by"></div></div>
+    <div class="transport">
+      <div class="tbtn"></div><div class="tbtn play"></div><div class="tbtn"></div>
+    </div>
+  </div>
+</body>
+</html>

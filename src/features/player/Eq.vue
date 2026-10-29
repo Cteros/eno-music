@@ -35,8 +35,8 @@ watch(() => eqStore.currentPreset, () => {
 <template>
   <div class="eq-container">
     <!-- 预设选择 -->
-    <div class="mb-4 flex gap-3">
-      <select v-model="eqStore.currentPreset" class="bg-$eno-fill-4 p-2 rounded-2 pr-3">
+    <div class="eq-toolbar">
+      <select v-model="eqStore.currentPreset" class="eno-input eq-select">
         <option value="flat">
           平衡
         </option>
@@ -60,14 +60,15 @@ watch(() => eqStore.currentPreset, () => {
       </select>
 
       <!-- 保存预设 -->
-      <div class="flex gap-2 mt-2">
+      <div class="eq-save">
         <input
           v-model="newPresetName"
           placeholder="预设名称"
-          class="bg-$eno-fill-4 p-2 rounded-2"
+          class="eno-input eq-name"
         >
         <button
-          class="bg-$eno-fill-4 p-2 rounded-2 hover:bg-$eno-fill-2"
+          type="button"
+          class="eq-btn"
           @click="savePreset"
         >
           保存预设
@@ -76,31 +77,33 @@ watch(() => eqStore.currentPreset, () => {
     </div>
 
     <!-- EQ 滑块 -->
-    <div class="eq-sliders grid grid-cols-6 gap-4">
-      <div v-for="(freq, index) in frequencies" :key="freq" class="flex flex-col items-center">
-        <div class="w-40 h-40 flex items-center justify-center">
+    <div class="eq-sliders">
+      <div v-for="(freq, index) in frequencies" :key="freq" class="eq-cell">
+        <div class="eq-slot">
           <input
             v-model.number="eqStore.values[index]"
             type="range"
             min="-12"
             max="12"
             step="1"
-            class=""
+            class="eq-range"
+            :aria-label="freq"
           >
         </div>
-        <div class="text-sm mt-2">
+        <div class="eq-freq">
           {{ freq }}
         </div>
-        <div class="text-sm">
+        <div class="eq-value">
           {{ eqStore.values[index] }}dB
         </div>
       </div>
     </div>
 
     <!-- 重置按钮 -->
-    <div class="mt-4 flex justify-center">
+    <div class="eq-foot">
       <button
-        class="bg-$eno-fill-4 p-2 rounded-2 hover:bg-$eno-fill-2"
+        type="button"
+        class="eq-btn"
         @click="reset"
       >
         重置
@@ -110,142 +113,213 @@ watch(() => eqStore.currentPreset, () => {
 </template>
 
 <style scoped>
+/* —— 均衡器：铅字仪表盘，细栏线 + 朱红滑钮 —— */
 .eq-container {
-  padding: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 0 0;
   background: transparent;
   border: 0;
   box-shadow: none;
 }
 
-/* 滑块容器 */
-.eq-sliders {
-  background: var(--eno-fill-4);
-  padding: 24px;
-  border-radius: var(--eno-radius-md);
-  border: 1px solid var(--eno-border);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08);
+.eq-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }
 
-/* 垂直滑块基础样式 */
-input[type="range"] {
+.eq-select {
+  height: 34px;
+  min-width: 132px;
+  padding: 0 10px;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.eq-save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eq-name {
+  width: 150px;
+  height: 34px;
+  padding: 0 10px;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+}
+
+.eq-btn {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-1);
+  color: var(--eno-text-2);
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
+}
+
+.eq-btn:hover {
+  background: var(--eno-fill-2);
+  color: var(--eno-text-1);
+}
+
+.eq-btn:active {
+  transform: translateY(1px);
+}
+
+.eq-foot {
+  display: flex;
+  justify-content: center;
+}
+
+/* 滑块面板：细栏线 + 中线刻度 */
+.eq-sliders {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  padding: 20px 16px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-lg);
+  background: var(--eno-fill-1);
+  box-shadow: none;
+}
+
+/* 中线：与 160px 滑轨的中点对齐（20px 上留白 + 半个滑轨） */
+.eq-sliders::before {
+  content: '';
+  position: absolute;
+  right: 16px;
+  left: 16px;
+  top: 100px;
+  height: 1px;
+  background: var(--eno-border);
+  pointer-events: none;
+}
+
+.eq-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-radius: var(--eno-radius-md);
+  transition: background-color 0.18s var(--eno-ease);
+}
+
+.eq-cell:hover {
+  background: var(--eno-fill-2);
+}
+
+.eq-cell:hover .eq-freq,
+.eq-cell:hover .eq-value {
+  color: var(--eno-text-1);
+}
+
+.eq-slot {
+  display: flex;
+  width: 100%;
+  height: 160px;
+  align-items: center;
+  justify-content: center;
+}
+
+.eq-freq {
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: color 0.18s var(--eno-ease);
+}
+
+.eq-value {
+  color: var(--eno-text-2);
+  font-family: var(--app-font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.18s var(--eno-ease);
+}
+
+/* 垂直滑块 */
+input[type='range'] {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   background: transparent;
   transform: rotate(90deg);
   cursor: pointer;
 }
 
-/* 滑块轨道 */
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px;
-  background: var(--eno-fill-2);
-  border-radius: 2px;
+input[type='range']::-webkit-slider-runnable-track {
+  height: 3px;
   border: none;
-}
-
-/* 滑块手柄 */
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 16px;
-  width: 16px;
-  background: var(--eno-primary);
-  border-radius: 50%;
-  cursor: pointer;
-  margin-top: -6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 滑块手柄悬停效果 */
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* 滑块手柄激活效果 */
-input[type="range"]::-webkit-slider-thumb:active {
-  transform: scale(0.95);
-}
-
-/* 频率和数值标签 */
-.text-sm {
-  color: var(--eno-text-2);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-/* 中心线指示 */
-.eq-sliders {
-  position: relative;
-}
-
-.eq-sliders::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 1px;
-  background: var(--eno-fill-2);
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-/* 滑块容器样式 */
-.flex.flex-col.items-center {
-  position: relative;
-  padding: 12px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.flex.flex-col.items-center:hover {
+  border-radius: var(--eno-radius-sm);
   background: var(--eno-fill-3);
 }
 
-.flex.flex-col.items-center:hover .text-sm {
-  color: var(--eno-text-1);
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5.5px;
+  border: none;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-seal);
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
-/* 选择框和输入框通用样式 */
-select,
-input[type="text"] {
-  border: 1px solid var(--eno-fill-2);
-  outline: none;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-  min-width: 120px;
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: var(--lp-seal-bright);
 }
 
-select:hover,
-input[type="text"]:hover {
-  border-color: var(--eno-fill-1);
+input[type='range']::-webkit-slider-thumb:active {
+  transform: scale(0.95);
 }
 
-select:focus,
-input[type="text"]:focus {
-  border-color: var(--eno-primary);
-  box-shadow: 0 0 0 2px var(--eno-primary-light);
+input[type='range']::-moz-range-track {
+  height: 3px;
+  border: none;
+  border-radius: var(--eno-radius-sm);
+  background: var(--eno-fill-3);
 }
 
-/* 按钮样式 */
-button {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 0.875rem;
-  font-weight: 500;
-  min-width: 80px;
-  border: 1px solid var(--eno-fill-2);
+input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-seal);
 }
 
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--eno-shadow-sm);
-  background: var(--eno-fill-2) !important;
-}
+@media (prefers-reduced-motion: reduce) {
+  .eq-cell,
+  .eq-btn,
+  .eq-freq,
+  .eq-value,
+  input[type='range']::-webkit-slider-thumb {
+    transition: none;
+    transform: none;
+  }
 
-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  input[type='range'] {
+    transform: rotate(90deg);
+  }
 }
 </style>

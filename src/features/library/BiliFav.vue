@@ -196,21 +196,25 @@ async function getCollectedDataLoop() {
 </script>
 
 <template>
-  <div class="fav-card">
-    <div class="fav-head" @click="handleClick">
+  <div class="fav-entry">
+    <div class="fav-head eno-row" @click="handleClick">
       <div class="fav-title">
-        <div class="w-1em h-1em" :class="status.open ? 'i-mingcute:folder-open-2-fill' : 'i-mingcute:folder-fill'" />
-        <h2 class="max-w-[50vw] truncate" v-html="props.fav.title || props.fav.name || '未命名收藏夹'" />
+        <div
+          class="fav-icon"
+          :class="status.open ? 'i-tabler:folder-open' : 'i-tabler:folder'"
+        />
+        <h2 class="fav-name" v-html="props.fav.title || props.fav.name || '未命名收藏夹'" />
       </div>
       <div class="fav-ops">
-        <div class="i-mingcute:star-fill op-icon" @click.stop="handleSavePlaylist" />
-        <div class="i-tabler:player-play-filled op-icon" @click.stop="handleReplacePlaylist" />
+        <div class="op-icon action-icon i-tabler:star" title="保存为歌单" @click.stop="handleSavePlaylist" />
+        <div class="op-icon action-icon i-tabler:player-play-filled" title="播放" @click.stop="handleReplacePlaylist" />
       </div>
     </div>
     <div v-if="status.loading" class="hint">
-      加载中...
+      加载中…
     </div>
-    <div v-if="status.error" class="hint error">
+    <div v-if="status.error" class="hint hint--error">
+      <div class="i-tabler:alert-circle hint-icon" />
       加载失败，请稍后重试
     </div>
     <div v-if="status.loaded && !mediaSong.length && status.open" class="hint">
@@ -223,28 +227,18 @@ async function getCollectedDataLoop() {
 </template>
 
 <style scoped>
-.fav-card {
-  margin-bottom: 8px;
-  overflow: hidden;
-  border-radius: 8px;
-  background: #181818;
+/* 内页行：收藏夹即一行，展开即曲目表 */
+.fav-entry {
+  border-bottom: 1px solid var(--eno-border);
 }
 
 .fav-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  gap: 12px;
+  padding: 12px;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease);
-}
-
-.fav-head:hover {
-  background: #282828;
-}
-
-.fav-head:active {
-  background: #232323;
 }
 
 .fav-title {
@@ -252,43 +246,93 @@ async function getCollectedDataLoop() {
   min-width: 0;
   align-items: center;
   gap: 12px;
-  font-size: 16px;
-  font-weight: 700;
+}
+
+.fav-icon {
+  flex-shrink: 0;
+  color: var(--eno-text-3);
+  font-size: 18px;
+}
+
+.fav-name {
+  overflow: hidden;
+  margin: 0;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fav-ops {
   display: flex;
-  gap: 12px;
-  color: #b3b3b3;
+  flex-shrink: 0;
+  gap: 2px;
 }
 
 .op-icon {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-3);
+  background: transparent;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .op-icon:hover {
-  color: #fff;
-  transform: scale(1.12);
+  color: var(--eno-text-1);
+  transform: scale(1.1);
 }
 
 .op-icon:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
 .hint {
-  padding: 0 16px 12px;
-  color: #b3b3b3;
+  padding: 2px 12px 12px;
+  color: var(--eno-text-3);
   font-size: 13px;
 }
 
-.error {
-  color: #e91429;
+.hint--error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-1);
+  background: var(--eno-primary-light);
+}
+
+.hint-icon {
+  flex-shrink: 0;
+  color: var(--lp-seal-bright);
+  font-size: 16px;
 }
 
 .fav-songs {
   max-height: 500px;
   overflow: auto;
-  padding: 0 8px 12px;
+  padding: 0 8px 10px;
+}
+
+.fav-songs :deep(.song-item) {
+  border-bottom: 1px solid var(--eno-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fav-head,
+  .op-icon {
+    transition: none;
+    transform: none;
+  }
 }
 </style>

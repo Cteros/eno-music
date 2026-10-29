@@ -63,6 +63,20 @@ const isPlaying = computed(() => {
 
 const isMini = computed(() => props.size === 'mini')
 
+const durationText = computed(() => {
+  const input = props.song?.duration
+  if (typeof input === 'string' && input.includes(':')) {
+    const [m, s] = input.split(':')
+    return `${m}:${String(Math.floor(Number(s) || 0)).padStart(2, '0')}`
+  }
+  const d = Number(input)
+  if (!Number.isFinite(d) || d <= 0)
+    return ''
+  const m = Math.floor(d / 60)
+  const s = Math.floor(d % 60)
+  return `${m}:${String(s).padStart(2, '0')}`
+})
+
 async function handleClick() {
   const song = props.song
   if (song?.eno_song_type === 'live') {
@@ -130,8 +144,7 @@ function handleSingerDetail(singerMid) {
     @click="handleClick"
   >
     <div class="song-index">
-      <span v-if="!isPlaying" class="index-num">{{ index || '' }}</span>
-      <div v-else class="i-svg-spinners:bars-scale playing-bars" />
+      <span class="index-num">{{ index || '' }}</span>
     </div>
     <img :src="cover" class="song-cover" alt="">
     <div class="song-meta">
@@ -145,10 +158,12 @@ function handleSingerDetail(singerMid) {
         </span>
       </div>
     </div>
+    <span v-if="durationText" class="song-dur">{{ durationText }}</span>
     <div class="song-actions">
-      <div v-if="later" class="i-mingcute:time-fill action-icon" @click.stop="addToLater" />
-      <div v-if="star" class="i-mingcute:star-fill action-icon" @click.stop="PLstore.startAddSong(props.song)" />
-      <div v-if="del" class="i-mingcute:delete-3-fill action-icon" @click.stop="emit('deleteSong', props.song)" />
+      <span v-if="isPlaying" class="eno-seal eno-seal--sm eno-seal--round">在听</span>
+      <div v-if="later" class="i-tabler:clock action-icon" title="稍后再听" @click.stop="addToLater" />
+      <div v-if="star" class="i-tabler:star action-icon" title="加入歌单" @click.stop="PLstore.startAddSong(props.song)" />
+      <div v-if="del" class="i-tabler:trash action-icon" title="删除" @click.stop="emit('deleteSong', props.song)" />
     </div>
   </div>
 </template>
@@ -156,30 +171,20 @@ function handleSingerDetail(singerMid) {
 <style scoped>
 .song-item {
   display: grid;
-  grid-template-columns: 44px 44px minmax(0, 1fr) auto;
+  grid-template-columns: 48px 44px minmax(0, 1fr) 56px auto;
   align-items: center;
-  gap: 12px;
-  height: 60px;
-  padding: 0 16px;
-  border: 1px solid transparent;
-  border-radius: var(--eno-radius-lg);
+  gap: 14px;
+  height: 64px;
+  padding: 0 12px;
+  border-radius: var(--eno-radius-sm);
   color: var(--eno-text-2);
   cursor: pointer;
-  transition:
-    transform 0.18s var(--eno-ease-pop),
-    background-color 0.18s var(--eno-ease),
-    color 0.18s var(--eno-ease),
-    border-color 0.18s var(--eno-ease),
-    box-shadow 0.18s var(--eno-ease);
+  transition: background-color 0.18s var(--eno-ease), color 0.18s var(--eno-ease);
 }
 
 .song-item:hover {
-  z-index: 1;
-  transform: translateY(-2px);
-  border-color: rgb(255 255 255 / 8%);
   background: var(--eno-fill-1);
   color: var(--eno-text-1);
-  box-shadow: var(--eno-shadow-sm);
 }
 
 .song-item:hover .action-icon,
@@ -187,61 +192,64 @@ function handleSingerDetail(singerMid) {
   opacity: 1;
 }
 
-/* 选中/播放中：只用一层极浅的绿色渐变底 + 绿色歌名,排名列换成跳动条 */
+/* 播放中：纸色印块 + 行尾朱印 */
 .song-item--playing {
-  background: linear-gradient(90deg, rgb(30 215 96 / 12%), rgb(30 215 96 / 3%) 55%, transparent);
+  background: var(--eno-fill-2);
+  color: var(--eno-text-1);
 }
 
 .song-item--playing:hover {
-  background: linear-gradient(90deg, rgb(30 215 96 / 18%), rgb(30 215 96 / 5%) 55%, transparent);
+  background: var(--eno-fill-3);
 }
 
 .song-item--mini {
   height: 52px;
-  grid-template-columns: 0 40px minmax(0, 1fr) auto;
+  grid-template-columns: 0 40px minmax(0, 1fr) 56px auto;
   padding: 0 8px;
+}
+
+.song-dur {
+  color: var(--eno-text-3);
+  font-family: var(--app-font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .song-index {
   display: flex;
-  width: 44px;
+  width: 48px;
   justify-content: flex-start;
   font-family: var(--app-font-display);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
   line-height: 1;
 }
 
 .index-num {
-  opacity: 0.55;
-  transition: opacity 0.18s var(--eno-ease), color 0.18s var(--eno-ease), text-shadow 0.18s var(--eno-ease);
+  color: var(--eno-text-3);
+  transition: opacity 0.18s var(--eno-ease), color 0.18s var(--eno-ease);
 }
 
 .song-item--playing .index-num {
+  color: #ef8477;
   opacity: 1;
 }
 
-.playing-bars {
-  width: 16px;
-  height: 16px;
-  color: #1ed760;
-  filter: drop-shadow(0 0 6px rgb(30 215 96 / 50%));
+.song-item--playing .eno-seal {
+  border-color: #ef8477;
+  color: #ef8477;
+  box-shadow: inset 0 0 0 2px var(--lp-ink), inset 0 0 0 3px rgb(239 132 119 / 55%);
 }
 
 .song-cover {
   width: 44px;
   height: 44px;
-  border: 1px solid rgb(255 255 255 / 6%);
-  border-radius: var(--eno-radius-md);
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
   object-fit: cover;
-  transition: transform 0.18s var(--eno-ease-pop), box-shadow 0.18s var(--eno-ease);
-}
-
-.song-item:hover .song-cover {
-  transform: scale(1.05);
-  box-shadow: var(--eno-shadow-sm);
 }
 
 .song-meta {
@@ -252,36 +260,55 @@ function handleSingerDetail(singerMid) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
   color: var(--eno-text-1);
-  line-height: 1.3;
+  font-family: var(--app-font-display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
 }
 
-.song-item--playing .song-title {
-  color: #1ed760;
+.song-title :deep(em) {
+  color: var(--lp-seal-bright);
+  font-style: normal;
 }
 
 .song-author {
   display: flex;
+  align-items: center;
   gap: 8px;
   overflow: hidden;
-  font-size: 13px;
-  line-height: 1.4;
+  color: var(--eno-text-3);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .author-link:hover {
+  color: var(--eno-text-1);
   text-decoration: underline;
-  color: #fff;
+  text-underline-offset: 3px;
+}
+
+.song-tag {
+  flex-shrink: 0;
+  padding: 0 5px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-3);
+  font-family: var(--app-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  line-height: 16px;
 }
 
 .song-tag--live {
-  color: #e91429;
+  border-color: var(--lp-seal-bright);
+  color: var(--lp-seal-bright);
 }
 
 .song-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
   font-size: 16px;
 }
@@ -293,12 +320,12 @@ function handleSingerDetail(singerMid) {
 }
 
 .action-icon:hover {
-  color: #fff;
-  transform: scale(1.14);
+  color: var(--eno-text-1);
+  transform: scale(1.1);
 }
 
 .action-icon:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
 .song-item--mini .action-icon,

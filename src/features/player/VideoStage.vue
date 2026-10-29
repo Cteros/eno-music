@@ -37,7 +37,7 @@ onBeforeUnmount(() => {
         title="关闭视频"
         @click="closeVideo"
       >
-        <div class="i-mingcute:close-line" />
+        <div class="i-tabler:x" />
       </button>
       <img
         v-if="cover"
@@ -58,15 +58,16 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* —— 视频舞台：墨底银幕，上方留出 104px 播放条 —— */
 .video-stage {
   position: fixed;
-  inset: 0 0 80px;
+  inset: 0 0 104px;
   z-index: 25;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #000;
+  background: var(--lp-ink-deep);
   transition: padding-right 0.28s var(--eno-ease);
 }
 
@@ -81,26 +82,21 @@ onBeforeUnmount(() => {
   left: 16px;
 }
 
+/* 舞台背景：封面压印，不发光不模糊 */
 .video-aura {
   position: absolute;
-  inset: -18% 0;
+  inset: 0;
   z-index: 0;
   width: 100%;
-  height: 136%;
+  height: 100%;
   object-fit: cover;
-  filter: blur(64px) saturate(1.45);
-  opacity: calc(0.48 + var(--eno-bass, 0) * 0.28);
+  filter: grayscale(1) contrast(1.1) brightness(0.5);
+  opacity: 0.16;
   pointer-events: none;
 }
 
 .video-aura--right {
-  inset: auto -8% 0 42%;
-  width: auto;
-  height: 130%;
-  object-position: right center;
-  filter: blur(72px) saturate(1.6);
-  opacity: calc(0.58 + var(--eno-bass, 0) * 0.32);
-  mask-image: linear-gradient(90deg, transparent, #000 28%);
+  display: none;
 }
 
 .video-live-badge {
@@ -109,9 +105,10 @@ onBeforeUnmount(() => {
   left: 20px;
   z-index: 2;
   padding: 2px 8px;
-  border-radius: 2px;
-  background: #e91429;
-  color: #fff;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-seal);
+  color: var(--lp-paper);
+  font-family: var(--app-font-sans);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -124,26 +121,16 @@ onBeforeUnmount(() => {
   right: 16px;
   z-index: 2;
   display: inline-flex;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #fff;
-  background: rgb(0 0 0 / 55%);
-  font-size: 20px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-1);
+  background: rgb(16 15 19 / 72%);
+  font-size: 18px;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
-}
-
-.video-close:hover {
-  background: rgb(0 0 0 / 75%);
-  transform: scale(1.06);
-}
-
-.video-close:active {
-  transform: scale(0.92);
 }
 
 @media (max-width: 900px) {

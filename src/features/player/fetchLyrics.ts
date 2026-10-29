@@ -1,6 +1,7 @@
 import { encWbi, getWbiKeys } from '~/api/wbi'
 import { sendExtMessage } from '~/shared/chromeApi'
 import { stripHtml } from '~/shared/playerBridge'
+import { zhError } from '~/shared/zhError'
 
 export interface LyricWord {
   text: string
@@ -332,7 +333,7 @@ export async function fetchLyrics(song: { bvid?: string, cid?: string | number, 
       return await withTimeout(loadLyrics(song), TOTAL_BUDGET, '歌词')
     }
     catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
+      const message = zhError(error, '歌词加载失败，请稍后重试')
       console.warn(`[lyrics] attempt ${attempt + 1} failed`, message)
       if (attempt === 1)
         return { ...emptyLyricDoc(), error: message }

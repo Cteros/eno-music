@@ -1,19 +1,26 @@
-.eno-input{
-    border-radius: var(--eno-radius-md);
-    box-sizing: border-box;
-    color: var(--eno-text-1);
-    background: var(--eno-content);
-    border-color: none;
-    outline: none;
-    outline-width: 2px;
-    transition: all 0.2s var(--eno-ease);
-    border: 1px solid var(--eno-border);
+/* ============================================================
+   铅字印刷与朱印 · Letterpress & Seal
+   共享组件语言：铅字方角、细栏线、双线栏头、朱印状态
+   ============================================================ */
+
+/* —— 表单 —— */
+.eno-input {
+  box-sizing: border-box;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
+  outline: none;
+  transition: border-color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
-.eno-input:focus{
-    border-color: var(--eno-primary);
-    box-shadow: 0 0 0 2px var(--eno-primary-light);
-    outline: none;
-    outline-width: 2px;
+
+.eno-input::placeholder {
+  color: var(--eno-text-3);
+}
+
+.eno-input:focus {
+  border-color: var(--lp-seal-bright);
+  background: var(--eno-fill-2);
 }
 
 button {
@@ -24,98 +31,106 @@ button:not(:disabled) {
   transition:
     color 0.16s var(--eno-ease),
     background-color 0.16s var(--eno-ease),
+    border-color 0.16s var(--eno-ease),
     transform 0.16s var(--eno-ease),
-    opacity 0.16s var(--eno-ease),
-    filter 0.16s var(--eno-ease),
-    border-color 0.16s var(--eno-ease);
+    opacity 0.16s var(--eno-ease);
 }
 
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* —— 按钮族：铅字方角，无辉光 —— */
 .play-all {
   transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.06);
-  background: var(--sp-green-hover);
+  transform: translateY(-1px);
+  background: var(--eno-primary-hover);
 }
 
 .play-all:active {
-  transform: scale(0.94);
-  background: var(--sp-green-press);
+  transform: translateY(1px);
 }
 
 .ghost {
-  transition: color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease), opacity 0.16s var(--eno-ease);
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
 }
 
 .ghost:hover {
-  color: #fff;
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
 }
 
 .ghost:active {
-  transform: scale(0.96);
-  opacity: 0.8;
+  transform: scale(0.97);
 }
 
 .ghost--danger:hover {
-  color: #f87171;
+  color: var(--lp-seal-bright);
+  background: var(--eno-primary-light);
 }
 
 .media-action-btn,
 .btn {
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), filter 0.16s var(--eno-ease);
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
 }
 
 .media-action-btn:hover,
 .btn:hover {
-  transform: scale(1.04);
-  filter: brightness(1.04);
+  transform: translateY(-1px);
 }
 
 .media-action-btn:active,
 .btn:active {
-  transform: scale(0.97);
-  filter: brightness(0.96);
+  transform: translateY(1px);
 }
 
 .icon-btn {
-  transition: opacity 0.16s var(--eno-ease), color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+  transition: opacity 0.16s var(--eno-ease), color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .icon-btn:hover {
   opacity: 1;
-  color: #fff;
-  transform: scale(1.08);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
 }
 
 .icon-btn:active {
-  transform: scale(0.9);
+  opacity: 0.85;
 }
 
+/* —— 走带与开关 —— */
 .eno-ctrl {
-  transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .eno-ctrl:hover {
-  color: #fff;
-  transform: scale(1.12);
+  color: var(--eno-text-1);
+  transform: scale(1.1);
 }
 
 .eno-ctrl:active {
-  color: #fff;
-  transform: scale(0.88);
+  color: var(--eno-text-1);
+  transform: scale(0.9);
 }
 
 .eno-ctrl--on {
-  color: #1ed760;
+  color: var(--lp-seal-bright);
 }
 
 .eno-ctrl--on:hover {
-  color: #3be477;
+  color: var(--lp-seal-bright);
+}
+
+.eno-play-btn {
+  transition: transform 0.18s var(--eno-ease-pop), background-color 0.18s var(--eno-ease);
 }
 
 .eno-play-btn:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 .eno-play-btn:active {
@@ -123,16 +138,16 @@ button:not(:disabled) {
 }
 
 .queue-btn {
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease), color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .queue-btn:hover {
-  background: #3e3e3e;
-  transform: scale(1.03);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-2);
 }
 
 .queue-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .eno-rate:hover,
@@ -140,7 +155,8 @@ button:not(:disabled) {
 .loop:hover,
 .mute:hover,
 .sleep-btn:hover {
-  transform: scale(1.08);
+  color: var(--eno-text-1);
+  transform: scale(1.06);
 }
 
 .eno-rate:active,
@@ -148,64 +164,67 @@ button:not(:disabled) {
 .loop:active,
 .mute:active,
 .sleep-btn:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
 .ctrl:hover {
-  transform: scale(1.12);
-  color: #fff;
+  transform: scale(1.1);
+  color: var(--eno-text-1);
 }
 
 .ctrl:active {
-  transform: scale(0.88);
+  transform: scale(0.9);
 }
 
 .play:hover,
 .open-btn:hover,
 .retry:hover {
-  transform: scale(1.06);
+  transform: translateY(-1px);
 }
 
 .play:active,
 .open-btn:active,
 .retry:active {
-  transform: scale(0.94);
+  transform: translateY(1px);
 }
 
 .open-btn:hover,
 .retry:hover {
-  background: var(--sp-green-hover);
+  background: var(--eno-primary-hover);
 }
 
+/* —— 筛选片 / 标签：激活 = 纸色印块 —— */
 .filter-chip,
 .history-chip,
 .rank-chip {
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease), color 0.16s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease), color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .filter-chip:hover,
 .history-chip:hover,
 .rank-chip:hover:not(.rank-chip--active) {
-  transform: scale(1.04);
-  background: #3e3e3e;
+  background: var(--eno-fill-2);
+  color: var(--eno-text-1);
 }
 
 .filter-chip:active,
 .history-chip:active,
 .rank-chip:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .rank-nav {
-  transition: background-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease), color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
 .rank-nav:hover {
-  transform: scale(1.08);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-2);
+  transform: scale(1.05);
 }
 
 .rank-nav:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
 .library-add {
@@ -213,19 +232,22 @@ button:not(:disabled) {
 }
 
 .library-add:hover {
-  transform: scale(1.08);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
+  transform: scale(1.05);
 }
 
 .library-add:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
+/* —— 侧栏项：hover 浮墨，active 纸色印块 —— */
 .nav-item:hover,
 .foot-item:hover,
 .library-toggle:hover,
 .lib-item:hover,
 .brand-row:hover {
-  background: rgb(255 255 255 / 8%);
+  background: var(--eno-fill-1);
 }
 
 .nav-item:active,
@@ -234,26 +256,30 @@ button:not(:disabled) {
 .lib-item:active,
 .brand-row:active,
 .sleep-item:active {
-  background: var(--sp-press);
+  background: var(--eno-fill-2);
   transform: none;
 }
 
+/* —— 内容瓦片 —— */
 .playlist-tile,
 .continue-card,
 .singer-card {
-  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
+  transition: background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease), box-shadow 0.18s var(--eno-ease);
 }
 
 .playlist-tile:hover,
 .continue-card:hover,
 .singer-card:hover {
   transform: translateY(-2px);
+  border-color: rgb(240 235 221 / 24%);
+  box-shadow: var(--eno-shadow-md);
 }
 
 .playlist-tile:active,
 .continue-card:active,
 .singer-card:active {
-  transform: translateY(0) scale(0.99);
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .action-icon {
@@ -261,11 +287,12 @@ button:not(:disabled) {
 }
 
 .action-icon:hover {
-  transform: scale(1.14);
+  color: var(--eno-text-1);
+  transform: scale(1.1);
 }
 
 .action-icon:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
 .text-btn,
@@ -275,12 +302,12 @@ button:not(:disabled) {
 
 .text-btn:hover,
 .history-clear:hover {
-  color: #fff;
+  color: var(--eno-text-1);
 }
 
 .text-btn:active,
 .history-clear:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .video-close {
@@ -288,23 +315,26 @@ button:not(:disabled) {
 }
 
 .video-close:hover {
-  transform: scale(1.06);
+  transform: scale(1.05);
+  background: var(--eno-fill-3);
 }
 
 .video-close:active {
-  transform: scale(0.92);
+  transform: scale(0.94);
 }
 
 .del-btn {
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), color 0.16s var(--eno-ease);
 }
 
 .del-btn:hover {
-  transform: scale(1.08);
+  color: var(--lp-seal-bright);
+  background: var(--eno-primary-light);
+  transform: scale(1.05);
 }
 
 .del-btn:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -315,67 +345,62 @@ button:not(:disabled) {
   .play-all,
   .playlist-tile,
   .continue-card,
-  .singer-card {
+  .singer-card,
+  .eno-seal {
     transition: color 0.01ms, background-color 0.01ms !important;
     transform: none !important;
+    animation: none !important;
   }
 }
 
-/* ============ 街机脉冲 · Arcade Pulse ============ */
+/* ============ 铅字印刷与朱印 · 世界语言 ============ */
 
-/* 卡片:抬升 + 辉光 */
+/* 卡片:纸页抬升 */
 .eno-card {
   position: relative;
   border: 1px solid var(--eno-border);
   border-radius: var(--eno-radius-xl);
   background: var(--eno-content);
   transition:
-    transform 0.22s var(--eno-ease-pop),
+    transform 0.22s var(--eno-ease),
     border-color 0.22s var(--eno-ease),
     box-shadow 0.22s var(--eno-ease),
     background-color 0.22s var(--eno-ease);
 }
 
 .eno-card:hover {
-  transform: translateY(-4px);
-  border-color: rgb(255 255 255 / 14%);
+  transform: translateY(-2px);
+  border-color: rgb(240 235 221 / 24%);
   background: var(--eno-content-hover);
-  box-shadow: var(--eno-shadow-md), 0 0 24px rgb(30 215 96 / 10%);
+  box-shadow: var(--eno-shadow-md);
 }
 
-/* 色块标题:重字重 + 绿色块 */
+/* 栏头:宋体大标 + 双线 */
 .eno-section-title {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 3px double rgb(240 235 221 / 38%);
   color: var(--eno-text-1);
   font-family: var(--app-font-display);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.eno-section-title::before {
-  width: 6px;
-  height: 20px;
-  border-radius: 3px;
-  background: var(--eno-primary);
-  box-shadow: 0 0 12px var(--eno-primary-glow);
-  content: '';
-  transform: skewX(-8deg);
+  letter-spacing: 0.06em;
+  line-height: 1.25;
 }
 
 .eno-section-sub {
   margin-left: auto;
-  color: var(--eno-text-4);
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0.12em;
 }
 
-/* 榜单巨型排名数字 */
+/* 榜单排名:铅字数字 */
 .eno-rank {
   min-width: 52px;
   color: var(--eno-text-4);
@@ -383,15 +408,14 @@ button:not(:disabled) {
   font-size: 30px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   line-height: 1;
   text-align: left;
-  transition: color 0.18s var(--eno-ease), text-shadow 0.18s var(--eno-ease);
+  transition: color 0.18s var(--eno-ease);
 }
 
 .eno-rank--top {
-  color: var(--eno-primary);
-  text-shadow: 0 0 18px var(--eno-primary-glow);
+  color: var(--lp-seal-bright);
 }
 
 .eno-row:hover .eno-rank,
@@ -399,63 +423,113 @@ button:not(:disabled) {
   color: var(--eno-text-1);
 }
 
-/* 内容行:hover 抬升左侧光条 */
+/* 内页曲目行:hover 浮墨 */
 .eno-row {
   position: relative;
-  border-radius: var(--eno-radius-lg);
+  border-radius: var(--eno-radius-md);
   transition:
-    transform 0.18s var(--eno-ease-pop),
     background-color 0.18s var(--eno-ease),
     box-shadow 0.18s var(--eno-ease);
 }
 
 .eno-row:hover {
   z-index: 1;
-  transform: translateY(-2px);
   background: var(--eno-fill-1);
-  box-shadow: var(--eno-shadow-sm);
 }
 
 .eno-row--active {
-  background: var(--eno-primary-light);
+  background: var(--eno-fill-2);
 }
 
-.eno-row--active::before {
-  position: absolute;
-  top: 20%;
-  bottom: 20%;
-  left: 0;
-  width: 3px;
-  border-radius: 999px;
-  background: var(--eno-primary);
-  box-shadow: 0 0 10px var(--eno-primary-glow);
-  content: '';
+/* —— 朱印：世界签名，唯一作者性动效（钤印落下） —— */
+.eno-seal {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--lp-seal-bright);
+  border-radius: var(--eno-radius-sm);
+  color: var(--lp-seal-bright);
+  font-family: var(--app-font-serif);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-indent: 0.12em;
+  transform: rotate(-4deg);
+  box-shadow: inset 0 0 0 2px var(--lp-ink), inset 0 0 0 3px rgb(217 86 74 / 55%);
+  user-select: none;
 }
 
-/* 播放按钮:厚实圆盘 + 按压弹跳 */
+.eno-seal--round {
+  border-radius: 50%;
+}
+
+.eno-seal--sm {
+  width: 26px;
+  height: 26px;
+  font-size: 10px;
+  border-width: 1.5px;
+  box-shadow: inset 0 0 0 1.5px var(--lp-ink), inset 0 0 0 2.5px rgb(217 86 74 / 55%);
+}
+
+.eno-seal--flat {
+  box-shadow: none;
+}
+
+.eno-seal--paper {
+  border-color: var(--lp-seal);
+  color: var(--lp-seal);
+  box-shadow: inset 0 0 0 2px var(--lp-paper), inset 0 0 0 3px rgb(181 52 42 / 50%);
+}
+
+@keyframes eno-stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.5) rotate(-10deg);
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg);
+  }
+}
+
+.eno-row--active .eno-seal,
+.eno-seal--stamp {
+  animation: eno-stamp 0.34s var(--eno-ease-pop) both;
+}
+
+/* 播放圆盘:朱印红 */
 .eno-play-disc {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--eno-primary);
-  color: #000;
+  color: var(--lp-paper);
   cursor: pointer;
   transition: transform 0.18s var(--eno-ease-pop), box-shadow 0.18s var(--eno-ease), background-color 0.18s var(--eno-ease);
 }
 
 .eno-play-disc:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
   background: var(--eno-primary-hover);
   box-shadow: var(--eno-shadow-glow);
 }
 
 .eno-play-disc:active {
-  transform: scale(0.92);
+  transform: scale(0.94);
 }
 
-/* 分段开关/胶囊:激活辉光 */
+/* 标签片:方角纸片 */
 .eno-chip {
   display: inline-flex;
   height: 28px;
@@ -463,76 +537,40 @@ button:not(:disabled) {
   gap: 6px;
   padding: 0 12px;
   border: 1px solid var(--eno-border);
-  border-radius: 999px;
+  border-radius: var(--eno-radius-sm);
   background: var(--eno-fill-1);
   color: var(--eno-text-2);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease-pop);
+  transition: color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease), border-color 0.16s var(--eno-ease);
 }
 
 .eno-chip:hover {
-  transform: translateY(-1px);
-  border-color: rgb(255 255 255 / 16%);
+  border-color: rgb(240 235 221 / 28%);
   color: var(--eno-text-1);
 }
 
 .eno-chip--on {
-  border-color: rgb(30 215 96 / 45%);
+  border-color: var(--lp-seal-bright);
   background: var(--eno-primary-light);
-  color: var(--eno-primary);
-  box-shadow: 0 0 16px rgb(30 215 96 / 14%);
+  color: #ef8477;
 }
 
-/* 进度条辉光 */
+/* 进度:细线 + 朱红 */
 .eno-glow-track {
-  box-shadow: inset 0 0 12px rgb(0 0 0 / 45%);
+  background: var(--eno-fill-3);
 }
 
 .eno-glow-fill {
-  box-shadow: 0 0 10px var(--eno-primary-glow);
+  background: var(--eno-primary);
 }
 
-/* ============ UI 优化全量包 ============ */
-
-/* 细滚动条 */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 14%) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  border: 2px solid transparent;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 14%);
-  background-clip: padding-box;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: rgb(255 255 255 / 24%);
-  background-clip: padding-box;
-}
-
-/* 键盘焦点可见(a11y) */
-:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--sp-black), 0 0 0 4px rgb(30 215 96 / 55%);
-}
-
-/* 骨架屏 */
+/* —— 骨架屏 —— */
 .eno-skeleton {
   overflow: hidden;
-  border-radius: var(--eno-radius-md);
+  border-radius: var(--eno-radius-sm);
   background: linear-gradient(
     90deg,
     var(--eno-fill-1) 25%,
@@ -553,42 +591,44 @@ button:not(:disabled) {
   }
 }
 
-/* 空状态 */
+/* —— 空状态 —— */
 .eno-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   padding: 56px 24px;
-  color: var(--eno-text-4);
+  color: var(--eno-text-3);
   text-align: center;
 }
 
 .eno-empty__icon {
+  display: inline-flex;
   width: 56px;
   height: 56px;
-  border-radius: 16px;
-  background: var(--eno-fill-1);
-  color: var(--eno-text-3);
-  font-size: 28px;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-3);
+  font-size: 28px;
 }
 
 .eno-empty__title {
   color: var(--eno-text-2);
-  font-size: 16px;
-  font-weight: 700;
+  font-family: var(--app-font-display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
 }
 
 .eno-empty__hint {
-  font-size: 13px;
   max-width: 320px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
-/* 视图切换过渡 */
+/* —— 视图切换过渡 —— */
 .page-enter-active,
 .page-leave-active {
   transition: opacity 0.18s var(--eno-ease), transform 0.18s var(--eno-ease);
@@ -604,19 +644,143 @@ button:not(:disabled) {
   transform: translateY(-6px);
 }
 
-/* Toast 皮肤(eno-ui MessageAPI) */
-.eu-message[data-v] {
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 999px;
-  background: rgb(22 22 28 / 92%);
-  box-shadow: 0 12px 36px rgb(0 0 0 / 50%);
+/* —— Toast 皮肤(eno-ui MessageAPI) —— */
+body .eu-message.eu-message {
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
+  background: rgb(38 35 48 / 96%);
+  box-shadow: var(--eno-shadow-lg);
 }
 
-.eu-message__text[data-v] {
-  letter-spacing: -0.01em;
+body .eu-message__text.eu-message__text {
+  color: var(--eno-text-1);
+  letter-spacing: 0.02em;
 }
 
-/* 小窗口响应式 */
+body .eu-message--info .eu-message__icon.eu-message__icon {
+  color: var(--lp-indigo-light);
+}
+
+body .eu-message--error .eu-message__icon.eu-message__icon {
+  color: var(--lp-seal-bright);
+}
+
+/* —— eno-ui 共享组件接入本世界 ——
+   库规则形如 .x[data-v-hash]（特指度 0,2,0）且样式表顺序在后；
+   此处一律以 body + 双类（0,2,1+）保证命中，伪类再加一级。 */
+body .eu-btn.eu-btn--primary {
+  border-radius: var(--eno-radius-md);
+  color: var(--lp-paper);
+  background: var(--eno-primary);
+}
+
+body .eu-btn.eu-btn--primary:hover {
+  background: var(--eno-primary-hover);
+}
+
+body .eu-btn.eu-btn--primary:active {
+  background: var(--lp-seal-deep);
+}
+
+body .eu-btn.eu-btn--secondary {
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-2);
+}
+
+body .eu-btn.eu-btn--secondary:hover {
+  background: var(--eno-fill-3);
+}
+
+body .eu-btn.eu-btn--ghost {
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-2);
+}
+
+body .eu-btn.eu-btn--ghost:hover {
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
+}
+
+body .eu-btn.eu-btn--destructive {
+  border-color: rgb(217 86 74 / 50%);
+  border-radius: var(--eno-radius-md);
+  color: var(--lp-seal-bright);
+}
+
+body .eu-btn.eu-btn--destructive:hover {
+  border-color: var(--lp-seal-bright);
+  background: var(--eno-primary-light);
+}
+
+body .eu-input.eu-input {
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
+}
+
+body .eu-input.eu-input::placeholder {
+  color: var(--eno-text-3);
+}
+
+body .eu-input.eu-input:focus {
+  border-color: var(--lp-seal-bright);
+  box-shadow: none;
+}
+
+body .eu-dialog.eu-dialog {
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-lg);
+  color: var(--eno-text-1);
+  background: var(--lp-ink-2);
+}
+
+body .eu-dialog.eu-dialog::backdrop {
+  background: rgb(12 10 8 / 62%);
+}
+
+body .eu-dialog__header.eu-dialog__header,
+body .eu-dialog__footer.eu-dialog__footer {
+  border-color: var(--eno-border);
+}
+
+body .eu-dialog__title.eu-dialog__title {
+  font-family: var(--app-font-display);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+body .eu-dialog__close-icon.eu-dialog__close-icon {
+  color: var(--eno-text-3);
+}
+
+body .eu-dialog__close-icon.eu-dialog__close-icon:hover {
+  color: var(--eno-text-1);
+}
+
+body .eu-drawer.eu-drawer,
+body .eu-drawer-slide.eu-drawer-slide {
+  color: var(--eno-text-1);
+  background: rgb(30 27 36 / 96%);
+}
+
+body .eu-drawer.eu-drawer::backdrop,
+body .eu-drawer-slide.eu-drawer-slide::backdrop {
+  background: rgb(12 10 8 / 62%);
+}
+
+body .eu-tab-item.eu-tab-item {
+  border-radius: var(--eno-radius-sm);
+}
+
+body .eu-tab-item.eu-tab-item--active {
+  color: var(--lp-paper);
+  background: rgb(181 52 42 / 16%);
+}
+
+/* —— 小窗口响应式 —— */
 @media (max-width: 1100px) {
   .eno-player-shell {
     grid-template-columns: minmax(160px, 0.9fr) minmax(240px, 1.4fr) minmax(160px, 0.9fr) !important;

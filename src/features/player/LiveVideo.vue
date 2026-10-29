@@ -194,28 +194,42 @@ onBeforeUnmount(() => {
   background: transparent;
 }
 
+/* 直播画面失败：纸页式提示条 */
 .video-fail {
   position: absolute;
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: rgb(0 0 0 / 65%);
-  color: #fff;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-lg);
+  background: rgb(16 15 19 / 88%);
+  color: var(--eno-text-1);
+  font-family: var(--app-font-sans);
   font-size: 13px;
 }
 
 .video-retry {
-  height: 22px;
-  padding: 0 10px;
+  height: 24px;
+  padding: 0 12px;
   border: 0;
-  border-radius: 999px;
-  background: #1ed760;
-  color: #000;
+  border-radius: var(--eno-radius-sm);
+  background: var(--lp-seal);
+  color: var(--lp-paper);
+  font-family: var(--app-font-sans);
   font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
+  transition: background-color 0.16s var(--eno-ease), transform 0.12s var(--eno-ease);
+}
+
+.video-retry:hover {
+  background: var(--lp-seal-deep);
+}
+
+.video-retry:active {
+  transform: translateY(1px);
 }
 </style>

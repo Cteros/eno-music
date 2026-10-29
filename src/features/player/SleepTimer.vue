@@ -62,7 +62,7 @@ onUnmounted(() => {
       :title="active ? `睡眠定时 ${remaining}` : '睡眠定时'"
       @click.stop="open = !open"
     >
-      <span class="i-mingcute:moon-fill" />
+      <span class="i-tabler:moon" />
       <span v-if="active" class="sleep-left">{{ remaining }}</span>
     </button>
     <div
@@ -103,40 +103,40 @@ onUnmounted(() => {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #b3b3b3;
-  font-size: 16px;
+  color: var(--eno-text-3);
+  font-family: var(--app-font-sans);
+  font-size: 18px;
   cursor: pointer;
   transition: color 0.16s var(--eno-ease), transform 0.16s var(--eno-ease);
 }
 
-.sleep-btn:hover,
-.sleep-btn--on {
-  color: #1ed760;
-}
-
 .sleep-btn:hover {
-  transform: scale(1.08);
+  color: var(--eno-text-1);
 }
 
-.sleep-btn:active {
-  transform: scale(0.9);
+.sleep-btn.sleep-btn--on,
+.sleep-btn.sleep-btn--on:hover {
+  color: var(--lp-seal-bright);
 }
 
 .sleep-left {
+  font-family: var(--app-font-sans);
   font-size: 11px;
+  letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 }
 
 .sleep-menu {
   position: absolute;
   right: 0;
-  bottom: 28px;
+  bottom: 32px;
   z-index: 30;
-  min-width: 120px;
+  min-width: 132px;
   padding: 6px;
-  border-radius: 8px;
-  background: #282828;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-lg);
+  background: var(--eno-elevated);
+  box-shadow: var(--eno-shadow-md);
 }
 
 .sleep-item {
@@ -145,29 +145,39 @@ onUnmounted(() => {
   height: 32px;
   padding: 0 10px;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--eno-radius-sm);
   background: transparent;
-  color: #fff;
+  color: var(--eno-text-2);
+  font-family: var(--app-font-sans);
   font-size: 13px;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.14s var(--eno-ease), color 0.14s var(--eno-ease);
 }
 
 .sleep-item:hover {
-  background: #3e3e3e;
+  background: var(--eno-fill-2);
+  color: var(--eno-text-1);
 }
 
 .sleep-item:active {
-  background: #232323;
+  background: var(--eno-fill-2);
 }
 
 .sleep-item--muted {
-  color: #b3b3b3;
+  color: var(--eno-text-3);
 }
 
 .sleep-menu--down {
   position: static;
   margin-top: 6px;
   min-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sleep-btn,
+  .sleep-item {
+    transition: none;
+  }
 }
 </style>

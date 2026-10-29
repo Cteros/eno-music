@@ -66,41 +66,12 @@ async function playHourlyRadio() {
 }
 const mainSong = computed(() => home.musicRankList[0])
 const recentSongs = computed(() => recent.playHistory.slice(0, 12))
-const nowPlaying = computed(() => {
-  const song = player.play
-  if (!song?.title || !(song.bvid || song.id || song.cid))
-    return null
-  return song
-})
 </script>
 
 <template>
   <section class="home-page">
-    <article v-if="nowPlaying" class="now-card">
-      <img v-if="nowPlaying.cover" class="now-cover" :src="nowPlaying.cover" alt="">
-      <div v-else class="now-cover now-cover--empty" />
-      <div class="now-meta">
-        <div class="now-kicker">
-          正在播放
-        </div>
-        <div class="now-title">
-          {{ nowPlaying.title }}
-        </div>
-        <div class="now-sub">
-          {{ nowPlaying.author }}
-          <template v-if="nowPlaying.album">
-            · {{ nowPlaying.album }}
-          </template>
-        </div>
-      </div>
-    </article>
-
     <header v-if="mainSong" class="home-hero">
-      <img class="hero-cover" :src="mainSong.cover" alt="">
       <div class="hero-meta">
-        <div class="hero-kicker">
-          公开歌单
-        </div>
         <h1 class="hero-title">
           bilibili 音乐榜
         </h1>
@@ -111,25 +82,50 @@ const nowPlaying = computed(() => {
           <RankOverview />
         </div>
       </div>
+      <div class="hero-spine" aria-hidden="true">
+        BILIBILI 音乐榜
+      </div>
+      <img class="hero-cover" :src="mainSong.cover" alt="">
     </header>
 
     <div v-if="mainSong" class="home-actions">
-      <button class="play-all" type="button" title="播放全部" @click="handlePlayRank">
-        <div class="i-tabler:player-play-filled play-all-icon" />
+      <button class="btn-primary" type="button" @click="handlePlayRank">
+        <div class="i-tabler:player-play-filled" />
+        播放全部
       </button>
-      <button
-        class="radio-play"
-        type="button"
-        :disabled="radioBusy"
-        @click="playHourlyRadio"
-      >
+      <button class="btn" type="button" :disabled="radioBusy" @click="playHourlyRadio">
+        <div class="i-tabler:radio" />
         {{ radioBusy ? '编台中…' : '关注电台' }}
       </button>
     </div>
 
+    <div v-if="mainSong" class="track-table">
+      <div class="track-head">
+        <span class="col-title">曲 目 表</span>
+        <span class="col-meta">{{ home.musicRankList.length }} 首</span>
+      </div>
+      <SongItem
+        v-for="(song, index) in home.musicRankList"
+        :key="song.id"
+        :song="song"
+        :index="index + 1"
+      />
+    </div>
+
+    <div v-else class="home-skeleton">
+      <div v-for="n in 6" :key="n" class="skeleton-row">
+        <div class="eno-skeleton skeleton-rank" />
+        <div class="eno-skeleton skeleton-cover" />
+        <div class="skeleton-lines">
+          <div class="eno-skeleton skeleton-title" />
+          <div class="eno-skeleton skeleton-sub" />
+        </div>
+      </div>
+    </div>
+
     <div v-if="recentSongs.length" class="continue-block">
       <div class="continue-head">
-        <h2 class="section-title continue-title">
+        <h2 class="continue-title">
           继续听
         </h2>
         <div class="continue-ops">
@@ -159,50 +155,28 @@ const nowPlaying = computed(() => {
       </div>
     </div>
 
-    <div v-if="mainSong" class="track-table">
-      <div class="track-head">
-        <span class="col-index">#</span>
-        <span>标题</span>
-      </div>
-      <SongItem
-        v-for="(song, index) in home.musicRankList"
-        :key="song.id"
-        :song="song"
-        :index="index + 1"
-      />
-    </div>
-
-    <div v-else class="home-skeleton">
-      <div v-for="n in 6" :key="n" class="skeleton-row">
-        <div class="eno-skeleton skeleton-rank" />
-        <div class="eno-skeleton skeleton-cover" />
-        <div class="skeleton-lines">
-          <div class="eno-skeleton skeleton-title" />
-          <div class="eno-skeleton skeleton-sub" />
+    <div class="artist-block">
+      <div class="continue-head artist-head">
+        <h2 class="continue-title">
+          关注歌手
+        </h2>
+        <div class="continue-ops">
+          <button
+            type="button"
+            class="text-btn"
+            :disabled="radioBusy"
+            @click="playHourlyRadio"
+          >
+            {{ radioBusy ? '编台中…' : '开一台' }}
+          </button>
+          <button type="button" class="text-btn" @click="ui.go('singerList')">
+            全部
+          </button>
         </div>
       </div>
-    </div>
-
-    <div class="continue-head artist-head">
-      <h2 class="section-title continue-title">
-        关注歌手
-      </h2>
-      <div class="continue-ops">
-        <button
-          type="button"
-          class="text-btn"
-          :disabled="radioBusy"
-          @click="playHourlyRadio"
-        >
-          {{ radioBusy ? '编台中…' : '开一台' }}
-        </button>
-        <button type="button" class="text-btn" @click="ui.go('singerList')">
-          全部
-        </button>
+      <div class="artist-row">
+        <SingerItem v-for="serid in singerStore.singers" :key="serid" :singer-mid="serid" can-del />
       </div>
-    </div>
-    <div class="artist-row">
-      <SingerItem v-for="serid in singerStore.singers" :key="serid" :singer-mid="serid" can-del />
     </div>
   </section>
 </template>
@@ -211,201 +185,134 @@ const nowPlaying = computed(() => {
 .home-page {
   height: 100%;
   overflow: auto;
-  padding-bottom: 24px;
+  padding: 26px 48px 32px;
   background: transparent;
 }
 
-.now-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 16px 32px 0;
-  padding: 12px;
-  border-radius: 8px;
-  background: rgb(24 24 24 / 72%);
-}
-
-.now-cover {
-  width: 72px;
-  height: 72px;
-  flex-shrink: 0;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-.now-cover--empty {
-  background: #282828;
-}
-
-.now-kicker {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--eno-primary, #1ed760);
-}
-
-.now-title {
-  margin-top: 4px;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.now-sub {
-  margin-top: 4px;
-  font-size: 13px;
-  color: #b3b3b3;
-}
-
+/* —— 报头：大字标题 + 封套小图 —— */
 .home-hero {
   display: flex;
   align-items: flex-end;
-  gap: 24px;
-  min-height: 280px;
-  padding: 24px 32px 8px;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--eno-border);
 }
 
-.hero-cover {
-  width: 232px;
-  height: 232px;
-  flex-shrink: 0;
-  border-radius: 4px;
-  object-fit: cover;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
-}
-
-.hero-kicker {
-  font-size: 13px;
-  font-weight: 700;
+.hero-meta {
+  min-width: 0;
 }
 
 .hero-title {
-  margin: 8px 0 12px;
-  font-size: clamp(48px, 6vw, 72px);
+  margin: 0;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: clamp(38px, 4.4vw, 54px);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  letter-spacing: 0.04em;
+  line-height: 1.12;
+  text-wrap: balance;
 }
 
 .hero-sub {
-  margin: 0;
+  margin: 10px 0 0;
+  color: var(--eno-text-3);
   font-size: 14px;
-  color: #b3b3b3;
+  letter-spacing: 0.06em;
 }
 
 .hero-tools {
-  margin-top: 12px;
+  margin-top: 14px;
+}
+
+/* 竖排刊头条：世界构件（书脊式竖排） */
+.hero-spine {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  margin: 2px 18px 2px 0;
+  padding-left: 12px;
+  border-left: 1px solid var(--eno-border);
+  color: var(--eno-text-3);
+  font-family: var(--app-font-display);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.42em;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+}
+
+.hero-cover {
+  width: 176px;
+  height: 176px;
+  flex-shrink: 0;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  object-fit: cover;
+  box-shadow: var(--eno-shadow-md);
 }
 
 .home-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px 32px 8px;
+  gap: 12px;
+  padding: 18px 0 4px;
 }
 
-.play-all {
-  display: inline-flex;
-  width: 56px;
-  height: 56px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #000;
-  background: #1ed760;
-  cursor: pointer;
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
-}
-
-.play-all:hover {
-  transform: scale(1.06);
-  background: #3be477;
-}
-
-.play-all:active {
-  transform: scale(0.94);
-  background: #1abc54;
-}
-
-.play-all-icon {
-  width: 24px;
-  height: 24px;
-  font-size: 24px;
-}
-
-.radio-play {
-  height: 40px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  background: #282828;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.radio-play:hover:not(:disabled) {
-  background: #333;
-  transform: scale(1.03);
-}
-
-.radio-play:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.radio-play:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-
+/* —— 曲目表：双线栏头 + 内页行 —— */
 .track-table {
-  padding: 0 16px 8px;
+  padding-top: 12px;
 }
 
 .track-head {
-  display: grid;
-  grid-template-columns: 48px 1fr;
-  align-items: center;
-  height: 36px;
-  margin: 0 16px 8px;
-  padding: 0 16px;
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-  color: #b3b3b3;
-  font-size: 13px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+  padding-bottom: 8px;
+  border-bottom: 3px double rgb(240 235 221 / 38%);
 }
 
-.col-index {
-  text-align: center;
+.col-title {
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.28em;
+}
+
+.col-meta {
+  margin-left: auto;
+  color: var(--eno-text-3);
+  font-size: 12px;
+  letter-spacing: 0.12em;
 }
 
 .home-skeleton {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 8px 32px 24px;
+  padding: 16px 0 24px;
 }
 
 .skeleton-row {
   display: grid;
-  grid-template-columns: 52px 48px 1fr;
+  grid-template-columns: 48px 44px minmax(0, 1fr);
   align-items: center;
   gap: 14px;
-  height: 60px;
-  padding: 0 16px;
+  height: 64px;
+  padding: 0 12px;
 }
 
 .skeleton-rank {
-  width: 36px;
-  height: 26px;
+  width: 28px;
+  height: 24px;
 }
 
 .skeleton-cover {
   width: 44px;
   height: 44px;
-  border-radius: var(--eno-radius-md);
 }
 
 .skeleton-lines {
@@ -415,124 +322,111 @@ const nowPlaying = computed(() => {
 }
 
 .skeleton-title {
-  width: min(42%, 280px);
-  height: 15px;
+  width: 38%;
+  height: 16px;
 }
 
 .skeleton-sub {
-  width: min(24%, 160px);
+  width: 22%;
   height: 11px;
 }
 
-.section-title {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin: 28px 32px 16px;
-  color: var(--eno-text-1);
-  font-family: var(--app-font-display);
-  font-size: 26px;
-  font-weight: 900;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-}
-
-.section-title::before {
-  width: 7px;
-  height: 22px;
-  border-radius: 3px;
-  background: var(--eno-primary);
-  box-shadow: 0 0 14px var(--eno-primary-glow);
-  content: '';
-  transform: skewX(-8deg);
-}
-
-.artist-head {
-  margin: 24px 16px 8px;
-}
-
-.artist-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding: 0 24px 40px;
-}
-
-.continue-block {
-  padding: 8px 16px 16px;
+/* —— 继续听 / 关注歌手 —— */
+.continue-block,
+.artist-block {
+  padding-top: 36px;
 }
 
 .continue-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 16px 12px;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 3px double rgb(240 235 221 / 38%);
 }
 
 .continue-title {
   margin: 0;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 .continue-ops {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  margin-left: auto;
 }
 
 .text-btn {
-  border: 0;
   padding: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: #b3b3b3;
+  border: 0;
+  color: var(--eno-text-3);
   background: transparent;
+  font-family: var(--app-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   cursor: pointer;
+  transition: color 0.16s var(--eno-ease);
 }
 
 .text-btn:hover {
-  color: #fff;
+  color: var(--eno-text-1);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.text-btn:active {
-  transform: scale(0.96);
+.text-btn:disabled {
+  cursor: default;
+  opacity: 0.45;
 }
 
 .continue-row {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding: 0 16px 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 20px;
+  padding: 18px 0 4px;
 }
 
 .continue-card {
   display: flex;
-  width: 148px;
-  flex: 0 0 auto;
+  min-width: 0;
   flex-direction: column;
   gap: 8px;
+  padding: 0;
   border: 0;
-  border-radius: 8px;
-  padding: 12px;
+  color: var(--eno-text-1);
+  background: transparent;
   text-align: left;
-  color: #fff;
-  background: #181818;
   cursor: pointer;
-  transition: background-color 0.16s var(--eno-ease), transform 0.18s var(--eno-ease);
-}
-
-.continue-card:hover {
-  background: #282828;
-  transform: translateY(-2px);
-}
-
-.continue-card:active {
-  transform: translateY(0) scale(0.99);
 }
 
 .continue-card img {
-  width: 124px;
-  height: 124px;
-  border-radius: 4px;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
   object-fit: cover;
+  transition: transform 0.18s var(--eno-ease), box-shadow 0.18s var(--eno-ease), border-color 0.18s var(--eno-ease);
+}
+
+.continue-card:hover img {
+  transform: translateY(-2px);
+  border-color: rgb(240 235 221 / 26%);
+  box-shadow: var(--eno-shadow-md);
+}
+
+.continue-card:hover .continue-name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.continue-card:active img {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .continue-name,
@@ -543,29 +437,55 @@ const nowPlaying = computed(() => {
 }
 
 .continue-name {
-  font-size: 14px;
-  font-weight: 700;
+  font-family: var(--app-font-display);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
 }
 
 .continue-author {
+  color: var(--eno-text-3);
   font-size: 12px;
-  color: #b3b3b3;
+}
+
+.artist-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 0 40px;
+}
+
+.artist-row :deep(.song-item) {
+  border-radius: 0;
+}
+
+.track-table :deep(.song-item) {
+  border-bottom: 1px solid var(--eno-border);
+  border-radius: 0;
 }
 
 @media (max-width: 860px) {
+  .home-page {
+    padding: 20px 18px 28px;
+  }
+
   .home-hero {
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: flex-start;
-    padding: 20px 16px 8px;
+    gap: 18px;
+  }
+
+  .hero-spine {
+    display: none;
   }
 
   .hero-cover {
-    width: 148px;
-    height: 148px;
+    width: 132px;
+    height: 132px;
   }
 
   .hero-title {
-    font-size: 36px;
+    font-size: 34px;
   }
 }
 </style>

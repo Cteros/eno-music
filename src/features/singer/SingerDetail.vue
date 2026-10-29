@@ -77,17 +77,17 @@ function handlePlayUser() {
     <header class="singer-hero">
       <img :src="info?.face" class="header-avatar" alt="">
       <div class="header-meta">
-        <div class="kicker">
-          艺人
-        </div>
         <div class="title-row">
-          <h1>{{ info?.name }}</h1>
+          <h1 class="singer-title">
+            {{ info?.name }}
+          </h1>
           <a
             :href="`https://space.bilibili.com/${PLstore.currentSinger}`"
             target="_blank"
             class="external-link"
+            title="在 B 站查看"
           >
-            <div class="i-mingcute:link-line w-5 h-5" />
+            <div class="i-tabler:link" />
           </a>
         </div>
         <p class="header-badge">
@@ -100,19 +100,19 @@ function handlePlayUser() {
     </header>
 
     <div class="control-bar">
-      <button class="play-all" type="button" @click="handlePlayUser">
+      <button class="play-all" type="button" title="播放全部" @click="handlePlayUser">
         <div class="i-tabler:player-play-filled" />
       </button>
       <div class="count">
         {{ page.count }} 首歌曲
       </div>
       <div class="search-wrapper">
-        <div class="i-mingcute:search-line search-icon" />
+        <div class="i-tabler:search search-icon" />
         <input
           v-model="keyword"
           placeholder="搜索歌曲"
           type="text"
-          class="search-input"
+          class="eno-input search-input"
           @keyup.enter="getSongs({ mid: PLstore.currentSinger, keyword })"
         >
       </div>
@@ -122,6 +122,17 @@ function handlePlayUser() {
       <SongItem v-for="(song, index) in renderList" :key="song.id" :song="song" :index="index + 1" />
       <div v-if="loading && !renderList.length" class="loading-wrap">
         <Loading class="list-loading" />
+      </div>
+      <div v-if="!loading && !renderList.length" class="eno-empty">
+        <div class="eno-empty__icon">
+          <div class="i-tabler:search" />
+        </div>
+        <div class="eno-empty__title">
+          没有找到歌曲
+        </div>
+        <div class="eno-empty__hint">
+          换个关键词，再搜一次
+        </div>
       </div>
     </div>
   </section>
@@ -134,128 +145,138 @@ function handlePlayUser() {
   height: 100%;
   flex-direction: column;
   overflow: hidden;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 14%, transparent) 0%, transparent 46%);
 }
 
 .singer-hero {
   display: flex;
   align-items: flex-end;
-  gap: 24px;
-  padding: 24px 32px 8px;
+  gap: 28px;
+  padding: 28px 32px 12px;
 }
 
 .header-avatar {
-  width: 192px;
-  height: 192px;
+  width: 160px;
+  height: 160px;
   flex-shrink: 0;
-  border-radius: 50%;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-lg);
   object-fit: cover;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+  box-shadow: var(--eno-shadow-md);
 }
 
-.kicker {
-  font-size: 13px;
-  font-weight: 700;
+.header-meta {
+  min-width: 0;
 }
 
 .title-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-h1 {
-  margin: 8px 0 12px;
-  font-size: clamp(36px, 5vw, 64px);
+.singer-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--app-font-display);
+  font-size: clamp(30px, 4.4vw, 52px);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  letter-spacing: 0.03em;
+  line-height: 1.15;
 }
 
 .external-link {
-  color: #b3b3b3;
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--eno-text-3);
+  font-size: 20px;
+  transition: color 0.16s var(--eno-ease);
 }
 
 .external-link:hover {
-  color: #fff;
+  color: var(--eno-text-1);
 }
 
-.header-badge,
+.header-badge {
+  margin: 12px 0 0;
+  color: var(--eno-text-2);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
 .header-desc {
-  margin: 0 0 6px;
-  color: #b3b3b3;
-  font-size: 14px;
+  margin: 4px 0 0;
+  color: var(--eno-text-3);
+  font-size: 13px;
 }
 
 .control-bar {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px 32px 8px;
+  padding: 18px 32px 10px;
 }
 
 .play-all {
   display: inline-flex;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border: 0;
   border-radius: 50%;
-  color: #000;
-  background: #1ed760;
-  font-size: 24px;
+  color: var(--lp-paper);
+  background: var(--eno-primary);
+  font-size: 22px;
   cursor: pointer;
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.06);
-  background: #3be477;
+  background: var(--eno-primary-hover);
+  transform: translateY(-1px);
 }
 
 .play-all:active {
-  transform: scale(0.94);
-  background: #1abc54;
+  transform: translateY(1px);
 }
 
 .count {
-  color: #b3b3b3;
-  font-size: 14px;
+  color: var(--eno-text-3);
+  font-size: 13px;
+  letter-spacing: 0.08em;
 }
 
 .search-wrapper {
   position: relative;
+  width: 240px;
   margin-left: auto;
-  width: 220px;
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
   top: 50%;
+  left: 12px;
+  color: var(--eno-text-3);
+  font-size: 16px;
+  pointer-events: none;
   transform: translateY(-50%);
-  color: #b3b3b3;
 }
 
 .search-input {
   width: 100%;
   height: 36px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 12px 0 36px;
-  color: #fff;
-  background: #242424;
-}
-
-.search-input:focus {
-  outline: 1px solid #fff;
+  padding: 0 12px 0 38px;
 }
 
 .song-list {
   flex: 1;
   overflow: auto;
-  padding: 8px 16px 32px;
+  padding: 0 32px 32px;
+}
+
+.song-list :deep(.song-item) {
+  border-bottom: 1px solid var(--eno-border);
 }
 
 .loading-wrap {
@@ -268,17 +289,33 @@ h1 {
   .singer-hero {
     flex-direction: column;
     align-items: flex-start;
-    padding: 16px 16px 8px;
+    padding: 20px 16px 8px;
   }
 
   .header-avatar {
-    width: 148px;
-    height: 148px;
+    width: 132px;
+    height: 132px;
+  }
+
+  .control-bar {
+    flex-wrap: wrap;
+    padding: 16px 16px 8px;
   }
 
   .search-wrapper {
     width: 100%;
     margin-left: 0;
+  }
+
+  .song-list {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .external-link {
+    transition: none;
   }
 }
 </style>

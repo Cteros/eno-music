@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
   <meta charset="UTF-8">
   <meta name="referrer" content="no-referrer">
   <base target="_blank">
-  <title>ENO-MUSIC</title>
+  <title>ENO-M</title>
   <style>
     html, body {
       margin: 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', sans-serif;
-      background: #000;
-      color: #fff;
+      font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+      background: #16151a;
+      color: #f0ebdd;
     }
 
     #eno-splash {
@@ -21,7 +21,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #000;
+      background: #16151a;
       animation: splash-life 2.1s ease forwards;
       pointer-events: none;
     }
@@ -35,16 +35,17 @@
     #eno-splash .splash-tally {
       width: 3px;
       height: 22px;
-      background: #1ed760;
+      background: #b5342a;
       transform: scaleY(0);
       transform-origin: center;
       animation: splash-tally 0.42s 0.06s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     #eno-splash .splash-name {
+      font-family: 'Songti SC', 'STSong', 'SimSun', serif;
       font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
+      font-weight: 900;
+      letter-spacing: 0.12em;
       line-height: 1;
       opacity: 0;
       transform: translate3d(-8px, 0, 0);

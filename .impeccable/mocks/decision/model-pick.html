@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>卡带 J-card · ENO-M 首屏</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1440px; height:900px; overflow:hidden; }
+  body {
+    background:#191713; color:#ece4cf;
+    font-family:"PingFang SC","Helvetica Neue",sans-serif;
+    display:flex; flex-direction:column;
+  }
+  .app { flex:1; display:flex; min-height:0; }
+  /* —— 左侧导航（标准外壳）—— */
+  .rail { width:220px; border-right:1px solid rgba(236,228,207,.16); padding:28px 20px; display:flex; flex-direction:column; gap:24px; }
+  .brand { font-size:26px; font-weight:800; letter-spacing:.1em; }
+  .brand .tag { display:inline-block; background:#ece4cf; color:#191713; font-size:13px; padding:2px 8px; letter-spacing:.22em; margin-left:8px; transform:rotate(-2deg); }
+  .nav-item { font-size:20px; color:rgba(236,228,207,.6); padding:8px 10px; }
+  .nav-item.on { color:#191713; background:#ece4cf; font-weight:700; }
+  .nav-cap { font-size:15px; letter-spacing:.34em; color:rgba(236,228,207,.4); margin-top:12px; }
+  /* —— 主区：J-card 竖栏 —— */
+  .page { flex:1; padding:40px 56px 24px; overflow:hidden; }
+  .jcard { background:#ece4cf; color:#191713; padding:30px 38px 26px; width:860px; box-shadow:0 18px 48px rgba(0,0,0,.5); }
+  .jcard .cap { font-size:15px; letter-spacing:.5em; color:#dd4f38; }
+  .jcard h1 { font-size:50px; font-weight:800; letter-spacing:-.01em; margin-top:8px; }
+  .jcard h1 .hand { font-weight:400; font-style:italic; color:#2c4a91; margin-left:16px; }
+  .faces { display:flex; gap:56px; margin-top:26px; }
+  .face { flex:1; }
+  .face h2 { font-size:24px; letter-spacing:.32em; padding-bottom:8px; border-bottom:3px solid #191713; display:flex; }
+  .face h2 .dot { width:12px; height:12px; border-radius:50%; background:#dd4f38; margin-left:auto; }
+  .tr { display:flex; align-items:center; height:58px; border-bottom:1px solid rgba(25,23,19,.25); }
+  .tr .no { width:52px; font-size:19px; letter-spacing:.12em; color:rgba(25,23,19,.55); }
+  .tr .nm { font-size:25px; font-weight:600; }
+  .tr .len { margin-left:auto; width:52px; height:10px; background:rgba(25,23,19,.22); }
+  .tr.now .nm { color:#dd4f38; }
+  .tr.now .no::after { content:"▶"; font-size:15px; margin-left:6px; color:#dd4f38; }
+  .bars { display:flex; gap:2px; align-items:flex-end; height:26px; margin-top:22px; }
+  .bars i { width:5px; background:#2c4a91; }
+  /* —— 底部播放条（标准外壳）—— */
+  .player { height:104px; border-top:2px solid #ece4cf; display:flex; align-items:center; padding:0 40px; gap:28px; background:#221f19; }
+  .cassette { width:120px; height:68px; background:#191713; border:2px solid #ece4cf; display:flex; align-items:center; justify-content:center; gap:22px; position:relative; }
+  .reel { width:30px; height:30px; border-radius:50%; border:3px solid #ece4cf; background:radial-gradient(circle,#ece4cf 22%,#191713 24%); }
+  .cassette .lab { position:absolute; top:5px; left:50%; transform:translateX(-50%); width:70px; height:10px; background:#dd4f38; }
+  .meta .name { font-size:24px; font-weight:700; }
+  .meta .side { display:inline-block; background:#2c4a91; color:#ece4cf; font-size:13px; letter-spacing:.24em; padding:2px 9px; margin-left:12px; }
+  .meta .by { margin-top:8px; width:180px; height:11px; background:rgba(236,228,207,.22); }
+  .transport { margin-left:auto; display:flex; align-items:center; gap:22px; }
+  .tbtn { width:22px; height:22px; background:rgba(236,228,207,.6); }
+  .tbtn.play { width:52px; height:52px; border-radius:50%; background:#dd4f38; }
+  .progress { position:absolute; left:0; top:-2px; width:100%; height:2px; background:rgba(236,228,207,.18); }
+  .progress i { display:block; width:38%; height:100%; background:#dd4f38; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">ENO-M<span class="tag">TDK 式</span></div>
+      <div class="nav-item on">首页</div>
+      <div class="nav-item">搜索</div>
+      <div class="nav-item">直播</div>
+      <div class="nav-item">关注人更新</div>
+      <div class="nav-cap">M Y&nbsp;&nbsp;L I B R A R Y</div>
+      <div class="nav-item">媒体库</div>
+      <div class="nav-item">稍后播放</div>
+      <div class="nav-item">最近播放</div>
+      <div class="nav-item">关注的音乐人</div>
+    </aside>
+    <main class="page">
+      <div class="jcard">
+        <div class="cap">MIXTAPE · BILIBILI 音乐榜 · 第 44 周</div>
+        <h1>本周攒的这一盘<span class="hand">side A / side B</span></h1>
+        <div class="faces">
+          <div class="face">
+            <h2>A 面<span class="dot"></span></h2>
+            <div class="tr now"><div class="no">A1</div><div class="nm">群青</div><div class="len"></div></div>
+            <div class="tr"><div class="no">A2</div><div class="nm">曇天</div><div class="len"></div></div>
+            <div class="tr"><div class="no">A3</div><div class="nm">Lemon</div><div class="len"></div></div>
+            <div class="tr"><div class="no">A4</div><div class="nm">打上花火</div><div class="len"></div></div>
+            <div class="bars"><i style="height:40%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:95%"></i><i style="height:30%"></i><i style="height:70%"></i><i style="height:50%"></i></div>
+          </div>
+          <div class="face">
+            <h2>B 面<span class="dot"></span></h2>
+            <div class="tr"><div class="no">B1</div><div class="nm">夜に駆ける</div><div class="len"></div></div>
+            <div class="tr"><div class="no">B2</div><div class="nm">残酷な天使のテーゼ</div><div class="len"></div></div>
+            <div class="tr"><div class="no">B3</div><div class="nm">紅蓮華</div><div class="len"></div></div>
+            <div class="tr"><div class="no">B4</div><div class="nm">炎</div><div class="len"></div></div>
+            <div class="bars"><i style="height:55%"></i><i style="height:35%"></i><i style="height:85%"></i><i style="height:45%"></i><i style="height:75%"></i><i style="height:40%"></i><i style="height:60%"></i></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="player" style="position:relative">
+    <div class="progress"><i></i></div>
+    <div class="cassette"><div class="lab"></div><div class="reel"></div><div class="reel"></div></div>
+    <div class="meta"><span class="name">群青</span><span class="side">SIDE A</span><div class="by"></div></div>
+    <div class="transport">
+      <div class="tbtn"></div><div class="tbtn play"></div><div class="tbtn"></div>
+    </div>
+  </div>
+</body>
+</html>

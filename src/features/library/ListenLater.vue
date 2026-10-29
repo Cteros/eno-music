@@ -25,28 +25,37 @@ function handleRemoveListenLater(song) {
 <template>
   <div class="later-page">
     <header class="later-hero">
-      <div class="later-cover">
-        <div class="i-mingcute:bookmark-fill" />
+      <div class="later-head">
+        <div class="later-title-row">
+          <h1 class="later-title">
+            稍后播放
+          </h1>
+          <span class="eno-seal eno-seal--round">待听</span>
+        </div>
+        <p class="later-count">
+          {{ PLStore.listenLater?.length || 0 }} 首
+        </p>
       </div>
-      <div>
-        <div class="kicker">
-          播放列表
-        </div>
-        <h1>稍后播放</h1>
-        <p>{{ PLStore.listenLater?.length || 0 }} 首</p>
-        <div class="later-actions">
-          <button class="play-all" type="button" @click.stop="handlePlayLater">
-            <div class="i-tabler:player-play-filled" />
-          </button>
-          <button class="ghost" type="button" @click="PLStore.listenLater = []">
-            清空全部
-          </button>
-        </div>
+      <div class="later-actions">
+        <button class="play-all" type="button" title="播放全部" @click.stop="handlePlayLater">
+          <div class="i-tabler:player-play-filled" />
+        </button>
+        <button class="ghost" type="button" title="清空列表" @click="PLStore.listenLater = []">
+          清空全部
+        </button>
       </div>
     </header>
     <div class="later-list">
-      <div v-if="!PLStore.listenLater.length" class="empty">
-        暂无数据
+      <div v-if="!PLStore.listenLater.length" class="eno-empty">
+        <div class="eno-empty__icon">
+          <div class="i-tabler:clock-play" />
+        </div>
+        <div class="eno-empty__title">
+          还没有待听的歌
+        </div>
+        <div class="eno-empty__hint">
+          在歌曲行点「稍后再听」收进来
+        </div>
       </div>
       <SongItem
         v-for="(item, index) in PLStore.listenLater"
@@ -65,119 +74,113 @@ function handleRemoveListenLater(song) {
 .later-page {
   height: 100%;
   overflow: auto;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 14%, transparent) 0%, transparent 46%);
+  padding: 28px 32px 40px;
 }
 
 .later-hero {
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
   gap: 24px;
-  padding: 32px;
 }
 
-.later-cover {
+.later-title-row {
   display: flex;
-  width: 192px;
-  height: 192px;
-  flex-shrink: 0;
   align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  font-size: 80px;
-  color: #fff;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--eno-cover-accent, #1ed760) 42%, #282828), #181818);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
+  gap: 16px;
 }
 
-.kicker {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-h1 {
-  margin: 8px 0 12px;
-  font-size: 64px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
-p {
+.later-title {
   margin: 0;
-  color: #b3b3b3;
+  font-family: var(--app-font-display);
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+}
+
+.later-count {
+  margin: 10px 0 0;
+  color: var(--eno-text-3);
+  font-size: 13px;
+  letter-spacing: 0.08em;
 }
 
 .later-actions {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 16px;
-  margin-top: 20px;
+  gap: 12px;
+  padding-bottom: 4px;
 }
 
 .play-all {
   display: inline-flex;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   border: 0;
   border-radius: 50%;
-  color: #000;
-  background: #1ed760;
-  font-size: 24px;
+  color: var(--lp-paper);
+  background: var(--eno-primary);
+  font-size: 22px;
   cursor: pointer;
-  transition: transform 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
 }
 
 .play-all:hover {
-  transform: scale(1.06);
-  background: #3be477;
+  background: var(--eno-primary-hover);
+  transform: translateY(-1px);
 }
 
 .play-all:active {
-  transform: scale(0.94);
-  background: #1abc54;
+  transform: translateY(1px);
 }
 
 .ghost {
+  height: 36px;
+  padding: 0 14px;
   border: 0;
+  border-radius: var(--eno-radius-md);
+  color: var(--eno-text-2);
   background: transparent;
-  color: #b3b3b3;
-  font-weight: 700;
+  font-family: var(--app-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
 }
 
 .ghost:hover {
-  color: #fff;
+  color: var(--eno-text-1);
+  background: var(--eno-fill-1);
 }
 
 .ghost:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .later-list {
-  padding: 8px 16px 40px;
+  margin-top: 24px;
 }
 
-.empty {
-  padding: 24px 16px;
-  color: #b3b3b3;
+.later-list :deep(.song-item) {
+  border-bottom: 1px solid var(--eno-border);
 }
 
 @media (max-width: 860px) {
+  .later-page {
+    padding: 20px 16px 32px;
+  }
+
   .later-hero {
     flex-direction: column;
     align-items: flex-start;
-    padding: 20px 16px;
   }
 
-  h1 {
-    font-size: 36px;
-  }
-
-  .later-cover {
-    width: 148px;
-    height: 148px;
+  .later-actions {
+    padding-bottom: 0;
   }
 }
 </style>

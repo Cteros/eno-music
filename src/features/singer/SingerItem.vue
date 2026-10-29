@@ -30,22 +30,23 @@ function handleSingerDetail(singerMid) {
 
 <template>
   <div
-    class="singer-card group"
+    class="singer-row eno-row group"
     @click.stop="handleSingerDetail(singerMid)"
   >
     <div class="avatar-wrap">
       <img
         :src="avatar"
-        alt="singerAvatar"
+        alt=""
         class="singer-avatar"
       >
       <button
         v-if="canDel"
         type="button"
         class="del-btn"
+        title="移除"
         @click.stop="PLstore.removeSinger(singerMid)"
       >
-        <div class="i-mingcute:delete-3-line" />
+        <div class="i-tabler:trash" />
       </button>
     </div>
     <div class="singer-name">
@@ -58,93 +59,96 @@ function handleSingerDetail(singerMid) {
 </template>
 
 <style scoped>
-.singer-card {
-  width: 180px;
-  padding: 16px;
-  border: 1px solid var(--eno-border, rgb(255 255 255 / 7%));
-  border-radius: var(--eno-radius-xl, 16px);
-  background: var(--eno-content, #16161c);
+/* 名录行：一列人名，靠字重字号分层 */
+.singer-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--eno-border);
   cursor: pointer;
-  transition:
-    background-color 0.2s var(--eno-ease),
-    transform 0.2s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)),
-    border-color 0.2s var(--eno-ease),
-    box-shadow 0.2s var(--eno-ease);
-}
-
-.singer-card:hover {
-  transform: translateY(-4px);
-  border-color: rgb(255 255 255 / 14%);
-  background: var(--eno-content-hover, #26262f);
-  box-shadow: 0 10px 28px rgb(0 0 0 / 45%), 0 0 24px rgb(30 215 96 / 10%);
-}
-
-.singer-card:hover .singer-avatar {
-  box-shadow: 0 8px 24px rgb(0 0 0 / 50%), 0 0 0 2px rgb(30 215 96 / 40%), 0 0 22px rgb(30 215 96 / 22%);
-  transform: scale(1.03);
-}
-
-.singer-card:active {
-  transform: translateY(0) scale(0.98);
 }
 
 .avatar-wrap {
   position: relative;
-  margin-bottom: 16px;
+  width: 56px;
+  height: 56px;
 }
 
 .singer-avatar {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-md);
   object-fit: cover;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 50%);
-  transition: transform 0.22s var(--eno-ease-pop, cubic-bezier(0.34, 1.4, 0.64, 1)), box-shadow 0.22s var(--eno-ease);
+  transition: border-color 0.16s var(--eno-ease);
 }
 
-.del-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  display: none;
-  width: 28px;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  color: #fff;
-  background: rgb(0 0 0 / 70%);
-  cursor: pointer;
-}
-
-.group:hover .del-btn {
-  display: inline-flex;
-}
-
-.del-btn:hover {
-  transform: scale(1.08);
-}
-
-.del-btn:active {
-  transform: scale(0.9);
+.singer-row:hover .singer-avatar {
+  border-color: rgb(240 235 221 / 30%);
 }
 
 .singer-name {
   overflow: hidden;
+  color: var(--eno-text-1);
+  font-family: var(--app-font-display);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
 }
 
 .singer-desc {
-  margin-top: 4px;
   overflow: hidden;
+  color: var(--eno-text-3);
+  font-size: 12px;
+  letter-spacing: 0.06em;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
-  color: #b3b3b3;
+}
+
+.del-btn {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--eno-border);
+  border-radius: var(--eno-radius-sm);
+  color: var(--eno-text-2);
+  background: var(--lp-ink-2);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s var(--eno-ease), color 0.16s var(--eno-ease), background-color 0.16s var(--eno-ease);
+}
+
+.group:hover .del-btn,
+.del-btn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.del-btn:hover {
+  color: var(--lp-seal-bright);
+  background: var(--eno-primary-light);
+}
+
+.del-btn:active {
+  transform: scale(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .singer-avatar,
+  .del-btn {
+    transition: none;
+    transform: none;
+  }
 }
 </style>

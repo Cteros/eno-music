@@ -68,34 +68,38 @@ function addNewSeasonPlayList() {
 <template>
   <div>
     <button
-      :class="props.compact ? 'media-action-btn' : 'media-action-btn media-action-btn-lg'"
+      :class="props.compact ? 'btn' : 'btn import-btn--lg'"
       @click.stop="season.open = true"
     >
-      <div class="i-tabler:download w-1em h-1em" />
+      <div class="i-tabler:download" />
       导入合集
     </button>
     <Dialog :open="season.open" title="解析合集列表" @visible-change="v => season.open = v">
       <div class="flex flex-col gap-3">
         <div class="flex gap-3">
           <input
-            v-model="season.url" type="text" bg="$eno-fill-dark-1 focus:$eno-content-hover"
-            class="w-full px-4 py-2 rounded-4" focus:outline-none focus:shadow-outline placeholder="合集链接"
+            v-model="season.url" type="text"
+            class="eno-input import-input"
+            placeholder="合集链接"
             @keyup.enter="handleSearchSeason"
           >
-          <button class="btn-primary w-20" @click="handleSearchSeason">
+          <button class="btn import-parse" @click="handleSearchSeason">
             解析
           </button>
         </div>
         <!-- 歌曲列表 -->
-        <div class="flex-1 overflow-auto">
+        <div class="flex-1 overflow-auto import-list">
           <SongItem
             v-for="song in season.mediaSong" :key="song.id" :song="song" del size="mini" :later="false" :star="false"
             @delete-song="season.mediaSong = season.mediaSong.filter(s => s.id !== song.id)"
           />
+          <div v-if="!season.mediaSong.length && !season.url" class="import-hint">
+            粘贴合集链接，点「解析」读取
+          </div>
         </div>
       </div>
       <template #footer>
-        <button class="w-full btn-primary" @click="addNewSeasonPlayList">
+        <button class="btn-primary import-submit" @click="addNewSeasonPlayList">
           添加为歌单
         </button>
       </template>
@@ -104,32 +108,33 @@ function addNewSeasonPlayList() {
 </template>
 
 <style scoped>
-.media-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 16px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #000;
-  background: #fff;
-  cursor: pointer;
-  transition: transform 0.16s var(--eno-ease);
-}
-
-.media-action-btn:hover {
-  transform: scale(1.04);
-}
-
-.media-action-btn:active {
-  transform: scale(0.97);
-}
-
-.media-action-btn-lg {
+.import-btn--lg {
   height: 40px;
   padding: 0 20px;
+}
+
+.import-input {
+  height: 36px;
+  min-width: 0;
+  flex: 1;
+  padding: 0 12px;
+}
+
+.import-parse {
+  flex-shrink: 0;
+}
+
+.import-submit {
+  width: 100%;
+}
+
+.import-hint {
+  padding: 8px 12px;
+  color: var(--eno-text-3);
+  font-size: 13px;
+}
+
+.import-list :deep(.song-item) {
+  border-bottom: 1px solid var(--eno-border);
 }
 </style>

@@ -129,6 +129,7 @@ tick()
   right: 42%;
 }
 
+/* 弹幕文字：暖纸色，暗部描边保证亮画面上可读 */
 .danmaku-item {
   position: absolute;
   left: 100%;
@@ -137,10 +138,11 @@ tick()
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 2px 0;
-  color: rgb(255 255 255 / 92%);
+  color: var(--lp-paper);
+  font-family: var(--app-font-sans);
   font-size: 15px;
   font-weight: 600;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 75%), 0 0 2px rgb(0 0 0 / 55%);
   animation: danmaku-fly 9.5s linear forwards;
   will-change: transform;
 }
